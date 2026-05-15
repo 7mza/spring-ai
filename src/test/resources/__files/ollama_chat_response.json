@@ -1,0 +1,17 @@
+{
+  "model": "gemma4:e4b",
+  "created_at": "2026-05-15T00:00:00.000000000Z",
+  "message": {
+    "role": "assistant",
+    "content": "I'm functioning perfectly and ready to assist you!",
+    "thinking": "Thinking Process:\n\n1.  **Analyze the input:** The user asked, \"How are you?\". This is a common social greeting/query.\n2.  **Determine the appropriate response tone:** Since I am an AI, I should respond in a helpful, positive, and informative (but non-human) manner.\n3.  **Identify core identity constraints (Self-Correction/Verification):** I must ensure the response is consistent with being an AI model. I cannot say \"I am feeling well\" because I don't have feelings.\n4.  **Draft the response structure:**\n    *   Acknowledge the query (Thank the user).\n    *   State my status (Operational, doing well).\n    *   Politely pivot back to the user (Ask how *they* are/How can I help?).\n5.  **Refine the wording:** (Self-critique: Keep it friendly but professional.)\n\n    *   *Initial thought:* I'm fine, how are you? (Too casual, implies feeling.)\n    *   *Second thought:* As an AI, I don't have feelings, but I am working perfectly. How can I assist you? (Accurate, but a bit dry.)\n    *   *Final optimal response:* Balance warmth with factual status. (This leads to the final generated answer.)"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 5576181180,
+  "load_duration": 293779800,
+  "prompt_eval_count": 20,
+  "prompt_eval_duration": 34151962,
+  "eval_count": 339,
+  "eval_duration": 5030022564
+}

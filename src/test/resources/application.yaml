@@ -1,0 +1,26 @@
+logging:
+  include-application-name: false
+  level:
+    com.hamza: debug
+server:
+  port: 0
+  ssl:
+    enabled: false
+spring:
+  ai:
+    ollama:
+      chat:
+        model: llama3.2:1b
+      init:
+        pull-model-strategy: when_missing
+  main:
+    banner-mode: off
+  output:
+    ansi:
+      enabled: always
+  threads:
+    virtual:
+      enabled: true
+wiremock:
+  server:
+    port: 0

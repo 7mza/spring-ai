@@ -1,0 +1,14 @@
+services:
+  ollama:
+    extends:
+      file: compose.yaml
+      service: ollama
+    profiles:
+      - ollama
+
+  qdrant:
+    extends:
+      file: compose.yaml
+      service: qdrant
+    profiles:
+      - qdrant

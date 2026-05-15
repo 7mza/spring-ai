@@ -1,0 +1,105 @@
+logging:
+  include-application-name: false
+  level:
+    com.hamza: debug
+management:
+  endpoint:
+    env:
+      show-values: always
+    health:
+      group:
+        readiness:
+          include: "*"
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+server:
+  compression:
+    enabled: true
+    mime-types: application/javascript, application/json, application/xml, text/css, text/html, text/javascript, text/plain, text/xml
+    min-response-size: 1500B
+  forward-headers-strategy: native
+  http2:
+    enabled: true
+  port: 8080
+  ssl:
+    enabled: false
+spring:
+  ai:
+    ollama:
+      chat:
+        model: llama3.2:1b
+      init:
+        pull-model-strategy: when_missing
+  application:
+    name: spring-ai
+  config:
+    activate:
+      on-profile: default
+  devtools:
+    livereload:
+      enabled: true
+  docker:
+    compose:
+      enabled: true
+      file: compose.spring.yaml
+      profiles:
+        active:
+          - ollama
+          - qdrant
+  main:
+    banner-mode: off
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+  output:
+    ansi:
+      enabled: always
+  web:
+    error:
+      include-exception: true
+      include-message: always
+      include-stacktrace: always
+  threads:
+    virtual:
+      enabled: true
+springdoc:
+  api-docs:
+    path: /api-docs
+  cache:
+    disabled: true
+  packagesToScan: com.hamza
+  pathsToMatch: /**
+  swagger-ui:
+    disable-swagger-default-url: true
+    doc-expansion: none
+    operationsSorter: method
+    path: /swagger-ui
+    tagsSorter: alpha
+---
+server:
+  port: 80
+spring:
+  ai:
+    ollama:
+      base-url: http://ollama:11434
+  config:
+    activate:
+      on-profile: docker
+  devtools:
+    add-properties: false
+    livereload:
+      enabled: false
+    restart:
+      enabled: false
+  docker:
+    compose:
+      enabled: false

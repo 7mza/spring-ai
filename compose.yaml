@@ -1,0 +1,56 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    ports:
+      - "11434"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/localhost/11434'"]
+      start_period: 30s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: unless-stopped
+    ports:
+      - "6333"
+      - "6334"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/localhost/6333'"]
+      start_period: 30s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  spring-ai:
+    image: spring-ai:latest
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+    environment:
+      SPRING_PROFILES_ACTIVE: default, docker
+      JAVA_TOOL_OPTIONS: |
+        -Dspring.aot.enabled=false
+        -XX:+UseG1GC
+        -XX:+UseStringDeduplication
+    depends_on:
+      ollama:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh",
+          "-c",
+          'wget -qO- localhost/actuator/health/liveness | grep -q "UP" || exit 1',
+        ]
+      start_period: 30s
+      interval: 30s
+      timeout: 10s
+      retries: 3
