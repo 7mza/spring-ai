@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/git,java,node,linux,gradle,kotlin,intellij+all,visualstudiocode,windows,macos
-# Edit at https://www.toptal.com/developers/gitignore?templates=git,java,node,linux,gradle,kotlin,intellij+all,visualstudiocode,windows,macos
+# Created by https://www.toptal.com/developers/gitignore/api/git,java,node,linux,macos,gradle,kotlin,windows,intellij+all,visualstudiocode
+# Edit at https://www.toptal.com/developers/gitignore?templates=git,java,node,linux,macos,gradle,kotlin,windows,intellij+all,visualstudiocode
 
 ### Git ###
 # Created by git for backups. To disable backups in Git:
@@ -266,7 +266,7 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
-#.env.example
+.env
 .env.development.local
 .env.test.local
 .env.production.local
@@ -402,4 +402,4 @@ gradle-app.setting
 # Java heap dump
 *.hprof
 
-# End of https://www.toptal.com/developers/gitignore/api/git,java,node,linux,gradle,kotlin,intellij+all,visualstudiocode,windows,macos
+# End of https://www.toptal.com/developers/gitignore/api/git,java,node,linux,macos,gradle,kotlin,windows,intellij+all,visualstudiocode

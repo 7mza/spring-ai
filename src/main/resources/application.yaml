@@ -86,6 +86,8 @@ springdoc:
     tagsSorter: alpha
 ---
 server:
+  compression:
+    enabled: false
   port: 80
 spring:
   ai:

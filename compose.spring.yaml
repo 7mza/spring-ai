@@ -12,3 +12,7 @@ services:
       service: qdrant
     profiles:
       - qdrant
+
+volumes:
+  ollama_data:
+    name: ollama_data

@@ -35,11 +35,13 @@ extra["springCloudVersion"] = "2025.1.1"
 
 val mockitoAgent: Configuration = configurations.create("mockitoAgent")
 
+val awaitilityVersion = "4.3.0"
 val junitPioneerVersion = "2.3.0"
 val mockitoCoreVersion = "5.23.0"
 val mockitoKotlinVersion = "6.3.0"
 val openapiVersion = "3.0.3"
 val picocliVersion = "4.7.7"
+val springRetryVersion = "2.0.12"
 val wiremockSpringBootVersion = "4.2.1"
 
 dependencies {
@@ -50,8 +52,6 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
     // implementation("info.picocli:picocli-spring-boot-starter:$picocliVersion")
-    implementation("org.springframework.boot:spring-boot-starter-aspectj")
-    implementation("org.springframework.retry:spring-retry:2.0.12")
     implementation("org.eclipse.jetty.http2:jetty-http2-server")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$openapiVersion")
@@ -60,22 +60,27 @@ dependencies {
     // implementation("org.springframework.ai:spring-ai-starter-vector-store-qdrant")
     // implementation("org.springframework.ai:spring-ai-tika-document-reader")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-aspectj")
     implementation("org.springframework.boot:spring-boot-starter-jetty")
     implementation("org.springframework.boot:spring-boot-starter-restclient")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webmvc") {
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
     }
     implementation("org.springframework.cloud:spring-cloud-function-web")
+    implementation("org.springframework.retry:spring-retry:$springRetryVersion")
     implementation("tools.jackson.module:jackson-module-kotlin")
 
     mockitoAgent("org.mockito:mockito-core:$mockitoCoreVersion") { isTransitive = false }
 
+    testImplementation("org.awaitility:awaitility-kotlin:$awaitilityVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.junit-pioneer:junit-pioneer:$junitPioneerVersion")
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
     testImplementation("org.springframework.ai:spring-ai-spring-boot-testcontainers")
     testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
     testImplementation("org.springframework.boot:spring-boot-starter-restclient-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:testcontainers-junit-jupiter")

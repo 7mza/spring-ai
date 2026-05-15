@@ -1,6 +1,6 @@
 # [Spring AI](https://docs.spring.io/spring-ai/reference/)
 
-Experimentation playground
+[nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
 
 [sdkman](https://sdkman.io/)
 
