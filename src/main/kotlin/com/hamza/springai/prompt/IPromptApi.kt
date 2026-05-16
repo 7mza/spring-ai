@@ -23,10 +23,7 @@ interface IPromptApi {
     @PostMapping
     @Operation(
         summary = "Send a chat prompt to configured LLM backend",
-        description = """
-Return a **simple text response** with no parsing.<br />
-(Local LLMs are not accurate).
-""",
+        description = """Return a **simple text response** with no parsing.""",
     )
     @ApiResponses(
         value = [
@@ -58,9 +55,8 @@ Return a **simple text response** with no parsing.<br />
     @Operation(
         summary = "Ask LLM to generate a list of songs",
         description = """
-Return an **object wrapper response** from LLM with automatic parsing.<br />
+Return a JSON **object wrapper** from LLM with automatic parsing.<br />
 Retry mechanism for parsing errors.<br />
-(Local LLMs are not accurate).
 """,
     )
     @ApiResponses(
@@ -91,14 +87,15 @@ Retry mechanism for parsing errors.<br />
         ) @RequestParam(required = true) year: Int = 2006,
     ): SongResponse
 
-    @GetMapping("/movie", produces = [MediaType.TEXT_PLAIN_VALUE])
+    @GetMapping(
+        value = ["/movie"],
+        produces = [MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_NDJSON_VALUE, MediaType.TEXT_EVENT_STREAM_VALUE],
+    )
     @Operation(
         summary = "Ask LLM to generate a list of movies",
         description = """
 Return a **streamed plain-text response** from LLM with no parsing.<br />
-Tokens are emitted as they are generated.<br />
-Consume with `curl -N http://localhost:8080/api/prompt/movie?year=2013` or an SSE client.<br />
-(Local LLMs are not accurate).
+Tokens are emitted as they are generated. Consume with `curl -N` or an SSE client.<br />
 """,
     )
     @ApiResponses(
@@ -121,6 +118,14 @@ Line 3
 """,
                             ),
                         ],
+                    ),
+                    Content(
+                        mediaType = MediaType.APPLICATION_NDJSON_VALUE,
+                        schema = Schema(type = "string"),
+                    ),
+                    Content(
+                        mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+                        schema = Schema(type = "string"),
                     ),
                 ],
             ),

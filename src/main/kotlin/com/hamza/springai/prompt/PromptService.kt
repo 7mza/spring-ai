@@ -2,6 +2,7 @@ package com.hamza.springai.prompt
 
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
+import org.springframework.ai.chat.client.responseEntity
 import org.springframework.ai.chat.prompt.ChatOptions
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
@@ -51,17 +52,26 @@ class PromptService(
     override fun songs(year: Int): SongResponse {
         val attempt = RetrySynchronizationManager.getContext()?.retryCount ?: 0
         if (attempt > 0) logger.debug("LLM response parsing failed, retry attempt {}", attempt)
-        return chatClientBuilder
-            .build()
-            .prompt()
-            .user {
-                it
-                    .text(prompt)
-                    .param("topic", "song")
-                    .param("year", year)
-            }.call()
-            .entity(SongResponse::class.java)!!
+        val responseEntity =
+            chatClientBuilder
+                .build()
+                .prompt()
+                .user {
+                    it
+                        .text(prompt)
+                        .param("topic", "song")
+                        .param("year", year)
+                }.call()
+                .responseEntity<SongResponse>()
         // .entity(object : ParameterizedTypeReference<List<String>>() {})!! if no wrapper
+        val usage = responseEntity.response()?.metadata?.usage
+        logger.debug(
+            "token usage: prompt={}, generation={}, total={}",
+            usage?.promptTokens,
+            usage?.completionTokens,
+            usage?.totalTokens,
+        )
+        return responseEntity.entity()!!
     }
 
     override fun movies(year: Int): Flux<String> =
