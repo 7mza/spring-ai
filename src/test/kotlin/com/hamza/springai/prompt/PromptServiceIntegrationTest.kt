@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
+import reactor.test.StepVerifier
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(OllamaContainerWithGpu::class)
@@ -39,5 +40,16 @@ class PromptServiceIntegrationTest {
         assertThat(response.response).isNotEmpty
 
         logger.debug("model: `{}` # response: `{}`", model, response)
+    }
+
+    @Test
+    fun movies() {
+        StepVerifier
+            .create(service.movies(2013))
+            .recordWith(::mutableListOf)
+            .expectNextCount(1) // at least 1
+            .thenConsumeWhile { true }
+            .consumeRecordedWith { logger.debug("model: `{}` # response: `{}`", model, it.joinToString("")) }
+            .verifyComplete()
     }
 }

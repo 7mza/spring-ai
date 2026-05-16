@@ -1,5 +1,4 @@
-.kotlin/**
-*.local.*
+.kotlin/*
 
 # Created by https://www.toptal.com/developers/gitignore/api/git,java,node,linux,macos,gradle,kotlin,windows,intellij+all,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=git,java,node,linux,macos,gradle,kotlin,windows,intellij+all,visualstudiocode

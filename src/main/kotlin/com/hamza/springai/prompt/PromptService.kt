@@ -9,18 +9,21 @@ import org.springframework.retry.annotation.Recover
 import org.springframework.retry.annotation.Retryable
 import org.springframework.retry.support.RetrySynchronizationManager
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import tools.jackson.core.JacksonException
 
 interface IPromptService {
     fun prompt(request: PromptRequest): PromptResponse
 
     fun songs(year: Int): SongResponse
+
+    fun movies(year: Int): Flux<String>
 }
 
 @Service
 class PromptService(
     private val chatClientBuilder: ChatClient.Builder,
-    @Value("classpath:/prompts/songs_prompt.st") private val prompt: Resource,
+    @Value("classpath:/prompts/topic_prompt.st") private val prompt: Resource,
 ) : IPromptService {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -54,10 +57,24 @@ class PromptService(
             .user {
                 it
                     .text(prompt)
+                    .param("topic", "song")
                     .param("year", year)
             }.call()
-            .entity(SongResponse::class.java)!! // ParameterizedTypeReference<X> if no wrapper
+            .entity(SongResponse::class.java)!!
+        // .entity(object : ParameterizedTypeReference<List<String>>() {})!! if no wrapper
     }
+
+    override fun movies(year: Int): Flux<String> =
+        chatClientBuilder
+            .build()
+            .prompt()
+            .user {
+                it
+                    .text(prompt)
+                    .param("topic", "movie")
+                    .param("year", year)
+            }.stream()
+            .content()
 
     @Recover
     fun songs(

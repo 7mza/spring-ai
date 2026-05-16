@@ -33,7 +33,7 @@ sdk env install
 Spring is configured with compose support, run with ide or
 
 ```shell
-./gradlew jibDockerBuild
+./gradlew jibDockerBuild -x test --no-build-cache && ./gradlew --stop
 ```
 
 ```shell
