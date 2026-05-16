@@ -1,7 +1,6 @@
 package com.hamza.springai.prompt
 
 import com.hamza.springai.NotRelevantException
-import org.hibernate.validator.internal.util.Contracts.assertNotNull
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.evaluation.Evaluator
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service
 interface IPromptService {
     fun prompt(
         request: PromptRequest,
-        evaluate: Boolean? = false,
+        evaluate: Boolean = false,
     ): PromptResponse
 
     fun evaluate(request: EvaluateRequest): PromptResponse
@@ -29,7 +28,7 @@ class PromptService(
     @Retryable(retryFor = [NotRelevantException::class], maxAttempts = 5)
     override fun prompt(
         request: PromptRequest,
-        evaluate: Boolean?,
+        evaluate: Boolean,
     ): PromptResponse {
         val attempt = RetrySynchronizationManager.getContext()?.retryCount ?: 0
         if (attempt > 0) logger.debug("response evaluation failed, retry attempt {}", attempt)
@@ -40,15 +39,15 @@ class PromptService(
             .call()
             .content()
             .let {
-                assertNotNull(it)
+                val content = checkNotNull(it) { "Chat response content was null" }
                 var evaluation: PromptResponse? = null
-                if (evaluate ?: false) {
-                    evaluation = evaluate(EvaluateRequest(request.prompt, it!!))
-                    if ((evaluation.evaluation?.pass ?: false).not()) throw NotRelevantException(request.prompt, it)
+                if (evaluate) {
+                    evaluation = evaluate(EvaluateRequest(request.prompt, content))
+                    if ((evaluation.evaluation?.pass ?: false).not()) throw NotRelevantException(request.prompt, content)
                 }
                 PromptResponse(
                     prompt = request.prompt,
-                    response = it,
+                    response = content,
                     evaluation = evaluation?.evaluation,
                 )
             }

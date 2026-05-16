@@ -21,7 +21,7 @@ interface IPromptApi {
     @PostMapping("/chat")
     @Operation(
         summary = "Send a chat prompt to configured LLM backend",
-        description = "TODO",
+        description = "Simple text prompt, response/evaluation is done by same small LLM, not accurate",
     )
     @ApiResponses(
         value = [
@@ -73,12 +73,12 @@ interface IPromptApi {
         @Parameter(
             description = "Evaluate relevancy of the response",
             example = "false",
-        ) @RequestParam(required = false, defaultValue = "false") evaluate: Boolean? = false,
+        ) @RequestParam(required = false, defaultValue = "false") evaluate: Boolean = false,
     ): PromptResponse
 
     @Operation(
         summary = "Evaluate prompt/response relevancy using configured LLM backend",
-        description = "TODO",
+        description = "Simple text prompt/response, evaluation is done by same small LLM, not accurate",
     )
     @ApiResponses(
         value = [

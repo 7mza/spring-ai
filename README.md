@@ -6,6 +6,8 @@
 
 [nvm](https://github.com/nvm-sh/nvm)
 
+[docker](https://docs.docker.com/engine/install/)
+
 [nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
 
 ## build

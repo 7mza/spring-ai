@@ -30,8 +30,6 @@ class PromptServiceIntegrationTest {
         val response = service.prompt(PromptRequest(prompt))
 
         assertThat(response.prompt).isEqualTo(prompt)
-        assertThat(response.response).isNotNull
-        assertThat(response.response!!).isNotEmpty
         assertThat(response.response).isNotBlank
         assertThat(response.evaluation).isNull()
 
@@ -43,13 +41,10 @@ class PromptServiceIntegrationTest {
         val response = service.prompt(PromptRequest(prompt), true)
 
         assertThat(response.prompt).isEqualTo(prompt)
-        assertThat(response.response).isNotNull
-        assertThat(response.response!!).isNotEmpty
         assertThat(response.response).isNotBlank
         assertThat(response.evaluation).isNotNull
         assertThat(response.evaluation!!.pass).isTrue
         assertThat(response.evaluation.score).isGreaterThanOrEqualTo(0.5f)
-        assertThat(response.evaluation.feedback).isNotNull
         assertThat(response.evaluation.feedback).isNotBlank
 
         // logger.debug("model: `{}` # response: `{}`", model, response)

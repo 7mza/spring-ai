@@ -45,7 +45,10 @@ class Configs(
                 .description("TODO"),
         )
 
-    // increase ollama client timeout
+    /*
+     * Increase ollama client timeout
+     * FIXME: does it override other defaultChatOptions ?
+     */
     @Bean
     fun ollamaApi(connectionDetails: OllamaConnectionDetails): OllamaApi =
         OllamaApi

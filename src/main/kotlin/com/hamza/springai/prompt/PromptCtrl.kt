@@ -8,7 +8,7 @@ class PromptCtrl(
 ) : IPromptApi {
     override fun prompt(
         request: PromptRequest,
-        evaluate: Boolean?,
+        evaluate: Boolean,
     ): PromptResponse = service.prompt(request, evaluate)
 
     override fun evaluate(request: EvaluateRequest): PromptResponse = service.evaluate(request)

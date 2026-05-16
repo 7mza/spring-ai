@@ -2,16 +2,14 @@ package com.hamza.springai.prompt
 
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotEmpty
 import org.springframework.ai.evaluation.EvaluationRequest
 import org.springframework.ai.evaluation.EvaluationResponse
 
 data class PromptRequest(
     @field:NotBlank
-    @field:NotEmpty
     @field:Schema(
         description = "prompt to send",
-        defaultValue = "What is the capital of France?",
+        example = "What is the capital of France?",
     )
     val prompt: String,
 )
@@ -24,17 +22,15 @@ data class PromptResponse(
 
 data class EvaluateRequest(
     @field:NotBlank
-    @field:NotEmpty
     @field:Schema(
         description = "prompt to evaluate",
-        defaultValue = "What is the capital of France?",
+        example = "What is the capital of France?",
     )
     val prompt: String,
     @field:NotBlank
-    @field:NotEmpty
     @field:Schema(
         description = "response to evaluate",
-        defaultValue = "The capital of France is Paris",
+        example = "The capital of France is Paris",
     )
     val response: String,
 ) {
