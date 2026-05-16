@@ -1,7 +1,11 @@
+logbook:
+  format:
+    style: http
 logging:
   include-application-name: false
   level:
     com.hamza: debug
+    org.zalando.logbook: off
 server:
   port: 0
   ssl:
@@ -11,6 +15,9 @@ spring:
     ollama:
       chat:
         model: llama3.2:1b
+        # temperature: 0.7
+        # top-k: 4
+        top-p: 0.8
       init:
         pull-model-strategy: when_missing
   main:
@@ -21,6 +28,11 @@ spring:
   threads:
     virtual:
       enabled: true
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
 wiremock:
   server:
     port: 0

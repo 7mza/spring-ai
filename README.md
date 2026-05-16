@@ -41,3 +41,7 @@ docker compose up --build
 ```
 
 [http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui)
+
+## misc
+
+[https://www.promptingguide.ai/](https://www.promptingguide.ai/)

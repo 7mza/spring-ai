@@ -37,6 +37,7 @@ val mockitoAgent: Configuration = configurations.create("mockitoAgent")
 
 val awaitilityVersion = "4.3.0"
 val junitPioneerVersion = "2.3.0"
+val logbookSpringVersion = "4.0.4"
 val mockitoCoreVersion = "5.23.0"
 val mockitoKotlinVersion = "6.3.0"
 val openapiVersion = "3.0.3"
@@ -69,6 +70,7 @@ dependencies {
     }
     implementation("org.springframework.cloud:spring-cloud-function-web")
     implementation("org.springframework.retry:spring-retry:$springRetryVersion")
+    implementation("org.zalando:logbook-spring-boot-starter:$logbookSpringVersion")
     implementation("tools.jackson.module:jackson-module-kotlin")
 
     mockitoAgent("org.mockito:mockito-core:$mockitoCoreVersion") { isTransitive = false }

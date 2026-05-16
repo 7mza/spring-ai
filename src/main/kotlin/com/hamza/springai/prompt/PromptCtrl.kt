@@ -6,10 +6,5 @@ import org.springframework.web.bind.annotation.RestController
 class PromptCtrl(
     private val service: IPromptService,
 ) : IPromptApi {
-    override fun prompt(
-        request: PromptRequest,
-        evaluate: Boolean,
-    ): PromptResponse = service.prompt(request, evaluate)
-
-    override fun evaluate(request: EvaluateRequest): PromptResponse = service.evaluate(request)
+    override fun prompt(request: PromptRequest): PromptResponse = service.prompt(request)
 }

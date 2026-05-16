@@ -1,4 +1,4 @@
-package com.hamza.springai.prompt
+package com.hamza.springai.evaluation
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -13,13 +13,16 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 
-@Tag(name = "prompt", description = "")
-@RequestMapping(value = ["/api/prompt"], produces = [MediaType.APPLICATION_JSON_VALUE])
-interface IPromptApi {
-    @PostMapping
+@Tag(name = "evaluation", description = "")
+@RequestMapping(value = ["/api/eval"], produces = [MediaType.APPLICATION_JSON_VALUE])
+interface IEvalApi {
     @Operation(
-        summary = "Send a chat prompt to configured LLM backend",
-        description = "Return simple text response with no parsing",
+        summary = "Evaluate & score prompt/response relevancy using configured LLM backend",
+        description = """
+Object response from LLM with automatic parsing.<br />
+Retry mechanism for parsing errors.<br />
+Evaluation is done by same local LLM (not accurate).
+""",
     )
     @ApiResponses(
         value = [
@@ -29,7 +32,7 @@ interface IPromptApi {
                 content = [
                     Content(
                         mediaType = MediaType.APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = PromptResponse::class),
+                        schema = Schema(implementation = EvalResponse::class),
                         examples = [
                             ExampleObject(
                                 name = "example-0",
@@ -37,7 +40,8 @@ interface IPromptApi {
                                 value = """
 {
   "prompt": "What is the capital of France?",
-  "response": "The capital of France is Paris."
+  "response": "The capital of France is Paris.",
+  "evaluation": { "pass": true, "score": 0.9, "feedback": "correct" }
 }
 """,
                             ),
@@ -47,7 +51,8 @@ interface IPromptApi {
             ),
         ],
     )
-    fun prompt(
-        @RequestBody @Valid request: PromptRequest,
-    ): PromptResponse
+    @PostMapping
+    fun eval(
+        @RequestBody @Valid request: EvalRequest,
+    ): EvalResponse
 }

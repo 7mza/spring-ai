@@ -9,12 +9,14 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.info.BuildProperties
 import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer
+import org.springframework.boot.restclient.RestClientCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.event.EventListener
 import org.springframework.http.client.JdkClientHttpRequestFactory
 import org.springframework.retry.annotation.EnableRetry
 import org.springframework.web.client.RestClient
+import org.zalando.logbook.spring.LogbookClientHttpRequestInterceptor
 import java.net.InetAddress
 import java.time.Duration
 
@@ -45,12 +47,18 @@ class Configs(
                 .description("TODO"),
         )
 
-    /*
-     * Increase ollama client timeout
+    @Bean
+    fun logbookCustomizer(interceptor: LogbookClientHttpRequestInterceptor): RestClientCustomizer =
+        RestClientCustomizer { it.requestInterceptor(interceptor) }
+
+    /* Increase ollama client timeout
      * FIXME: does it override other defaultChatOptions ?
      */
     @Bean
-    fun ollamaApi(connectionDetails: OllamaConnectionDetails): OllamaApi =
+    fun ollamaApi(
+        connectionDetails: OllamaConnectionDetails,
+        interceptor: LogbookClientHttpRequestInterceptor,
+    ): OllamaApi =
         OllamaApi
             .builder()
             .baseUrl(connectionDetails.baseUrl)
@@ -61,6 +69,6 @@ class Configs(
                         JdkClientHttpRequestFactory().apply {
                             setReadTimeout(Duration.ofMinutes(2))
                         },
-                    ),
+                    ).requestInterceptor(interceptor),
             ).build()
 }
