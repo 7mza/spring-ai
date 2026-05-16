@@ -31,4 +31,13 @@ class PromptServiceIntegrationTest {
 
         logger.debug("model: `{}` # response: `{}`", model, response)
     }
+
+    @Test
+    fun songs() {
+        val response = service.songs(2006)
+
+        assertThat(response.response).isNotEmpty
+
+        logger.debug("model: `{}` # response: `{}`", model, response)
+    }
 }

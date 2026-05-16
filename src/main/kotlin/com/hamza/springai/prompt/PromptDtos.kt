@@ -16,3 +16,11 @@ data class PromptResponse(
     val prompt: String,
     val response: String,
 )
+
+data class Song(
+    val title: String,
+)
+
+data class SongResponse(
+    val response: List<Song>,
+)

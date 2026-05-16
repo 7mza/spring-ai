@@ -23,7 +23,7 @@ class OllamaContainerWithGpu {
     @ServiceConnection
     fun ollamaContainer(): OllamaContainer =
         OllamaContainer(DockerImageName.parse("ollama/ollama:latest"))
-            .withEnv("OLLAMA_NUM_PARALLEL", "2")
+            .withEnv("OLLAMA_NUM_PARALLEL", "4")
             .withEnv("OLLAMA_MAX_LOADED_MODELS", "1")
             .withCreateContainerCmdModifier {
                 it.hostConfig!!
