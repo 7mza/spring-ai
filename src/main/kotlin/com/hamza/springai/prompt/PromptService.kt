@@ -1,15 +1,22 @@
 package com.hamza.springai.prompt
 
+import com.hamza.springai.NotRelevantException
+import org.hibernate.validator.internal.util.Contracts.assertNotNull
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
-import org.springframework.ai.evaluation.EvaluationRequest
 import org.springframework.ai.evaluation.Evaluator
+import org.springframework.retry.annotation.Recover
+import org.springframework.retry.annotation.Retryable
+import org.springframework.retry.support.RetrySynchronizationManager
 import org.springframework.stereotype.Service
 
 interface IPromptService {
-    fun prompt(request: PromptRequest): PromptResponse
+    fun prompt(
+        request: PromptRequest,
+        evaluate: Boolean? = false,
+    ): PromptResponse
 
-    fun evaluate(request: EvaluateRequest): EvaluateResponse
+    fun evaluate(request: EvaluateRequest): PromptResponse
 }
 
 @Service
@@ -19,17 +26,57 @@ class PromptService(
 ) : IPromptService {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    override fun prompt(request: PromptRequest): PromptResponse =
-        chatClientBuilder
+    @Retryable(retryFor = [NotRelevantException::class], maxAttempts = 5)
+    override fun prompt(
+        request: PromptRequest,
+        evaluate: Boolean?,
+    ): PromptResponse {
+        val attempt = RetrySynchronizationManager.getContext()?.retryCount ?: 0
+        if (attempt > 0) logger.debug("response evaluation failed, retry attempt {}", attempt)
+        return chatClientBuilder
             .build()
             .prompt()
             .user(request.prompt)
             .call()
             .content()
-            .let { PromptResponse(it) }
+            .let {
+                assertNotNull(it)
+                var evaluation: PromptResponse? = null
+                if (evaluate ?: false) {
+                    evaluation = evaluate(EvaluateRequest(request.prompt, it!!))
+                    if ((evaluation.evaluation?.pass ?: false).not()) throw NotRelevantException(request.prompt, it)
+                }
+                PromptResponse(
+                    prompt = request.prompt,
+                    response = it,
+                    evaluation = evaluation?.evaluation,
+                )
+            }
+    }
 
-    override fun evaluate(request: EvaluateRequest): EvaluateResponse =
+    override fun evaluate(request: EvaluateRequest): PromptResponse =
         evaluator
-            .evaluate(EvaluationRequest(request.prompt, request.response))
-            .let { EvaluateResponse(pass = it.isPass, score = it.score, feedback = it.feedback) }
+            .evaluate(request.toEvaluationRequest())
+            .let {
+                PromptResponse(
+                    prompt = request.prompt,
+                    response = request.response,
+                    evaluation = it.toEvaluateResponse(),
+                )
+            }
+
+    @Recover
+    fun recover(ex: NotRelevantException): PromptResponse {
+        logger.debug("all evaluation retries failed, applying recovery")
+        return PromptResponse(
+            prompt = ex.prompt,
+            response = ex.response,
+            evaluation =
+                EvaluateResponse(
+                    pass = false,
+                    score = 0f,
+                    feedback = "evaluation failed",
+                ),
+        )
+    }
 }

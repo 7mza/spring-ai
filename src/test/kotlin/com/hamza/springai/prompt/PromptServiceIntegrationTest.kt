@@ -26,14 +26,33 @@ class PromptServiceIntegrationTest {
     private val prompt = "What is the capital of France?"
 
     @Test
-    fun prompt() {
+    fun `prompt without evaluation`() {
         val response = service.prompt(PromptRequest(prompt))
 
+        assertThat(response.prompt).isEqualTo(prompt)
         assertThat(response.response).isNotNull
         assertThat(response.response!!).isNotEmpty
         assertThat(response.response).isNotBlank
+        assertThat(response.evaluation).isNull()
 
-        logger.debug("model: `{}` # prompt: `{}` # response: `{}`", model, prompt, response.response)
+        // logger.debug("model: `{}` # response: `{}`", model, response)
+    }
+
+    @Test
+    fun `prompt with evaluation`() {
+        val response = service.prompt(PromptRequest(prompt), true)
+
+        assertThat(response.prompt).isEqualTo(prompt)
+        assertThat(response.response).isNotNull
+        assertThat(response.response!!).isNotEmpty
+        assertThat(response.response).isNotBlank
+        assertThat(response.evaluation).isNotNull
+        assertThat(response.evaluation!!.pass).isTrue
+        assertThat(response.evaluation.score).isGreaterThanOrEqualTo(0.5f)
+        assertThat(response.evaluation.feedback).isNotNull
+        assertThat(response.evaluation.feedback).isNotBlank
+
+        // logger.debug("model: `{}` # response: `{}`", model, response)
     }
 
     // FIXME: retry N times because small models are unreliable
@@ -44,10 +63,12 @@ class PromptServiceIntegrationTest {
 
         val evaluation = service.evaluate(EvaluateRequest(prompt, response))
 
-        logger.debug("evaluation: {}", evaluation)
+        // logger.debug("evaluation: {}", evaluation)
 
-        assertThat(evaluation.pass).isTrue
-        assertThat(evaluation.score).isGreaterThanOrEqualTo(0.5f)
+        assertThat(evaluation.prompt).isEqualTo(prompt)
+        assertThat(evaluation.response).isEqualTo(response)
+        assertThat(evaluation.evaluation?.pass).isTrue
+        assertThat(evaluation.evaluation?.score).isGreaterThanOrEqualTo(0.5f)
     }
 
     // FIXME: retry N times because small models are unreliable
@@ -58,9 +79,11 @@ class PromptServiceIntegrationTest {
 
         val evaluation = service.evaluate(EvaluateRequest(prompt, response))
 
-        logger.debug("evaluation: {}", evaluation)
+        // logger.debug("evaluation: {}", evaluation)
 
-        assertThat(evaluation.pass).isFalse
-        assertThat(evaluation.score).isLessThanOrEqualTo(0.5f)
+        assertThat(evaluation.prompt).isEqualTo(prompt)
+        assertThat(evaluation.response).isEqualTo(response)
+        assertThat(evaluation.evaluation?.pass).isFalse
+        assertThat(evaluation.evaluation?.score).isLessThanOrEqualTo(0.5f)
     }
 }

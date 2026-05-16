@@ -13,7 +13,7 @@ plugins {
     id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
 
-    id("com.autonomousapps.dependency-analysis") version "3.11.0"
+    id("com.autonomousapps.dependency-analysis") version "3.12.0"
     id("com.github.ben-manes.versions") version "0.54.0"
     id("com.github.node-gradle.node") version "7.1.0"
     id("com.google.cloud.tools.jib") version "3.5.3"

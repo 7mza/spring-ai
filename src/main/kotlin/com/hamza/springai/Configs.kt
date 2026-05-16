@@ -45,6 +45,7 @@ class Configs(
                 .description("TODO"),
         )
 
+    // increase ollama client timeout
     @Bean
     fun ollamaApi(connectionDetails: OllamaConnectionDetails): OllamaApi =
         OllamaApi

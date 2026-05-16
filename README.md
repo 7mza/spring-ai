@@ -1,20 +1,32 @@
 # [Spring AI](https://docs.spring.io/spring-ai/reference/)
 
-[nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+## requirements
 
 [sdkman](https://sdkman.io/)
 
 [nvm](https://github.com/nvm-sh/nvm)
 
+[nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+
+## build
+
 ```shell
 nvm use
+```
 
+```shell
 npm i
+```
 
+```shell
 sdk env install
+```
 
+```shell
 ./gradlew clean ktlintFormat ktlintCheck build
 ```
+
+## run
 
 Spring is configured with compose support, run with ide or
 
@@ -25,3 +37,5 @@ Spring is configured with compose support, run with ide or
 ```shell
 docker compose up --build
 ```
+
+[http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui)

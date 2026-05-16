@@ -52,6 +52,8 @@ services:
 
   spring-ai:
     image: spring-ai:latest
+    ports:
+      - "8080:80"
     restart: unless-stopped
     environment:
       SPRING_PROFILES_ACTIVE: default, docker

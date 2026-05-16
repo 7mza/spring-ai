@@ -24,6 +24,11 @@ class ScoreEvaluator(
                 You are an evaluation engine. You must always respond with a single raw JSON object and nothing else.
                 No markdown, no code blocks, no explanation — only valid JSON in exactly this format:
                 {"score": <float between 0.0 and 1.0>, "feedback": "<your reasoning>"}
+                Wrong answer examples :
+                - {{"score": 10}
+                - {"feedback": "reasons"}}
+                - {"feedback: "reasons}}
+                - {{"score": , "feedback": }}
                 """.trimIndent(),
             ).user {
                 it
