@@ -81,10 +81,7 @@ Retry mechanism for parsing errors.<br />
         ],
     )
     fun songs(
-        @Parameter(
-            description = "Which year",
-            example = "2006",
-        ) @RequestParam(required = true) year: Int = 2006,
+        @Parameter(description = "Which year", example = "2006") @RequestParam(required = true) year: Int = 2006,
     ): SongResponse
 
     @GetMapping(
@@ -132,9 +129,6 @@ Line 3
         ],
     )
     fun movies(
-        @Parameter(
-            description = "Which year",
-            example = "2013",
-        ) @RequestParam(required = true) year: Int = 2013,
+        @Parameter(description = "Which year", example = "2013") @RequestParam(required = true) year: Int = 2013,
     ): Flux<String>
 }

@@ -24,9 +24,8 @@ import java.time.Duration
 @EnableRetry
 class Configs(
     @Value($$"${server.port}") private val port: Int,
-    private val buildProperties: BuildProperties,
 ) {
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Bean
     fun jacksonCustomizer(): JsonMapperBuilderCustomizer = JsonMapperBuilderCustomizer { it.findAndAddModules() }
@@ -39,7 +38,7 @@ class Configs(
     }
 
     @Bean
-    fun openAPI(): OpenAPI =
+    fun openAPI(buildProperties: BuildProperties): OpenAPI =
         OpenAPI().info(
             Info()
                 .title("${buildProperties.name} API")

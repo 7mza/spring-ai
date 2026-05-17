@@ -6,7 +6,7 @@ services:
       - "11434"
     restart: unless-stopped
     environment:
-      OLLAMA_NUM_PARALLEL: 2
+      OLLAMA_NUM_PARALLEL: 4
       OLLAMA_MAX_LOADED_MODELS: 1
     deploy:
       resources:
@@ -17,6 +17,8 @@ services:
               capabilities: [gpu]
     volumes:
       - ollama_data:/root/.ollama
+    labels:
+      org.springframework.boot.service-connection: ollama
     healthcheck:
       test:
         [
@@ -30,20 +32,28 @@ services:
       timeout: 10s
       retries: 3
 
-  qdrant:
-    build:
-      dockerfile: ${PWD}/docker/qdrant/Dockerfile
-    ports:
-      - "6333"
-      - "6334"
+  postgres:
+    image: pgvector/pgvector:pg18
+    deploy:
+      resources:
+        limits:
+          memory: 1g
     restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+    labels:
+      org.springframework.boot.service-connection: postgres
     healthcheck:
       test:
         [
           "CMD",
           "sh",
           "-c",
-          'curl -fs localhost:6333/healthz | grep -q "healthz check passed" || exit 1',
+          'pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER} | grep -q "accepting connections" || exit 1',
         ]
       start_period: 10s
       interval: 30s
@@ -56,7 +66,10 @@ services:
       - "8080:80"
     restart: unless-stopped
     environment:
-      SPRING_PROFILES_ACTIVE: default, docker
+      SPRING_PROFILES_ACTIVE: default, container
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
       JAVA_TOOL_OPTIONS: |
         -Dspring.aot.enabled=false
         -XX:+UseG1GC
@@ -68,7 +81,7 @@ services:
     depends_on:
       ollama:
         condition: service_healthy
-      qdrant:
+      postgres:
         condition: service_healthy
     healthcheck:
       test:

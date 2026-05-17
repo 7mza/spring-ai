@@ -9,6 +9,7 @@ import org.springframework.boot.gradle.tasks.aot.ProcessTestAot
 
 plugins {
     kotlin("jvm") version "2.3.21"
+    kotlin("plugin.jpa") version "2.2.21"
     kotlin("plugin.spring") version "2.3.21"
     id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
@@ -18,6 +19,7 @@ plugins {
     id("com.github.node-gradle.node") version "7.1.0"
     id("com.google.cloud.tools.jib") version "3.5.3"
     id("org.graalvm.buildtools.native") version "1.1.0"
+    id("org.hibernate.orm") version "7.2.12.Final"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     id("org.owasp.dependencycheck") version "12.2.2"
     jacoco
@@ -32,10 +34,11 @@ repositories { mavenCentral() }
 
 extra["springAiVersion"] = "2.0.0-M6"
 extra["springCloudVersion"] = "2025.1.1"
-
-val mockitoAgent: Configuration = configurations.create("mockitoAgent")
+extra["springFunctionsCatalogVersion"] = "6.0.0"
 
 val awaitilityVersion = "4.3.0"
+val dataFakerVersion = "2.5.4"
+val hypersistenceTsidVersion = "2.1.4"
 val junitPioneerVersion = "2.3.0"
 val logbookSpringVersion = "4.0.4"
 val mockitoCoreVersion = "5.23.0"
@@ -45,6 +48,8 @@ val picocliVersion = "4.7.7"
 val springRetryVersion = "2.0.12"
 val wiremockSpringBootVersion = "4.2.1"
 
+val mockitoAgent: Configuration = configurations.create("mockitoAgent")
+
 dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
@@ -53,27 +58,33 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
     // implementation("info.picocli:picocli-spring-boot-starter:$picocliVersion")
-    implementation("org.eclipse.jetty.http2:jetty-http2-server")
+    implementation("io.hypersistence:hypersistence-tsid:$hypersistenceTsidVersion")
+    // implementation("net.datafaker:datafaker:$dataFakerVersion")
+    implementation("org.ehcache:ehcache::jakarta")
+    implementation("org.hibernate.orm:hibernate-jcache")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$openapiVersion")
-    // implementation("org.springframework.ai:spring-ai-advisors-vector-store")
+    implementation("org.springframework.ai:spring-ai-advisors-vector-store")
     implementation("org.springframework.ai:spring-ai-starter-model-ollama")
-    // implementation("org.springframework.ai:spring-ai-starter-vector-store-qdrant")
-    // implementation("org.springframework.ai:spring-ai-tika-document-reader")
+    implementation("org.springframework.ai:spring-ai-starter-vector-store-pgvector")
+    implementation("org.springframework.ai:spring-ai-tika-document-reader")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-aspectj")
-    implementation("org.springframework.boot:spring-boot-starter-jetty")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-liquibase")
     implementation("org.springframework.boot:spring-boot-starter-restclient")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-webmvc") {
-        exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
-    }
-    implementation("org.springframework.cloud:spring-cloud-function-web")
+    implementation("org.springframework.boot:spring-boot-starter-webmvc")
+    implementation("org.springframework.cloud.fn:spring-file-supplier")
+    implementation("org.springframework.cloud:spring-cloud-function-context")
     implementation("org.springframework.retry:spring-retry:$springRetryVersion")
     implementation("org.zalando:logbook-spring-boot-starter:$logbookSpringVersion")
     implementation("tools.jackson.module:jackson-module-kotlin")
 
     mockitoAgent("org.mockito:mockito-core:$mockitoCoreVersion") { isTransitive = false }
+
+    runtimeOnly("com.h2database:h2")
+    runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.awaitility:awaitility-kotlin:$awaitilityVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
@@ -81,6 +92,8 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
     testImplementation("org.springframework.ai:spring-ai-spring-boot-testcontainers")
     testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-liquibase-test")
     testImplementation("org.springframework.boot:spring-boot-starter-restclient-test")
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
@@ -88,7 +101,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testImplementation("org.testcontainers:testcontainers-ollama")
-    testImplementation("org.testcontainers:testcontainers-qdrant")
+    testImplementation("org.testcontainers:testcontainers-postgresql")
     testImplementation("org.wiremock.integrations:wiremock-spring-boot:$wiremockSpringBootVersion")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -97,6 +110,9 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
+        mavenBom(
+            "org.springframework.cloud.fn:spring-functions-catalog-bom:${property("springFunctionsCatalogVersion")}",
+        )
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
     }
 }
@@ -105,6 +121,14 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
     }
+}
+
+hibernate { enhancement { enableAssociationManagement = true } }
+
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
 }
 
 tasks {

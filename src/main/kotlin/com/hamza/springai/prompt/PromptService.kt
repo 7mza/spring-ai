@@ -26,7 +26,7 @@ class PromptService(
     private val chatClientBuilder: ChatClient.Builder,
     @Value("classpath:/prompts/topic_prompt.st") private val prompt: Resource,
 ) : IPromptService {
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     /* modify chat options (model, temp, ...etc.) globally through yml or locally here
      * local > global
@@ -51,7 +51,7 @@ class PromptService(
     @Retryable(retryFor = [JacksonException::class], maxAttempts = 5)
     override fun songs(year: Int): SongResponse {
         val attempt = RetrySynchronizationManager.getContext()?.retryCount ?: 0
-        if (attempt > 0) logger.debug("LLM response parsing failed, retry attempt {}", attempt)
+        if (attempt > 0) logger.info("LLM response parsing failed, retry attempt {}", attempt)
         val responseEntity =
             chatClientBuilder
                 .build()
@@ -65,7 +65,7 @@ class PromptService(
                 .responseEntity<SongResponse>()
         // .entity(object : ParameterizedTypeReference<List<String>>() {})!! if no wrapper
         val usage = responseEntity.response()?.metadata?.usage
-        logger.debug(
+        logger.info(
             "token usage: prompt={}, generation={}, total={}",
             usage?.promptTokens,
             usage?.completionTokens,
@@ -91,7 +91,7 @@ class PromptService(
         ex: JacksonException,
         year: Int,
     ): SongResponse {
-        logger.debug("all LLM response parsing failed, applying recovery")
+        logger.info("all LLM response parsing failed, applying recovery")
         return SongResponse(listOf(Song("Could not parse LLM response")))
     }
 }

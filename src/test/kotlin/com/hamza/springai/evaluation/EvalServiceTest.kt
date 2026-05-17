@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Import
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(OllamaContainerWithGpu::class)
 class EvalServiceTest {
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired
     private lateinit var service: IEvalService

@@ -13,7 +13,7 @@ import reactor.test.StepVerifier
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(OllamaContainerWithGpu::class)
 class PromptServiceIntegrationTest {
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired
     private lateinit var service: IPromptService

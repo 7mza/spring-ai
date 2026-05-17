@@ -1,5 +1,21 @@
 # [Spring AI](https://docs.spring.io/spring-ai/reference/)
 
+## desc
+
+Spring AI workspace with some personal design choices
+
+- Ollama as LLM backend
+- pgvector as db/store
+
+## demo
+
+- basic + template prompting
+- LLM response parsing with retry/recover
+- LLM eval
+- continuous file ingestion pipeline using spring cloud functions
+- RAG
+-
+
 ## requirements
 
 [sdkman](https://sdkman.io/)

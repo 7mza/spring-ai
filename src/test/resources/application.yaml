@@ -18,13 +18,70 @@ spring:
         # temperature: 0.7
         # top-k: 4
         top-p: 0.8
+      embedding:
+        model: nomic-embed-text-v2-moe
       init:
         pull-model-strategy: when_missing
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 100
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:test_db
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        batch_fetch_style: dynamic
+        cache:
+          region:
+            factory_class: org.hibernate.cache.jcache.internal.JCacheRegionFactory
+          use_query_cache: false
+          use_second_level_cache: false
+        default_batch_fetch_size: 0
+        enable_lazy_load_no_trans: false
+        format_sql: false
+        generate_statistics: true
+        globally_quoted_identifiers: true
+        javax:
+          cache:
+            missing_cache_strategy: create
+            provider: org.ehcache.jsr107.EhcacheCachingProvider
+            uri: ehcache.xml
+        jdbc:
+          batch_size: 0
+        jpa:
+          compliance:
+            query: false
+        max_fetch_depth: 1
+        order_inserts: false
+        order_updates: false
+        query:
+          fail_on_pagination_over_collection_fetch: true
+          in_clause_parameter_padding: true
+        session:
+          events:
+            log:
+              LOG_QUERIES_SLOWER_THAN_MS: "100"
+        show_sql: false
+  liquibase:
+    enabled: false
   main:
     banner-mode: off
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
   output:
     ansi:
       enabled: always
+  servlet:
+    multipart:
+      max-file-size: 10MB
   threads:
     virtual:
       enabled: true
@@ -36,3 +93,30 @@ springdoc:
 wiremock:
   server:
     port: 0
+---
+spring:
+  ai:
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+        remove-existing-vector-store-table: true
+        table-name: embeddings
+  config:
+    activate:
+      on-profile: postgres-test
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: null
+---
+file:
+  supplier:
+    directory: src/test/resources/docs
+    filename-regex: .*\.(md|pdf|txt)
+spring:
+  cloud:
+    function:
+      definition: fileSupplier|deduplicationFilter|documentReader|splitter|vectorStoreConsumer
+  config:
+    activate:
+      on-profile: ingestion-test
+---

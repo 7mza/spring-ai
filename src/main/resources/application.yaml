@@ -1,3 +1,7 @@
+file:
+  supplier:
+    directory: ./docs/
+    filename-regex: .*\.(md|pdf|txt)
 logbook:
   format:
     style: http
@@ -5,6 +9,9 @@ logging:
   include-application-name: false
   level:
     com.hamza: debug
+    org.hibernate:
+      SQL: debug
+      stat: debug
     org.zalando.logbook: trace
 management:
   endpoint:
@@ -43,13 +50,33 @@ spring:
         # temperature: 0.7
         # top-k: 4
         top-p: 0.8
+      embedding:
+        model: nomic-embed-text-v2-moe
       init:
         pull-model-strategy: when_missing
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+        remove-existing-vector-store-table: true
+        table-name: embeddings
   application:
     name: spring-ai
+  cloud:
+    function:
+      definition: fileSupplier|deduplicationFilter|documentReader|splitter|vectorStoreConsumer
   config:
     activate:
       on-profile: default
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 100
+  datasource:
+    driverClassName: org.postgresql.Driver
+    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://${custom.pg.host:localhost}:5432/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
   devtools:
     livereload:
       enabled: true
@@ -60,7 +87,47 @@ spring:
       profiles:
         active:
           - ollama
-          - qdrant
+          - postgres
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        batch_fetch_style: dynamic
+        cache:
+          region:
+            factory_class: org.hibernate.cache.jcache.internal.JCacheRegionFactory
+          use_query_cache: true
+          use_second_level_cache: true
+        default_batch_fetch_size: 32
+        enable_lazy_load_no_trans: false
+        format_sql: false
+        generate_statistics: true
+        globally_quoted_identifiers: true
+        javax:
+          cache:
+            missing_cache_strategy: fail
+            provider: org.ehcache.jsr107.EhcacheCachingProvider
+            uri: ehcache.xml
+        jdbc:
+          batch_size: 32
+        jpa:
+          compliance:
+            query: false
+        max_fetch_depth: 1
+        order_inserts: true
+        order_updates: true
+        query:
+          fail_on_pagination_over_collection_fetch: true
+          in_clause_parameter_padding: true
+        session:
+          events:
+            log:
+              LOG_QUERIES_SLOWER_THAN_MS: "100"
+        show_sql: false
+  liquibase:
+    enabled: false
   main:
     banner-mode: off
   mvc:
@@ -70,14 +137,20 @@ spring:
   output:
     ansi:
       enabled: always
+  servlet:
+    multipart:
+      max-file-size: 10MB
+  sql:
+    init:
+      mode: never
+  threads:
+    virtual:
+      enabled: true
   web:
     error:
       include-exception: true
       include-message: always
       include-stacktrace: always
-  threads:
-    virtual:
-      enabled: true
 springdoc:
   api-docs:
     path: /api-docs
@@ -92,6 +165,9 @@ springdoc:
     path: /swagger-ui
     tagsSorter: alpha
 ---
+custom:
+  pg:
+    host: postgres
 server:
   compression:
     enabled: false
@@ -102,7 +178,7 @@ spring:
       base-url: http://ollama:11434
   config:
     activate:
-      on-profile: docker
+      on-profile: container
   devtools:
     add-properties: false
     livereload:
