@@ -1,7 +1,7 @@
 package com.hamza.springai.rag
 
 import com.hamza.springai.OllamaContainerWithGpu
-import com.hamza.springai.PgContainer
+import com.hamza.springai.QdrantContainer
 import com.hamza.springai.rag.file.IFileRepo
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
@@ -10,7 +10,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.slf4j.LoggerFactory
 import org.springframework.ai.vectorstore.SearchRequest
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,12 +26,10 @@ import java.util.concurrent.TimeUnit
  * ingestion pipeline integration tests
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("default", "ingestion-test", "postgres-test")
-@Import(OllamaContainerWithGpu::class, PgContainer::class)
+@ActiveProfiles("default", "ingestion-test")
+@Import(OllamaContainerWithGpu::class, QdrantContainer::class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class FunctionsTest {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     @Autowired
     private lateinit var vectorStore: VectorStore
 
@@ -48,8 +45,10 @@ class FunctionsTest {
     private fun collectFiles(): Map<String, String> =
         PathMatchingResourcePatternResolver()
             .getResources("classpath:docs/*")
-            .filter { it.filename?.matches(filenameRegex.toRegex()) == true }
-            .associate { r -> r.filename!! to DigestUtils.md5DigestAsHex(r.contentAsByteArray) }
+            .filter {
+                it.filename?.matches(filenameRegex.toRegex()) == true &&
+                    it.contentAsByteArray.isNotEmpty()
+            }.associate { r -> r.filename!! to DigestUtils.md5DigestAsHex(r.contentAsByteArray) }
 
     private fun collectChunks(name: String) =
         vectorStore.similaritySearch(

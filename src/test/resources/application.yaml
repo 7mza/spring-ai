@@ -90,33 +90,20 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
-wiremock:
-  server:
-    port: 0
----
-spring:
-  ai:
-    vectorstore:
-      pgvector:
-        initialize-schema: true
-        remove-existing-vector-store-table: true
-        table-name: embeddings
-  config:
-    activate:
-      on-profile: postgres-test
-  datasource:
-    driverClassName: org.postgresql.Driver
-    url: null
 ---
 file:
   supplier:
     directory: src/test/resources/docs
     filename-regex: .*\.(md|pdf|txt)
 spring:
+  ai:
+    vectorstore:
+      qdrant:
+        collection-name: embeddings
+        initialize-schema: true
   cloud:
     function:
-      definition: fileSupplier|deduplicationFilter|documentReader|splitter|vectorStoreConsumer
+      definition: fileSupplier|duplicationFilter|documentReader|splitter|vectorStoreWriter
   config:
     activate:
       on-profile: ingestion-test
----

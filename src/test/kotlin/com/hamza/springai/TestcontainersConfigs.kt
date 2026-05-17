@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.context.annotation.Bean
 import org.testcontainers.ollama.OllamaContainer
-import org.testcontainers.postgresql.PostgreSQLContainer
+import org.testcontainers.qdrant.QdrantContainer
 import org.testcontainers.utility.DockerImageName
 
 @TestConfiguration(proxyBeanMethods = false)
@@ -39,8 +39,8 @@ class OllamaContainerWithGpu {
 }
 
 @TestConfiguration(proxyBeanMethods = false)
-class PgContainer {
+class QdrantContainer {
     @Bean
     @ServiceConnection
-    fun pqContainer(): PostgreSQLContainer = PostgreSQLContainer(DockerImageName.parse("pgvector/pgvector:pg18"))
+    fun qdrantContainer(): QdrantContainer = QdrantContainer(DockerImageName.parse("qdrant/qdrant:latest"))
 }

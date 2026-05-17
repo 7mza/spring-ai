@@ -16,7 +16,7 @@ interface EntityId {
 @MappedSuperclass
 abstract class BaseEntity<ID : EntityId>(
     @field:EmbeddedId
-    val id: ID,
+    var id: ID,
     //
     @field:Column(nullable = false)
     @field:CreationTimestamp

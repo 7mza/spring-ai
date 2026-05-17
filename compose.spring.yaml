@@ -6,12 +6,12 @@ services:
     profiles:
       - ollama
 
-  postgres:
+  qdrant:
     extends:
       file: compose.yaml
-      service: postgres
+      service: qdrant
     profiles:
-      - postgres
+      - qdrant
 
 volumes:
   ollama_data:

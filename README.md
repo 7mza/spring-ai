@@ -5,7 +5,8 @@
 Spring AI workspace with some personal design choices
 
 - Ollama as LLM backend
-- pgvector as db/store
+- qdrant as vector store
+- embedded h2 as db
 
 ## demo
 
@@ -60,4 +61,6 @@ docker compose up --build
 
 ## misc
 
-[https://www.promptingguide.ai/](https://www.promptingguide.ai/)
+[qdrant ui](http://localhost:6333/dashboard#/collections)
+
+[h2](http://localhost:8080/h2)

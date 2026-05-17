@@ -55,28 +55,29 @@ spring:
       init:
         pull-model-strategy: when_missing
     vectorstore:
-      pgvector:
+      qdrant:
+        collection-name: embeddings
         initialize-schema: true
-        remove-existing-vector-store-table: true
-        table-name: embeddings
   application:
     name: spring-ai
   cloud:
     function:
-      definition: fileSupplier|deduplicationFilter|documentReader|splitter|vectorStoreConsumer
+      definition: fileSupplier|duplicationFilter|documentReader|splitter|vectorStoreWriter
   config:
     activate:
       on-profile: default
+    import:
+      - optional:file:.env[.properties]
   data:
     web:
       pageable:
         default-page-size: 10
         max-page-size: 100
   datasource:
-    driverClassName: org.postgresql.Driver
-    password: ${POSTGRES_PASSWORD}
-    url: jdbc:postgresql://${custom.pg.host:localhost}:5432/${POSTGRES_DB}
-    username: ${POSTGRES_USER}
+    driverClassName: org.h2.Driver
+    password: ${DB_PASSWORD}
+    url: jdbc:h2:mem:${DB_NAME}
+    username: ${DB_USER}
   devtools:
     livereload:
       enabled: true
@@ -87,7 +88,13 @@ spring:
       profiles:
         active:
           - ollama
-          - postgres
+          - qdrant
+  h2:
+    console:
+      enabled: true
+      path: /h2
+      settings:
+        web-allow-others: true
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -165,9 +172,6 @@ springdoc:
     path: /swagger-ui
     tagsSorter: alpha
 ---
-custom:
-  pg:
-    host: postgres
 server:
   compression:
     enabled: false
@@ -176,6 +180,9 @@ spring:
   ai:
     ollama:
       base-url: http://ollama:11434
+    vectorstore:
+      qdrant:
+        host: qdrant
   config:
     activate:
       on-profile: container

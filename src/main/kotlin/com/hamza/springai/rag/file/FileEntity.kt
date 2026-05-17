@@ -18,7 +18,7 @@ import org.hibernate.validator.constraints.Length
 
 @Embeddable
 data class FileId(
-    override val id: TSID,
+    override var id: TSID,
 ) : EntityId {
     constructor() : this(TSIDGenerator.next())
     constructor(id: String) : this(id.decodeToTSID())
@@ -31,17 +31,17 @@ data class FileId(
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "files")
 class File(
-    override val id: FileId = FileId(),
+    override var id: FileId = FileId(),
     //
     @field:Column(nullable = false, length = 1000)
     @field:NotBlank
     @field:Length(max = 1000)
-    val name: String,
+    var name: String,
     //
     @field:Column(nullable = false, unique = true, length = 1000)
     @field:NotBlank
     @field:Length(max = 1000)
-    val hash: String,
+    var hash: String,
 ) : BaseEntity<FileId>(id) {
     override fun equals(other: Any?): Boolean = this === other || (other is File && this.id == other.id)
 

@@ -18,8 +18,8 @@ plugins {
     id("com.github.ben-manes.versions") version "0.54.0"
     id("com.github.node-gradle.node") version "7.1.0"
     id("com.google.cloud.tools.jib") version "3.5.3"
-    id("org.graalvm.buildtools.native") version "1.1.0"
-    id("org.hibernate.orm") version "7.2.12.Final"
+    // id("org.graalvm.buildtools.native") version "1.1.0"
+    // id("org.hibernate.orm") version "7.2.12.Final"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     id("org.owasp.dependencycheck") version "12.2.2"
     jacoco
@@ -66,8 +66,9 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$openapiVersion")
     implementation("org.springframework.ai:spring-ai-advisors-vector-store")
     implementation("org.springframework.ai:spring-ai-starter-model-ollama")
-    implementation("org.springframework.ai:spring-ai-starter-vector-store-pgvector")
+    implementation("org.springframework.ai:spring-ai-starter-vector-store-qdrant")
     implementation("org.springframework.ai:spring-ai-tika-document-reader")
+    implementation("org.springframework.boot:spring-boot-h2console")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-aspectj")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -84,7 +85,6 @@ dependencies {
     mockitoAgent("org.mockito:mockito-core:$mockitoCoreVersion") { isTransitive = false }
 
     runtimeOnly("com.h2database:h2")
-    runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.awaitility:awaitility-kotlin:$awaitilityVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
@@ -101,7 +101,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testImplementation("org.testcontainers:testcontainers-ollama")
-    testImplementation("org.testcontainers:testcontainers-postgresql")
+    testImplementation("org.testcontainers:testcontainers-qdrant")
     testImplementation("org.wiremock.integrations:wiremock-spring-boot:$wiremockSpringBootVersion")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -123,7 +123,7 @@ kotlin {
     }
 }
 
-hibernate { enhancement { enableAssociationManagement = true } }
+// hibernate { enhancement { enableAssociationManagement = true } }
 
 allOpen {
     annotation("jakarta.persistence.Entity")

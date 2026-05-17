@@ -34,7 +34,7 @@ class Functions {
         ApplicationRunner { catalog.lookup<Runnable>(null).run() }
 
     @Bean
-    fun deduplicationFilter(fileService: IFileService): Function<Flux<Message<ByteArray>>, Flux<Message<ByteArray>>> =
+    fun duplicationFilter(fileService: IFileService): Function<Flux<Message<ByteArray>>, Flux<Message<ByteArray>>> =
         Function { flux ->
             flux.flatMap { message ->
                 val fileName = message.headers[FileHeaders.FILENAME]?.toString() ?: "unknown"
@@ -90,7 +90,7 @@ class Functions {
         }
 
     @Bean
-    fun vectorStoreConsumer(
+    fun vectorStoreWriter(
         vectorStore: VectorStore,
         fileService: IFileService,
     ): Consumer<Flux<List<Document>>> =
