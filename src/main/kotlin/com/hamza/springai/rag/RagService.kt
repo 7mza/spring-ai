@@ -1,9 +1,9 @@
 package com.hamza.springai.rag
 
-import com.hamza.springai.prompt.IPromptService
-import com.hamza.springai.prompt.PromptRequest
 import com.hamza.springai.prompt.PromptResponse
 import org.slf4j.LoggerFactory
+import org.springframework.ai.chat.client.ChatClient
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor
 import org.springframework.ai.vectorstore.SearchRequest
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.stereotype.Service
@@ -11,18 +11,30 @@ import org.springframework.stereotype.Service
 interface IRagService {
     fun pullContext(prompt: String): String
 
-    fun prompt(request: RagRequest): PromptResponse
+    fun promptWithManualRag(request: RagRequest): PromptResponse
+
+    fun promptWithAdvisor(request: RagRequest): PromptResponse
 }
 
 @Service
 class RagService(
-    private val service: IPromptService,
+    chatClientBuilder: ChatClient.Builder,
     private val vectorStore: VectorStore,
 ) : IRagService {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override fun prompt(request: RagRequest): PromptResponse =
-        pullContext(request.prompt).let { service.prompt(PromptRequest(request.prompt), it) }
+    private val chatClient =
+        chatClientBuilder
+            .build()
+            .mutate()
+            .defaultAdvisors(QuestionAnswerAdvisor.builder(vectorStore).build())
+            .build()
+
+    private val promptTemplate =
+        """
+        prompt: {prompt}
+        context: {context}
+        """.trimIndent()
 
     override fun pullContext(prompt: String): String {
         debugDocumentsScore(prompt)
@@ -42,6 +54,32 @@ class RagService(
         }
         return documents.joinToString(System.lineSeparator()) { it.text.orEmpty() }
     }
+
+    override fun promptWithManualRag(request: RagRequest): PromptResponse =
+        chatClient
+            .prompt()
+            .user {
+                it
+                    .text(promptTemplate)
+                    .param("prompt", request.prompt)
+                    .param("context", pullContext(request.prompt))
+            }.call()
+            .content()
+            ?.let { PromptResponse(prompt = request.prompt, response = it) }
+            ?: error("LLM response was null")
+
+    override fun promptWithAdvisor(request: RagRequest): PromptResponse =
+        chatClient
+            .prompt()
+            .user(request.prompt)
+            // .advisors(QuestionAnswerAdvisor.builder(vectorStore).build())
+            .advisors {
+                // SQL WHERE on document metadata, useful with enrichers
+                // it.param(QuestionAnswerAdvisor.FILTER_EXPRESSION, "language == 'en'")
+            }.call()
+            .content()
+            ?.let { PromptResponse(prompt = request.prompt, response = it) }
+            ?: error("LLM response was null")
 
     private fun debugDocumentsScore(prompt: String) {
         vectorStore

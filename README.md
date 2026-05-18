@@ -14,17 +14,25 @@ Spring AI experimentation workspace with some design choices
 - LLM object response parsing with retry/recover
 - LLM eval
 - continuous file ingestion pipeline using spring cloud functions
+- [enrichers/transformers](src/main/kotlin/com/hamza/springai/rag/Functions.kt)
+  - language detection
+  - quality evaluation
+  - keywords
+  - summary
+- RAG
+  - manual
+  - advisors
+- ...
 
 ```text
 # ${INGEST_DIR} will be mounted as /home/${INGEST_DIR} in docker
 
 ${INGEST_DIR}/
     |
-    |_> fileSupplier -> duplicationFilter -> documentReader -> documentSplitter -> vectorStoreWriter
+    |-> fileSupplier -> duplicationFilter -> documentReader -> documentSplitter -> (*Enricher) -> vectorStoreWriter
 ```
 
-- RAG
--
+to test 1 or many enricher functions add them in `spring.cloud.function.definition` in [application.yml](src/main/resources/application.yaml) between documentSplitter and vectorStoreWriter (they will slow down pipeline)
 
 ## requirements
 
@@ -34,7 +42,8 @@ ${INGEST_DIR}/
 
 [docker](https://docs.docker.com/engine/install/)
 
-[Nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) (only if Nvidia gpu, if not drop services.ollama.deploy block in [compose.yaml](compose.yaml))
+[Nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+(only if Nvidia gpu, if not drop services.ollama.deploy block in [compose.yaml](compose.yaml))
 
 ## conf
 

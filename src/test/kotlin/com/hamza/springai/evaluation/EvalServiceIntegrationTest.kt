@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(OllamaContainerWithGpu::class)
-class EvalServiceTest {
+class EvalServiceIntegrationTest {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired

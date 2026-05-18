@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 @RequestMapping(value = ["/api/eval"], produces = [MediaType.APPLICATION_JSON_VALUE])
 interface IEvalApi {
     @Operation(
-        summary = "Evaluate & score prompt/response relevancy using configured LLM backend",
+        summary = "Evaluate & score prompt/response relevancy using LLM",
         description = """
 Return a JSON **Object response** from LLM with automatic parsing.<br /><br />
 Retry mechanism for parsing errors.<br /><br />

@@ -3,7 +3,10 @@ package com.hamza.springai.rag
 import com.hamza.springai.rag.file.File
 import com.hamza.springai.rag.file.IFileService
 import org.slf4j.LoggerFactory
+import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.document.Document
+import org.springframework.ai.model.transformer.KeywordMetadataEnricher
+import org.springframework.ai.model.transformer.SummaryMetadataEnricher
 import org.springframework.ai.reader.tika.TikaDocumentReader
 import org.springframework.ai.transformer.splitter.TokenTextSplitter
 import org.springframework.ai.vectorstore.VectorStore
@@ -114,5 +117,53 @@ class Functions {
                             logger.info("{} documents written to vector store", docs.size)
                         }.subscribeOn(Schedulers.boundedElastic())
                 }.subscribe(null) { logger.error("ingestion pipeline failed", it) }
+        }
+
+    @Bean
+    fun languageEnricher(transformers: ITransformers): Function<Flux<List<Document>>, Flux<List<Document>>> =
+        Function { flux ->
+            val transformer = transformers.languageEnricher()
+            flux.flatMap { docs ->
+                Mono
+                    .fromCallable { transformer.apply(docs) }
+                    .subscribeOn(Schedulers.boundedElastic())
+            }
+        }
+
+    @Bean
+    fun qualityEnricher(transformers: ITransformers): Function<Flux<List<Document>>, Flux<List<Document>>> =
+        Function { flux ->
+            val transformer = transformers.qualityEvaluator()
+            flux.flatMap { docs ->
+                Mono
+                    .fromCallable { transformer.apply(docs) }
+                    .subscribeOn(Schedulers.boundedElastic())
+            }
+        }
+
+    @Bean
+    fun keywordEnricher(chatModel: ChatModel): Function<Flux<List<Document>>, Flux<List<Document>>> =
+        Function { flux ->
+            val transformer = KeywordMetadataEnricher(chatModel, 5)
+            flux.flatMap { docs ->
+                Mono
+                    .fromCallable { transformer.apply(docs) }
+                    .subscribeOn(Schedulers.boundedElastic())
+            }
+        }
+
+    @Bean
+    fun summaryEnricher(chatModel: ChatModel): Function<Flux<List<Document>>, Flux<List<Document>>> =
+        Function { flux ->
+            val transformer =
+                SummaryMetadataEnricher(
+                    chatModel,
+                    listOf(SummaryMetadataEnricher.SummaryType.CURRENT),
+                )
+            flux.flatMap { docs ->
+                Mono
+                    .fromCallable { transformer.apply(docs) }
+                    .subscribeOn(Schedulers.boundedElastic())
+            }
         }
 }

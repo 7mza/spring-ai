@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping
 @Tag(name = "rag", description = "")
 @RequestMapping(value = ["/api/rag"], produces = [MediaType.APPLICATION_JSON_VALUE])
 interface IRagApi {
-    @PostMapping
+    @PostMapping("/manual")
     @Operation(
-        summary = "Send a chat prompt to configured LLM backend",
+        summary = "Send a prompt to LLM",
         description = """
-Will pull context (similarity search) from vector store before forwarding request to LLM.<br /><br />
+Manual context pull (similarity search) from vector store before forwarding request to LLM.<br /><br />
 `*.dummy.md` in `INGEST_DIR` (./docs/) contains some hallucinated facts for testing.<br /><br />
 Add your documents in `INGEST_DIR` for ingestion pipeline to trigger.
 """,
@@ -49,7 +49,43 @@ Add your documents in `INGEST_DIR` for ingestion pipeline to trigger.
             ),
         ],
     )
-    fun prompt(
+    fun promptWithManualRag(
+        @RequestBody @Valid request: RagRequest,
+    ): PromptResponse
+
+    @PostMapping("/advisor")
+    @Operation(
+        summary = "Send a prompt to LLM",
+        description = """
+Automatic context pull (using advisor) from vector store before forwarding request to LLM.<br /><br />
+`*.dummy.md` in `INGEST_DIR` (./docs/) contains some hallucinated facts for testing.<br /><br />
+Add your documents in `INGEST_DIR` for ingestion pipeline to trigger.
+""",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "OK",
+                content = [
+                    Content(
+                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                        schema = Schema(implementation = PromptResponse::class),
+                        examples = [
+                            ExampleObject(
+                                name = "example-0",
+                                description = "",
+                                value = """
+{ "prompt": "Who is Gretchen Faulhauser?", "response": "RAG augmented response..." }
+""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun promptWithAdvisor(
         @RequestBody @Valid request: RagRequest,
     ): PromptResponse
 }

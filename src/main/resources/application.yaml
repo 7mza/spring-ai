@@ -199,3 +199,33 @@ spring:
   docker:
     compose:
       enabled: false
+---
+logging:
+  level:
+    root: OFF
+server:
+  port: 8013
+spring:
+  config:
+    activate:
+      on-profile: openapi
+  docker:
+    compose:
+      enabled: false
+  main:
+    banner-mode: off
+  output:
+    ansi:
+      enabled: ALWAYS
+springdoc:
+  api-docs:
+    path: /api-docs
+  cache:
+    disabled: true
+  packagesToScan: com.hamza
+  pathsToMatch: /**
+  swagger-ui:
+    disable-swagger-default-url: true
+    operationsSorter: method
+    path: /swagger-ui
+    tagsSorter: alpha

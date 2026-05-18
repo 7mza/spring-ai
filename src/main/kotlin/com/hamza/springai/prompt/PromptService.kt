@@ -14,10 +14,7 @@ import reactor.core.publisher.Flux
 import tools.jackson.core.JacksonException
 
 interface IPromptService {
-    fun prompt(
-        request: PromptRequest,
-        context: String = "",
-    ): PromptResponse
+    fun prompt(request: PromptRequest): PromptResponse
 
     fun songs(year: Int): SongResponse
 
@@ -27,7 +24,7 @@ interface IPromptService {
 @Service
 class PromptService(
     chatClientBuilder: ChatClient.Builder,
-    @Value("classpath:/prompts/topic_prompt.st") private val topicsTemplate: Resource,
+    @Value("classpath:/prompt_templates/prompt/topic.st") private val topic: Resource,
 ) : IPromptService {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -36,24 +33,16 @@ class PromptService(
      */
     private val chatOptionsBuilder: ChatOptions.Builder<*> = ChatOptions.builder()
 
+    // just for example, should be a global bean if no manual conf per X is needed
     private val chatClient =
         chatClientBuilder
             // .defaultOptions(chatOptionsBuilder)
             .build()
 
-    private val promptTemplate =
-        """
-        prompt: {prompt}
-        context: {context}
-        """.trimIndent()
-
-    override fun prompt(
-        request: PromptRequest,
-        context: String,
-    ): PromptResponse =
+    override fun prompt(request: PromptRequest): PromptResponse =
         chatClient
             .prompt()
-            .user { it.text(promptTemplate).param("prompt", request.prompt).param("context", context) }
+            .user(request.prompt)
             .call()
             .content()
             ?.let { PromptResponse(prompt = request.prompt, response = it) }
@@ -65,7 +54,7 @@ class PromptService(
         if (attempt > 0) logger.warn("LLM response parsing failed, retry attempt {}", attempt)
         return chatClient
             .prompt()
-            .user { it.text(topicsTemplate).param("topic", "song").param("year", year) }
+            .user { it.text(topic).param("topic", "song").param("year", year) }
             .call()
             .responseEntity<SongResponse>()
             // .entity(object : ParameterizedTypeReference<List<String>>() {})!! if no wrapper
@@ -84,7 +73,7 @@ class PromptService(
     override fun movies(year: Int): Flux<String> =
         chatClient
             .prompt()
-            .user { it.text(topicsTemplate).param("topic", "movie").param("year", year) }
+            .user { it.text(topic).param("topic", "movie").param("year", year) }
             .stream()
             .content()
 

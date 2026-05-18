@@ -22,7 +22,7 @@ import reactor.core.publisher.Flux
 interface IPromptApi {
     @PostMapping
     @Operation(
-        summary = "Send a chat prompt to configured LLM backend",
+        summary = "Send a prompt to LLM",
         description = """Return a **simple text response** with no parsing.""",
     )
     @ApiResponses(

@@ -16,8 +16,8 @@ import tools.jackson.core.JacksonException
 @Component
 class ScoreEvaluator(
     private val chatClientBuilder: ChatClient.Builder,
-    @Value("classpath:/prompts/eval_system.st") private val system: Resource,
-    @Value("classpath:/prompts/eval_prompt.st") private val prompt: Resource,
+    @Value("classpath:/prompt_templates/eval/system.st") private val system: Resource,
+    @Value("classpath:/prompt_templates/eval/eval.st") private val eval: Resource,
 ) : Evaluator {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -31,7 +31,7 @@ class ScoreEvaluator(
             .system(system)
             .user {
                 it
-                    .text(prompt)
+                    .text(eval)
                     .param("query", request.userText)
                     .param("response", request.responseContent)
             }.call()

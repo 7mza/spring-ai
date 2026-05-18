@@ -22,6 +22,7 @@ plugins {
     // id("org.hibernate.orm") version "7.2.12.Final"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     id("org.owasp.dependencycheck") version "12.2.2"
+    id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
     jacoco
 }
 
@@ -216,3 +217,11 @@ springBoot { buildInfo() }
 dependencyCheck { nvd.apiKey = System.getenv("NVD_APIKEY") ?: "" }
 
 node { download = true }
+
+openApi {
+    apiDocsUrl.set("http://localhost:8013/api-docs.yaml")
+    customBootRun { args.set(listOf("--spring.profiles.active=openapi")) }
+    outputDir.set(file("./docs/"))
+    outputFileName.set("api-docs.yaml")
+    waitTimeInSeconds.set(60)
+}

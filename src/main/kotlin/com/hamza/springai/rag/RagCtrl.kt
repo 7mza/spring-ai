@@ -7,5 +7,7 @@ import org.springframework.web.bind.annotation.RestController
 class RagCtrl(
     private val service: IRagService,
 ) : IRagApi {
-    override fun prompt(request: RagRequest): PromptResponse = service.prompt(request)
+    override fun promptWithManualRag(request: RagRequest): PromptResponse = service.promptWithManualRag(request)
+
+    override fun promptWithAdvisor(request: RagRequest): PromptResponse = service.promptWithAdvisor(request)
 }

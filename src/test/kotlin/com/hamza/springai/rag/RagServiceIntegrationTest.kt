@@ -23,12 +23,17 @@ class RagServiceIntegrationTest {
     private val prompt = ""
 
     @Test
-    fun prompt() {
+    fun pullContext() {
         // FIXME
     }
 
     @Test
-    fun pullContext() {
+    fun promptWithManualRag() {
+        // FIXME
+    }
+
+    @Test
+    fun promptWithAdvisor() {
         // FIXME
     }
 }
