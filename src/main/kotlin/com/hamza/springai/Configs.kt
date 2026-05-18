@@ -6,6 +6,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.ai.model.ollama.autoconfigure.OllamaConnectionDetails
 import org.springframework.ai.ollama.api.OllamaApi
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.ansi.AnsiColor
+import org.springframework.boot.ansi.AnsiOutput
+import org.springframework.boot.ansi.AnsiStyle
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.info.BuildProperties
 import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer
@@ -33,8 +36,8 @@ class Configs(
     @EventListener(ApplicationReadyEvent::class)
     fun readyListener() {
         val address = "http://${InetAddress.getLocalHost().hostAddress}:$port"
-        // logger.info("app running at {}", address)
-        logger.info("api running at {}/swagger-ui", address)
+        val message = "api running at $address/swagger-ui"
+        logger.info(AnsiOutput.toString(AnsiColor.BRIGHT_GREEN, AnsiStyle.BOLD, message))
     }
 
     @Bean

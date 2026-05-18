@@ -78,7 +78,7 @@ class Functions {
         }
 
     @Bean
-    fun splitter(): Function<Flux<Document>, Flux<List<Document>>> =
+    fun documentSplitter(): Function<Flux<Document>, Flux<List<Document>>> =
         TokenTextSplitter.builder().build().let { splitter ->
             Function { flux ->
                 flux.flatMap { doc ->

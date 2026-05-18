@@ -1,7 +1,7 @@
 file:
   supplier:
-    directory: ./docs/
-    filename-regex: .*\.(md|pdf|txt)
+    directory: ${INGEST_DIR}
+    filename-regex: ${INGEST_FILES_FILTER}
 logbook:
   format:
     style: http
@@ -34,7 +34,7 @@ management:
 server:
   compression:
     enabled: true
-    mime-types: application/javascript, application/json, application/xml, text/css, text/html, text/javascript, text/plain, text/xml
+    mime-types: application/javascript,application/json,application/x-ndjson,application/xml,text/css,text/event-stream,text/html,text/javascript,text/plain,text/xml
     min-response-size: 1500B
   forward-headers-strategy: native
   http2:
@@ -46,12 +46,12 @@ spring:
   ai:
     ollama:
       chat:
-        model: llama3.2:1b
-        # temperature: 0.7
-        # top-k: 4
-        top-p: 0.8
+        model: ${OLLAMA_MODEL}
+        temperature: ${OLLAMA_TEMPERATURE}
+        top-k: ${OLLAMA_TOP_K} # how many of most similar documents to return at most
+        top-p: ${OLLAMA_TOP_P}
       embedding:
-        model: nomic-embed-text-v2-moe
+        model: ${OLLAMA_EMBEDDING_MODEL}
       init:
         pull-model-strategy: when_missing
     vectorstore:
@@ -62,7 +62,7 @@ spring:
     name: spring-ai
   cloud:
     function:
-      definition: fileSupplier|duplicationFilter|documentReader|splitter|vectorStoreWriter
+      definition: fileSupplier|duplicationFilter|documentReader|documentSplitter|vectorStoreWriter
   config:
     activate:
       on-profile: default
@@ -89,6 +89,9 @@ spring:
         active:
           - ollama
           - qdrant
+      start:
+        arguments:
+          - --remove-orphans
   h2:
     console:
       enabled: true
@@ -133,8 +136,6 @@ spring:
             log:
               LOG_QUERIES_SLOWER_THAN_MS: "100"
         show_sql: false
-  liquibase:
-    enabled: false
   main:
     banner-mode: off
   mvc:
@@ -172,6 +173,9 @@ springdoc:
     path: /swagger-ui
     tagsSorter: alpha
 ---
+file:
+  supplier:
+    directory: /home/${INGEST_DIR}
 server:
   compression:
     enabled: false

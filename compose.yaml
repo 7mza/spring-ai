@@ -9,6 +9,13 @@ services:
       DB_NAME: ${DB_NAME}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_USER: ${DB_USER}
+      INGEST_DIR: ${INGEST_DIR}
+      INGEST_FILES_FILTER: ${INGEST_FILES_FILTER}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL}
+      OLLAMA_MODEL: ${OLLAMA_MODEL}
+      OLLAMA_TEMPERATURE: ${OLLAMA_TEMPERATURE}
+      OLLAMA_TOP_K: ${OLLAMA_TOP_K}
+      OLLAMA_TOP_P: ${OLLAMA_TOP_P}
       JAVA_TOOL_OPTIONS: |
         -Dspring.aot.enabled=false
         -XX:+UseG1GC
@@ -34,6 +41,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    volumes:
+      - ${INGEST_DIR}:/home/${INGEST_DIR}:ro
 
   ollama:
     build:

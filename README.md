@@ -2,7 +2,7 @@
 
 ## desc
 
-Spring AI workspace with some personal design choices
+Spring AI experimentation workspace with some design choices
 
 - Ollama as LLM backend
 - qdrant as vector store
@@ -11,21 +11,34 @@ Spring AI workspace with some personal design choices
 ## demo
 
 - basic + template prompting
-- LLM response parsing with retry/recover
+- LLM object response parsing with retry/recover
 - LLM eval
 - continuous file ingestion pipeline using spring cloud functions
+
+```text
+# ${INGEST_DIR} will be mounted as /home/${INGEST_DIR} in docker
+
+${INGEST_DIR}/
+    |
+    |_> fileSupplier -> duplicationFilter -> documentReader -> documentSplitter -> vectorStoreWriter
+```
+
 - RAG
 -
 
 ## requirements
 
-[sdkman](https://sdkman.io/)
+[SDKMAN](https://sdkman.io/)
 
 [nvm](https://github.com/nvm-sh/nvm)
 
 [docker](https://docs.docker.com/engine/install/)
 
-[nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+[Nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) (only if Nvidia gpu, if not drop services.ollama.deploy block in [compose.yaml](compose.yaml))
+
+## conf
+
+[.env](.env)
 
 ## build
 
@@ -63,4 +76,10 @@ docker compose up --build
 
 [qdrant ui](http://localhost:6333/dashboard#/collections)
 
-[h2](http://localhost:8080/h2)
+delete qdrant collection:
+
+```shell
+curl -X DELETE "http://localhost:6333/collections/embeddings"
+```
+
+[h2](http://localhost:8080/h2) `# jdbc url = jdbc:h2:mem:test_db (from .env)`

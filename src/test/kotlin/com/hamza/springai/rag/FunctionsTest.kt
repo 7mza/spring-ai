@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.ai.vectorstore.SearchRequest
 import org.springframework.ai.vectorstore.VectorStore
+import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
@@ -56,8 +57,10 @@ class FunctionsTest {
                 .builder()
                 .query("a")
                 .similarityThresholdAll()
+                // .similarityThreshold(1.0) // [0,1], higher = most similar, more selective
                 .topK(100)
-                .filterExpression("file_name == '$name'")
+                // .filterExpression("file_name == '$name'")
+                .filterExpression(FilterExpressionBuilder().eq("file_name", name).build())
                 .build(),
         )
 
