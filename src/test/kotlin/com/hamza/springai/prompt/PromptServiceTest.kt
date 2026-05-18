@@ -4,12 +4,10 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.ai.evaluation.Evaluator
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.wiremock.spring.ConfigureWireMock
 import org.wiremock.spring.EnableWireMock
 
@@ -21,9 +19,6 @@ import org.wiremock.spring.EnableWireMock
 class PromptServiceTest {
     @Autowired
     private lateinit var service: IPromptService
-
-    @MockitoBean
-    private lateinit var evaluator: Evaluator
 
     @BeforeEach
     fun beforeEach() {

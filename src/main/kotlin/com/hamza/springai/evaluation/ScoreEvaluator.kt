@@ -24,7 +24,7 @@ class ScoreEvaluator(
     @Retryable(retryFor = [JacksonException::class], maxAttempts = 5)
     override fun evaluate(request: EvaluationRequest): EvaluationResponse {
         val attempt = RetrySynchronizationManager.getContext()?.retryCount ?: 0
-        if (attempt > 0) logger.info("LLM response parsing failed, retry attempt {}", attempt)
+        if (attempt > 0) logger.warn("LLM response parsing failed, retry attempt {}", attempt)
         return chatClientBuilder
             .build()
             .prompt()
@@ -46,7 +46,7 @@ class ScoreEvaluator(
         ex: JacksonException,
         request: EvaluationRequest,
     ): EvaluationResponse {
-        logger.info("all LLM response parsing failed, applying recovery")
+        logger.warn("all LLM response parsing failed, applying recovery")
         return EvaluationResponse(false, 0f, "Could not parse LLM response", emptyMap())
     }
 

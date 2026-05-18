@@ -1,5 +1,6 @@
-package com.hamza.springai.evaluation
+package com.hamza.springai.rag
 
+import com.hamza.springai.prompt.PromptResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
@@ -13,15 +14,16 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 
-@Tag(name = "evaluation", description = "")
-@RequestMapping(value = ["/api/eval"], produces = [MediaType.APPLICATION_JSON_VALUE])
-interface IEvalApi {
+@Tag(name = "rag", description = "")
+@RequestMapping(value = ["/api/rag"], produces = [MediaType.APPLICATION_JSON_VALUE])
+interface IRagApi {
+    @PostMapping
     @Operation(
-        summary = "Evaluate & score prompt/response relevancy using configured LLM backend",
+        summary = "Send a chat prompt to configured LLM backend",
         description = """
-Return a JSON **Object response** from LLM with automatic parsing.<br /><br />
-Retry mechanism for parsing errors.<br /><br />
-(Local LLMs are not accurate).
+Will pull context (similarity search) from vector store before forwarding request to LLM.<br /><br />
+`*.dummy.md` in `INGEST_DIR` (./docs/) contains some hallucinated facts for testing.<br /><br />
+Add your documents in `INGEST_DIR` for ingestion pipeline to trigger.
 """,
     )
     @ApiResponses(
@@ -32,17 +34,13 @@ Retry mechanism for parsing errors.<br /><br />
                 content = [
                     Content(
                         mediaType = MediaType.APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = EvalResponse::class),
+                        schema = Schema(implementation = PromptResponse::class),
                         examples = [
                             ExampleObject(
                                 name = "example-0",
                                 description = "",
                                 value = """
-{
-  "prompt": "What is the capital of France?",
-  "response": "The capital of France is Paris.",
-  "evaluation": { "pass": true, "score": 0.9, "feedback": "correct" }
-}
+{ "prompt": "Who is Gretchen Faulhauser?", "response": "RAG augmented response..." }
 """,
                             ),
                         ],
@@ -51,8 +49,7 @@ Retry mechanism for parsing errors.<br /><br />
             ),
         ],
     )
-    @PostMapping
-    fun eval(
-        @RequestBody @Valid request: EvalRequest,
-    ): EvalResponse
+    fun prompt(
+        @RequestBody @Valid request: RagRequest,
+    ): PromptResponse
 }

@@ -38,13 +38,17 @@ class Functions {
         Function { flux ->
             flux.flatMap { message ->
                 val fileName = message.headers[FileHeaders.FILENAME]?.toString() ?: "unknown"
+                if (message.payload.isEmpty()) {
+                    logger.warn("file: {} is empty, skipping", fileName)
+                    return@flatMap Mono.empty()
+                }
                 val hash = DigestUtils.md5DigestAsHex(message.payload)
                 Mono
                     .fromCallable { fileService.existsByHash(hash) }
                     .subscribeOn(Schedulers.boundedElastic())
                     .doOnNext { exists ->
                         if (exists) {
-                            logger.info("file: {} already ingested, skipping", fileName)
+                            logger.warn("file: {} is already ingested, skipping", fileName)
                         } else {
                             logger.info("ingesting new file: {}", fileName)
                         }

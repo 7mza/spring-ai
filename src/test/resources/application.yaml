@@ -16,6 +16,9 @@ spring:
         model: nomic-embed-text
       init:
         pull-model-strategy: when_missing
+    vectorstore:
+      qdrant:
+        collection-name: embeddings
   data:
     web:
       pageable:
@@ -91,7 +94,6 @@ spring:
   ai:
     vectorstore:
       qdrant:
-        collection-name: embeddings
         initialize-schema: true
   cloud:
     function:

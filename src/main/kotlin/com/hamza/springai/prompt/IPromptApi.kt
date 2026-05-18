@@ -55,8 +55,8 @@ interface IPromptApi {
     @Operation(
         summary = "Ask LLM to generate a list of songs",
         description = """
-Return a JSON **object wrapper** from LLM with automatic parsing.<br />
-Retry mechanism for parsing errors.<br />
+Return a JSON **object wrapper** from LLM with automatic parsing.<br /><br />
+Retry mechanism for parsing errors.
 """,
     )
     @ApiResponses(
@@ -91,8 +91,8 @@ Retry mechanism for parsing errors.<br />
     @Operation(
         summary = "Ask LLM to generate a list of movies",
         description = """
-Return a **streamed plain-text response** from LLM with no parsing.<br />
-Tokens are emitted as they are generated. Consume with `curl -N` or an SSE client.<br />
+Return a **streamed plain-text response** from LLM with no parsing.<br /><br />
+Tokens are emitted as they are generated. Consume with `curl -N` or an SSE client.
 """,
     )
     @ApiResponses(

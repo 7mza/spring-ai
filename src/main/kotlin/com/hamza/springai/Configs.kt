@@ -9,12 +9,14 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.ansi.AnsiColor
 import org.springframework.boot.ansi.AnsiOutput
 import org.springframework.boot.ansi.AnsiStyle
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.info.BuildProperties
 import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer
 import org.springframework.boot.restclient.RestClientCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.event.ContextClosedEvent
 import org.springframework.context.event.EventListener
 import org.springframework.http.client.JdkClientHttpRequestFactory
 import org.springframework.retry.annotation.EnableRetry
@@ -73,4 +75,29 @@ class Configs(
                         },
                     ).requestInterceptor(interceptor),
             ).build()
+}
+
+// mirror jpa create-drop: wipe vector store on shutdown
+@Configuration
+@ConditionalOnProperty(name = ["spring.jpa.hibernate.ddl-auto"], havingValue = "create-drop")
+class QdrantConfigs(
+    private val restClientBuilder: RestClient.Builder,
+    @Value($$"${spring.ai.vectorstore.qdrant.host:localhost}") private val host: String,
+    @Value($$"${spring.ai.vectorstore.qdrant.collection-name}") private val name: String,
+) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
+    @EventListener(ContextClosedEvent::class)
+    fun wipeStore() {
+        runCatching {
+            restClientBuilder
+                .baseUrl("http://$host:6333")
+                .build()
+                .delete()
+                .uri("/collections/{name}", name)
+                .retrieve()
+                .toBodilessEntity()
+            logger.info("wiped qdrant collection '{}'", name)
+        }.onFailure { logger.warn("error wiping qdrant collection '{}': {}", name, it.message) }
+    }
 }
