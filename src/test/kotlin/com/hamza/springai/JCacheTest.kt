@@ -9,16 +9,16 @@ import org.hibernate.stat.Statistics
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.transaction.PlatformTransactionManager
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = ["spring.jpa.properties.hibernate.cache.use_second_level_cache=true"],
 )
-@Import(TestcontainersConfig::class)
 class JCacheTest {
     @Autowired
     private lateinit var repo: IFileRepo
@@ -32,6 +32,9 @@ class JCacheTest {
     private lateinit var statistics: Statistics
 
     private val file: File = File(name = "toto.txt", hash = "ebda01362b50602c1e46df160a7b1370")
+
+    @MockitoBean // prevent autoconf of vector store, not needed in this test
+    private lateinit var vectorStore: VectorStore
 
     @BeforeEach
     fun beforeEach() {

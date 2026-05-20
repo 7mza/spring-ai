@@ -1,8 +1,8 @@
 custom:
   supplier:
     filename-regex: .*\.(md|pdf|txt)
-    pipeline-timeout: 3600000
-    polling-interval: 30000
+    pipeline-timeout: 120000
+    polling-interval: 1000
     remote-dir: default
 logging:
   include-application-name: false
@@ -34,7 +34,7 @@ spring:
       region:
         static: us-east-1
       s3:
-        enabled: true
+        enabled: false
         endpoint: from_test_container
         path-style-access-enabled: true
     function:

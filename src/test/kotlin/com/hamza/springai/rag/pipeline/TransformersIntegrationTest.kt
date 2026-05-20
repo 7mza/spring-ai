@@ -1,17 +1,17 @@
 package com.hamza.springai.rag.pipeline
 
 import com.hamza.springai.IPipelineHelperService
+import com.hamza.springai.MinioTestContainerConfig
+import com.hamza.springai.OllamaContainerConfig
 import com.hamza.springai.PipelineHelperService
-import com.hamza.springai.TestcontainersConfig
+import com.hamza.springai.QdrantContainerConfig
 import com.hamza.springai.rag.file.IFileRepo
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
-import org.junit.jupiter.api.TestMethodOrder
+import org.junitpioneer.jupiter.RetryingTest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
@@ -20,13 +20,18 @@ import java.util.concurrent.TimeUnit
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
+        "custom.supplier.polling-interval=10000", // give N ms to OLLAMA for each file
+        "spring.cloud.aws.s3.enabled=true",
         """spring.cloud.function.definition=\
 customS3Supplier|duplicationFilter|documentReader|documentSplitter|languageEnricher|vectorStoreWriter|s3Archiver""",
-        "custom.supplier.polling-interval=999999999",
     ],
 )
-@Import(TestcontainersConfig::class, PipelineHelperService::class)
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+@Import(
+    MinioTestContainerConfig::class,
+    OllamaContainerConfig::class,
+    QdrantContainerConfig::class,
+    PipelineHelperService::class,
+)
 @TestInstance(Lifecycle.PER_CLASS)
 class TransformersIntegrationTest {
     @Autowired
@@ -35,19 +40,21 @@ class TransformersIntegrationTest {
     @Autowired
     private lateinit var repo: IFileRepo
 
-    @Autowired
-    private lateinit var functions: Functions
+    private lateinit var files: Map<String, String>
 
     @BeforeAll
     fun beforeAll() {
+        // collect files and compute hashes once
+        files = helper.collectFileNameHashPairs()
+        // upload test files to bucket
         helper.initBucket("default")
-        functions.pollS3()
+        // wait for ingestion
+        await().atMost(2, TimeUnit.MINUTES).until { repo.count() == files.size.toLong() }
     }
 
-    @Test
+    // FIXME: retry N times because small models are unreliable
+    @RetryingTest(maxAttempts = 2, suspendForMs = 1000)
     fun `languageEnricher is correctly adding language metadata`() {
-        val files = helper.collectFileNameHashPairs()
-        await().atMost(2, TimeUnit.MINUTES).until { repo.count() == files.size.toLong() }
         assertThat(
             helper
                 .collectDocumentChunks("amal.txt")

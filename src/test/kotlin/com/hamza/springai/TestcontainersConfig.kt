@@ -13,7 +13,7 @@ import org.testcontainers.qdrant.QdrantContainer
 import org.testcontainers.utility.DockerImageName
 
 @TestConfiguration(proxyBeanMethods = false)
-class TestcontainersConfig {
+class MinioTestContainerConfig {
     @Bean
     fun minioContainer(): MinIOContainer = MinIOContainer(DockerImageName.parse("minio/minio:latest"))
 
@@ -24,11 +24,10 @@ class TestcontainersConfig {
             it.add("spring.cloud.aws.credentials.secret-key") { minioContainer.password }
             it.add("spring.cloud.aws.s3.endpoint") { minioContainer.s3URL }
         }
+}
 
-    @Bean
-    @ServiceConnection
-    fun qdrantContainer(): QdrantContainer = QdrantContainer(DockerImageName.parse("qdrant/qdrant:latest"))
-
+@TestConfiguration(proxyBeanMethods = false)
+class OllamaContainerConfig {
     @Bean
     @ServiceConnection
     fun ollamaContainer(): OllamaContainer =
@@ -46,4 +45,11 @@ class TestcontainersConfig {
                         ),
                     ).withBinds(Bind("ollama_data", Volume("/root/.ollama")))
             }
+}
+
+@TestConfiguration(proxyBeanMethods = false)
+class QdrantContainerConfig {
+    @Bean
+    @ServiceConnection
+    fun qdrantContainer(): QdrantContainer = QdrantContainer(DockerImageName.parse("qdrant/qdrant:latest"))
 }

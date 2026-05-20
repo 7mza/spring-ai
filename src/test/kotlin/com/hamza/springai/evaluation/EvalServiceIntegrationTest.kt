@@ -1,16 +1,18 @@
 package com.hamza.springai.evaluation
 
-import com.hamza.springai.TestcontainersConfig
+import com.hamza.springai.OllamaContainerConfig
 import org.assertj.core.api.Assertions.assertThat
 import org.junitpioneer.jupiter.RetryingTest
 import org.slf4j.LoggerFactory
+import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(TestcontainersConfig::class)
+@Import(OllamaContainerConfig::class)
 class EvalServiceIntegrationTest {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -21,6 +23,9 @@ class EvalServiceIntegrationTest {
     private lateinit var model: String
 
     private val prompt = "What is the capital of France?"
+
+    @MockitoBean // prevent autoconf of vector store, not needed in this test
+    private lateinit var vectorStore: VectorStore
 
     // FIXME: retry N times because small models are unreliable
     @RetryingTest(maxAttempts = 5, suspendForMs = 1000)

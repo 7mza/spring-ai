@@ -109,6 +109,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_USER: ${DB_USER}
       INGEST_FILES_FILTER: ${INGEST_FILES_FILTER}
+      INGEST_POLL_INTERVAL: ${INGEST_POLL_INTERVAL}
       JAVA_TOOL_OPTIONS: |
         -Dspring.aot.enabled=false
         -XX:+UseG1GC

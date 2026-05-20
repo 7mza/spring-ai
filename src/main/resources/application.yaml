@@ -1,8 +1,8 @@
 custom:
   supplier:
     filename-regex: ${INGEST_FILES_FILTER}
-    pipeline-timeout: 3600000
-    polling-interval: 30000
+    pipeline-timeout: 600000
+    polling-interval: ${INGEST_POLL_INTERVAL}
     remote-dir: ${MINIO_DEFAULT_BUCKET}
 logbook:
   format:
@@ -70,6 +70,7 @@ spring:
       region:
         static: us-east-1
       s3:
+        enabled: true
         endpoint: http://localhost:9000
         path-style-access-enabled: true
     function:

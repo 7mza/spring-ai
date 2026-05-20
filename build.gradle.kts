@@ -34,6 +34,7 @@ java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
 repositories { mavenCentral() }
 
 extra["springAiVersion"] = "2.0.0-M6"
+extra["springAwsVersion"] = "4.0.2"
 extra["springCloudVersion"] = "2025.1.1"
 extra["springFunctionsCatalogVersion"] = "6.0.0"
 
@@ -59,6 +60,7 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
     // implementation("info.picocli:picocli-spring-boot-starter:$picocliVersion")
+    implementation("io.awspring.cloud:spring-cloud-aws-starter-s3")
     implementation("io.hypersistence:hypersistence-tsid:$hypersistenceTsidVersion")
     // implementation("net.datafaker:datafaker:$dataFakerVersion")
     implementation("org.ehcache:ehcache::jakarta")
@@ -76,8 +78,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-restclient")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
-    implementation("org.springframework.cloud.fn:spring-s3-supplier")
     implementation("org.springframework.cloud:spring-cloud-function-context")
+    implementation("org.springframework.integration:spring-integration-file")
     implementation("org.springframework.retry:spring-retry:$springRetryVersion")
     implementation("org.zalando:logbook-spring-boot-starter:$logbookSpringVersion")
     implementation("tools.jackson.module:jackson-module-kotlin")
@@ -109,6 +111,7 @@ dependencies {
 
 dependencyManagement {
     imports {
+        mavenBom("io.awspring.cloud:spring-cloud-aws-dependencies:${property("springAwsVersion")}")
         mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
         mavenBom(
             "org.springframework.cloud.fn:spring-functions-catalog-bom:${property("springFunctionsCatalogVersion")}",

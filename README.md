@@ -117,6 +117,7 @@ curl -X DELETE "http://localhost:6333/collections/embeddings"
 
 ## todo
 
+- await tests are unreliable because ollama/gpu timeouts
 - `app --poll--> minio` to `app <--notify-- minio` (SQS/SNS)
 - atomic H2 and Qdrant write: outbox (H2 as source of truth)
 

@@ -1,15 +1,20 @@
 package com.hamza.springai
 
+import io.awspring.cloud.autoconfigure.core.AwsClientBuilderConfigurer
+import io.awspring.cloud.autoconfigure.core.AwsConnectionDetails
+import io.awspring.cloud.autoconfigure.s3.properties.S3Properties
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
 import org.slf4j.LoggerFactory
 import org.springframework.ai.model.ollama.autoconfigure.OllamaConnectionDetails
 import org.springframework.ai.ollama.api.OllamaApi
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.ansi.AnsiColor
 import org.springframework.boot.ansi.AnsiOutput
 import org.springframework.boot.ansi.AnsiStyle
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.info.BuildProperties
@@ -23,6 +28,7 @@ import org.springframework.http.client.JdkClientHttpRequestFactory
 import org.springframework.retry.annotation.EnableRetry
 import org.springframework.web.client.RestClient
 import org.zalando.logbook.spring.LogbookClientHttpRequestInterceptor
+import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.BucketAlreadyOwnedByYouException
 import java.net.InetAddress
@@ -78,6 +84,20 @@ class Configs(
             ).build()
 
     @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(name = ["spring.cloud.aws.s3.enabled"], havingValue = "true")
+    fun s3AsyncClient(
+        configurer: AwsClientBuilderConfigurer,
+        connectionDetails: ObjectProvider<AwsConnectionDetails>,
+        properties: S3Properties,
+    ): S3AsyncClient =
+        configurer
+            .configureAsyncClient(S3AsyncClient.builder(), properties, connectionDetails.ifAvailable, null, null)
+            .serviceConfiguration(properties.toS3Configuration())
+            .build()
+
+    @Bean
+    @ConditionalOnProperty(name = ["spring.cloud.aws.s3.enabled"], havingValue = "true")
     fun createBucket(
         s3Client: S3Client,
         @Value($$"${custom.supplier.remote-dir}") bucket: String,

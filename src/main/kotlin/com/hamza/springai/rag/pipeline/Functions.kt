@@ -12,6 +12,7 @@ import org.springframework.ai.reader.tika.TikaDocumentReader
 import org.springframework.ai.transformer.splitter.TokenTextSplitter
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.cloud.function.context.FunctionCatalog
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -93,6 +94,7 @@ import java.util.function.Supplier
  *     - OR raise the alert level and require manual intervention for zero-chunk files
  */
 @Configuration
+@ConditionalOnProperty(name = ["spring.cloud.aws.s3.enabled"], havingValue = "true")
 class Functions(
     private val vectorStore: VectorStore,
     private val fileService: IFileService,

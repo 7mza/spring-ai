@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **AI**: Spring AI 2.0.0-M6 with Ollama (chat + embeddings)
 - **Vector store**: Qdrant
 - **Object store**: MinIO (S3-compatible)
-- **Database**: H2 in-memory (resets on restart; outbox pattern is planned for persistence)
+- **Database**: H2, local file
 - **Pipeline**: Spring Cloud Function
 
 ## Commands
@@ -43,7 +43,7 @@ docker compose up --build
 ./gradlew test --tests "com.hamza.springai.rag.FunctionsIntegrationTest"
 ```
 
-Integration tests spin up real Testcontainers (MinIO, Qdrant, Ollama with GPU passthrough) — they are slow.
+Integration tests spin up real Testcontainers (MinIO, Qdrant, Ollama with GPU passthrough).
 
 ### Lint / Format
 
@@ -122,16 +122,16 @@ Two modes: manual (fetch context with `similaritySearch` then template-inject) a
 ### Atomicity / known limitations
 
 - H2 and Qdrant writes are **not atomic** — a crash between them leaves orphaned vectors
-- H2 is in-memory — all deduplication state is lost on restart
 - Files stranded in `processing/` after a crash require manual recovery (move back to root)
 - Outbox pattern (H2 as source of truth + reliable event log) is planned to address both
 
 ## Testing conventions
 
-- Integration tests import `TestcontainersConfig` and optionally `PipelineHelperService`
-- `@TestInstance(Lifecycle.PER_CLASS)` + `@TestMethodOrder(OrderAnnotation::class)` used for ordered pipeline tests that
-  share state
-- WireMock (`wiremock-spring-boot`) for HTTP-level LLM mocking in unit tests
+- Integration tests import **only necessary** containers through `TestcontainersConfig` file and optionally
+  `PipelineHelperService` to init bucket.
+- WireMock (`wiremock-spring-boot`) for HTTP-level LLM mocking in unit tests when possible.
+- S3 autoconfiguration (for pipeline) is optional through `spring.cloud.aws.s3.enabled` and disabled by default in tests
+  conf. Enable it explicitly when a test needs it, example `FunctionsIntegrationTest`.
 
 ## Dev consoles
 

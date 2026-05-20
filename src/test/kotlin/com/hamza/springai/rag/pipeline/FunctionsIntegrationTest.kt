@@ -1,19 +1,18 @@
 package com.hamza.springai.rag.pipeline
 
 import com.hamza.springai.IPipelineHelperService
+import com.hamza.springai.MinioTestContainerConfig
+import com.hamza.springai.OllamaContainerConfig
 import com.hamza.springai.PipelineHelperService
-import com.hamza.springai.TestcontainersConfig
+import com.hamza.springai.QdrantContainerConfig
 import com.hamza.springai.rag.file.IFileRepo
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
-import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -22,10 +21,17 @@ import java.util.concurrent.TimeUnit
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = ["custom.supplier.polling-interval=999999999"],
+    properties = [
+        "custom.supplier.polling-interval=1000", // ingest as fast as possible
+        "spring.cloud.aws.s3.enabled=true",
+    ],
 )
-@Import(TestcontainersConfig::class, PipelineHelperService::class)
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+@Import(
+    MinioTestContainerConfig::class,
+    OllamaContainerConfig::class,
+    QdrantContainerConfig::class,
+    PipelineHelperService::class,
+)
 @TestInstance(Lifecycle.PER_CLASS)
 class FunctionsIntegrationTest {
     @Autowired
@@ -37,22 +43,20 @@ class FunctionsIntegrationTest {
     @Autowired
     private lateinit var repo: IFileRepo
 
-    @Autowired
-    private lateinit var functions: Functions
+    private lateinit var files: Map<String, String>
 
     @BeforeAll
     fun beforeAll() {
+        // collect files and compute hashes once
+        files = helper.collectFileNameHashPairs()
+        // upload test files to bucket
         helper.initBucket("default")
-        functions.pollS3()
+        // wait for ingestion
+        await().atMost(1, TimeUnit.MINUTES).until { repo.count() == files.size.toLong() }
     }
 
     @Test
-    @Order(1)
     fun `ingestion pipeline should trigger on start and ingest all files from configured path`() {
-        // collect files and compute hashes
-        val files = helper.collectFileNameHashPairs()
-        // wait for pipeline
-        await().atMost(1, TimeUnit.MINUTES).until { repo.count() == files.size.toLong() }
         files.forEach { (name, hash) ->
             // check all files were ingested
             assertTrue(repo.existsByHash(hash)) { "file $name was not ingested" }
@@ -67,11 +71,9 @@ class FunctionsIntegrationTest {
         }
     }
 
+    // FIXME: move to rag service tests, similarity shouldn't concern pipeline
     @Test
-    @Order(2)
     fun `after ingestion, similarity search should be done in correct file`() {
-        val files = helper.collectFileNameHashPairs()
-        await().atMost(1, TimeUnit.MINUTES).until { repo.count() == files.size.toLong() }
         val document = vectorStore.similaritySearch("what is the opposite of hope?").first()
         assertThat(document.metadata["file_name"]).isEqualTo("hope.pdf")
         assertThat(document.text).contains("optimistic", "confidence", "cherish", "anticipation")
@@ -80,13 +82,12 @@ class FunctionsIntegrationTest {
     }
 
     @Test
-    @Order(3)
     fun `pipeline should not re-ingest already ingested files`() {
-        val files = helper.collectFileNameHashPairs()
-        await().atMost(1, TimeUnit.MINUTES).until { repo.count() == files.size.toLong() }
+        // collect chunks
         val chunkCountBefore = files.keys.sumOf { helper.collectDocumentChunks(it).size }
-        // trigger a second pipeline
-        functions.pollS3()
+        // reupload same files
+        helper.initBucket("default")
+        // check nothing changed in DBs
         await()
             .atMost(10, TimeUnit.SECONDS)
             .until {
