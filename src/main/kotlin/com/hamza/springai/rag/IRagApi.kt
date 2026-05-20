@@ -22,7 +22,7 @@ interface IRagApi {
         summary = "Send a prompt to LLM",
         description = """
 Manual context pull (similarity search) from vector store before forwarding request to LLM.<br /><br />
-To test, upload your documents in MinIO for ingestion pipeline to trigger.
+To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.
 """,
     )
     @ApiResponses(
@@ -57,7 +57,7 @@ To test, upload your documents in MinIO for ingestion pipeline to trigger.
         summary = "Send a prompt to LLM",
         description = """
 Automatic context pull (using advisor) from vector store before forwarding request to LLM.<br /><br />
-To test, upload your documents in MinIO for ingestion pipeline to trigger.
+To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.
 """,
     )
     @ApiResponses(

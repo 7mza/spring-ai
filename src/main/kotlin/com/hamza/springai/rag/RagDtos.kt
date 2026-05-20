@@ -7,7 +7,7 @@ data class RagRequest(
     @field:NotBlank
     @field:Schema(
         description = "prompt to send to LLM",
-        example = "Who is Gretchen Faulhauser? (short answer)",
+        example = "What is the capital of France?",
     )
     val prompt: String,
 )

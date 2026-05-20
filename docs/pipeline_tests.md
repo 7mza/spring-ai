@@ -5,7 +5,7 @@
 - Upload a PDF → appears in Qdrant with correct `file_name` and `file_hash` metadata, hash recorded in H2, file moved to
   `processed/`
 - Upload a TXT → same as above
-- Upload a markdown file → same as above
+- Upload a Markdown file → same as above
 - Upload multiple files simultaneously → all ingested, each appears exactly once in Qdrant
 
 ## Deduplication
@@ -41,7 +41,7 @@
 ## Large files
 
 - Upload a large PDF (>100MB) → no OOM, completes successfully, memory usage stays bounded
-- Upload a multi-page PDF → all pages indexed, single `file_hash` entry in H2, single archive operation
+- Upload a multipage PDF → all pages indexed, single `file_hash` entry in H2, single archive operation
 
 ## moveAsync idempotency
 

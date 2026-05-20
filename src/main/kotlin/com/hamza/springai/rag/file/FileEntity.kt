@@ -46,4 +46,12 @@ class File(
     override fun equals(other: Any?): Boolean = this === other || (other is File && this.id == other.id)
 
     override fun hashCode(): Int = this.id.hashCode()
+
+    fun toDto(): FileDto =
+        FileDto(
+            id = this.id.id.encodeToString(),
+            name = this.name,
+            hash = this.hash,
+            createdAt = this.createdAt.toString(),
+        )
 }

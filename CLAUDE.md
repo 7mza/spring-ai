@@ -40,7 +40,7 @@ docker compose up --build
 
 ```shell
 ./gradlew test
-./gradlew test --tests "com.hamza.springai.rag.FunctionsIntegrationTest"
+./gradlew test --tests "com.hamza.springai.rag.pipeline.FunctionsIntegrationTest"
 ```
 
 Integration tests spin up real Testcontainers (MinIO, Qdrant, Ollama with GPU passthrough).
@@ -59,6 +59,7 @@ npm run format           # prettier for YAML/JSON/XML/MD
 ./gradlew dependencyUpdates          # check for newer versions
 ./gradlew generateOpenApiDocs        # generate docs/api-docs.yaml (starts app on port 8013)
 ./gradlew dependencyCheckAnalyze     # OWASP CVE scan (needs NVD_APIKEY env var)
+./clean.sh                           # hard clean: removes .gradle/, node_modules/, package-lock.json
 ```
 
 ## Architecture
@@ -74,6 +75,22 @@ Three packages under `com.hamza.springai`, each following the same layering:
 | `evaluation/` | LLM-as-judge evaluation via Spring AI `Evaluator`                                                |
 
 Each package has a `I*Api` interface (OpenAPI contract), `*Ctrl` (REST controller), `*Service`/`I*Service`, and `*Dtos`.
+
+### Data layer (`data/`)
+
+All JPA entities extend `BaseEntity<ID>` which provides `createdAt`, `updatedAt`, and `version` (optimistic locking).
+Entity PKs are TSID-based: stored as `Long` in H2, exposed as base62 strings in the API via `TSID.encode(62)`. The
+`TSIDAttributeConverter` applies automatically via `@Converter(autoApply = true)`.
+
+### Caching
+
+The `File` entity uses Hibernate L2 cache (JCache/Ehcache, region `"files"`, configured in `ehcache.xml`). The L2
+cache is **disabled by default in tests** (`spring.cache.disabled=true`). Enable per-test with:
+
+```kotlin
+SpringBootTest(properties = ["spring.jpa.properties.hibernate.cache.use_second_level_cache=true"])
+class Test
+```
 
 ### Ingestion pipeline (`rag/pipeline/Functions.kt`, spec: `docs/pipeline_specs_v1.md`)
 
@@ -109,7 +126,22 @@ risk that must be fixed first.
 ### RAG (`rag/RagService.kt`)
 
 Two modes: manual (fetch context with `similaritySearch` then template-inject) and advisor-based (
-`QuestionAnswerAdvisor`). Similarity threshold is 0.3; a debug log prints all scores without threshold for tuning.
+`QuestionAnswerAdvisor`). Similarity threshold is 0.3; a debug log prints all scores without threshold for tuning. The
+advisor mode supports Qdrant metadata filtering (e.g. `language == 'en'`) — useful once enrichers are wired.
+
+### Prompt templates
+
+All LLM prompt templates are `.st` (StringTemplate4) files under `src/main/resources/prompt_templates/`:
+
+- `prompt/` — topic template for structured response examples
+- `rag/` — language detection and quality evaluation prompts for enrichers
+- `eval/` — system + evaluation prompts for `ScoreEvaluator`
+
+### Spring Retry (structured output)
+
+`@Retryable(JacksonException, maxAttempts=5)` + `@Recover` fallback is the pattern for LLM endpoints that must return
+structured JSON. Used in `PromptService.songs()` and `ScoreEvaluator.evaluate()`. The Ollama client timeout is
+overridden to 2 minutes in `Configs.kt` to accommodate slow model responses.
 
 ### Config profiles
 
@@ -118,6 +150,9 @@ Two modes: manual (fetch context with `similaritySearch` then template-inject) a
 | `default`   | Local dev (active by default)                                                          |
 | `container` | Docker Compose deployment — disables docker compose support, changes service hostnames |
 | `openapi`   | Doc generation only — silences all logs, uses port 8013                                |
+
+`QdrantConfigs` (in `Configs.kt`) mirrors JPA `create-drop`: it wipes the Qdrant collection on shutdown when
+`spring.jpa.hibernate.ddl-auto=create-drop`. This is active in the `default` profile for clean dev restarts.
 
 ### Atomicity / known limitations
 
