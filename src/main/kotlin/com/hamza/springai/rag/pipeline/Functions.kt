@@ -1,4 +1,4 @@
-package com.hamza.springai.rag
+package com.hamza.springai.rag.pipeline
 
 import com.hamza.springai.rag.file.File
 import com.hamza.springai.rag.file.IFileService
@@ -16,6 +16,7 @@ import org.springframework.cloud.function.context.FunctionCatalog
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.InputStreamResource
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.integration.file.FileHeaders
 import org.springframework.messaging.Message
 import org.springframework.messaging.support.MessageBuilder
@@ -420,7 +421,7 @@ class Functions(
                             vectorStore.accept(docs)
                             try {
                                 fileService.save(File(hash = hash, name = name))
-                            } catch (_: org.springframework.dao.DataIntegrityViolationException) {
+                            } catch (_: DataIntegrityViolationException) {
                                 // same-ETag race — see KDoc above
                                 logger.warn("duplicate content race for: {}, archiving anyway", name)
                             }

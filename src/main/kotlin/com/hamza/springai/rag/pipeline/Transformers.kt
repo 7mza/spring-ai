@@ -1,4 +1,4 @@
-package com.hamza.springai.rag
+package com.hamza.springai.rag.pipeline
 
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient

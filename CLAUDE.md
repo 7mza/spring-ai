@@ -75,7 +75,7 @@ Three packages under `com.hamza.springai`, each following the same layering:
 
 Each package has a `I*Api` interface (OpenAPI contract), `*Ctrl` (REST controller), `*Service`/`I*Service`, and `*Dtos`.
 
-### Ingestion pipeline (`rag/Functions.kt`, spec: `docs/pipeline_specs_v1.md`)
+### Ingestion pipeline (`rag/pipeline/Functions.kt`, spec: `docs/pipeline_specs_v1.md`)
 
 When working on the pipeline, always check `docs/pipeline_specs_v1.md` for drift. **Never modify that file directly** —
 report inconsistencies to the user first.

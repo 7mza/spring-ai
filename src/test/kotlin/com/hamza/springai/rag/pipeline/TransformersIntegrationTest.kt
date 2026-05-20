@@ -1,4 +1,4 @@
-package com.hamza.springai.rag
+package com.hamza.springai.rag.pipeline
 
 import com.hamza.springai.IPipelineHelperService
 import com.hamza.springai.PipelineHelperService
