@@ -136,6 +136,6 @@ Two modes: manual (fetch context with `similaritySearch` then template-inject) a
 ## Dev consoles
 
 - Swagger UI: http://localhost:8080/swagger-ui
-- H2 console: http://localhost:8080/h2 (JDBC URL: `jdbc:h2:mem:test_db`)
+- H2 console: http://localhost:8080/h2 (JDBC URL: `jdbc:h2:file:~/springai_db` from .env)
 - MinIO console: http://localhost:9001/browser/default/
 - Qdrant dashboard: http://localhost:6333/dashboard#/collections

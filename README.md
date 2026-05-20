@@ -50,7 +50,9 @@ customS3Supplier ------> ${MINIO_DEFAULT_BUCKET}/
 
 any error in pipeline will move file to `/error` for manual correction
 
-to test 1 or many enricher functions (unstable) add them in `spring.cloud.function.definition` in [application.yml](src/main/resources/application.yaml) between documentSplitter and vectorStoreWriter (they will slow down pipeline)
+to test 1 or many enricher functions (unstable) add them in `spring.cloud.function.definition`
+in [application.yml](src/main/resources/application.yaml) between documentSplitter and vectorStoreWriter (they will slow
+down pipeline)
 
 ## requirements
 
@@ -111,9 +113,25 @@ delete qdrant collection:
 curl -X DELETE "http://localhost:6333/collections/embeddings"
 ```
 
-[H2 console](http://localhost:8080/h2) `# jdbc url = jdbc:h2:mem:test_db (from .env)`
+[H2 console](http://localhost:8080/h2) `# jdbc url = jdbc:h2:file:~/springai_db (from .env)`
 
 ## todo
 
 - `app --poll--> minio` to `app <--notify-- minio` (SQS/SNS)
 - atomic H2 and Qdrant write: outbox (H2 as source of truth)
+
+## clean
+
+```shell
+# remove local h2 db
+rm ~/springai_db.mv.db
+```
+
+```shell
+# clean docker volumes
+docker volume rm \
+  minio_data \
+  ollama_data \
+  qdrant_data \
+  springai_data
+```

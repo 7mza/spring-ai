@@ -88,6 +88,8 @@ services:
       - "6333:6333"
       - "6334:6334"
     restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
 
   spring-ai:
     image: spring-ai:latest
@@ -136,9 +138,15 @@ services:
     ports:
       - "8080:80"
     restart: unless-stopped
+    volumes:
+      - springai_data:/data
 
 volumes:
   minio_data:
     name: minio_data
   ollama_data:
     name: ollama_data
+  qdrant_data:
+    name: qdrant_data
+  springai_data:
+    name: springai_data

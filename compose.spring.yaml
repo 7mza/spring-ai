@@ -25,3 +25,5 @@ volumes:
     name: minio_data
   ollama_data:
     name: ollama_data
+  qdrant_data:
+    name: qdrant_data
