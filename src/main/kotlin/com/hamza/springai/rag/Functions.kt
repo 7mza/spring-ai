@@ -407,9 +407,10 @@ class Functions(
         Function { flux ->
             flux
                 .flatMap({ docs ->
-                    val name = docs.first().metadata["file_name"]?.toString() ?: "unknown"
-                    val hash = docs.first().metadata["file_hash"]?.toString() ?: "unknown"
-                    if (docs.isEmpty()) {
+                    val first = docs.firstOrNull()
+                    val name = first?.metadata?.get("file_name")?.toString() ?: "unknown"
+                    val hash = first?.metadata?.get("file_hash")?.toString() ?: "unknown"
+                    if (first == null) {
                         logger.warn("no chunks produced for: {}, moving to processed/", name)
                         return@flatMap moveAsync("processing/$name", "processed/$name").then(Mono.empty())
                     }

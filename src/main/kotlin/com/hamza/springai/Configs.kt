@@ -58,9 +58,7 @@ class Configs(
     fun logbookCustomizer(interceptor: LogbookClientHttpRequestInterceptor): RestClientCustomizer =
         RestClientCustomizer { it.requestInterceptor(interceptor) }
 
-    /* Increase ollama client timeout
-     * FIXME: does it override other defaultChatOptions ?
-     */
+    // increase ollama client timeout
     @Bean
     fun ollamaApi(
         connectionDetails: OllamaConnectionDetails,

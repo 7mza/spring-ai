@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit
     properties = [
         """spring.cloud.function.definition=\
 customS3Supplier|duplicationFilter|documentReader|documentSplitter|languageEnricher|vectorStoreWriter|s3Archiver""",
+        "custom.supplier.polling-interval=999999999",
     ],
 )
 @Import(TestcontainersConfig::class, PipelineHelperService::class)
@@ -34,9 +35,13 @@ class TransformersIntegrationTest {
     @Autowired
     private lateinit var repo: IFileRepo
 
+    @Autowired
+    private lateinit var functions: Functions
+
     @BeforeAll
     fun beforeAll() {
         helper.initBucket("default")
+        functions.pollS3()
     }
 
     @Test

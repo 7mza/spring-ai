@@ -22,8 +22,7 @@ interface IRagApi {
         summary = "Send a prompt to LLM",
         description = """
 Manual context pull (similarity search) from vector store before forwarding request to LLM.<br /><br />
-`*.dummy.md` in `INGEST_DIR` (./docs/) contains some hallucinated facts for testing.<br /><br />
-Add your documents in `INGEST_DIR` for ingestion pipeline to trigger.
+To test, upload your documents in MinIO for ingestion pipeline to trigger.
 """,
     )
     @ApiResponses(
@@ -40,7 +39,7 @@ Add your documents in `INGEST_DIR` for ingestion pipeline to trigger.
                                 name = "example-0",
                                 description = "",
                                 value = """
-{ "prompt": "Who is Gretchen Faulhauser?", "response": "RAG augmented response..." }
+{ "prompt": "What is the capital of France?", "response": "The capital of France is Paris." }
 """,
                             ),
                         ],
@@ -58,8 +57,7 @@ Add your documents in `INGEST_DIR` for ingestion pipeline to trigger.
         summary = "Send a prompt to LLM",
         description = """
 Automatic context pull (using advisor) from vector store before forwarding request to LLM.<br /><br />
-`*.dummy.md` in `INGEST_DIR` (./docs/) contains some hallucinated facts for testing.<br /><br />
-Add your documents in `INGEST_DIR` for ingestion pipeline to trigger.
+To test, upload your documents in MinIO for ingestion pipeline to trigger.
 """,
     )
     @ApiResponses(
@@ -76,7 +74,7 @@ Add your documents in `INGEST_DIR` for ingestion pipeline to trigger.
                                 name = "example-0",
                                 description = "",
                                 value = """
-{ "prompt": "Who is Gretchen Faulhauser?", "response": "RAG augmented response..." }
+{ "prompt": "What is the capital of France?", "response": "The capital of France is Paris." }
 """,
                             ),
                         ],

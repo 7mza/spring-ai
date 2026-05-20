@@ -76,7 +76,8 @@ Receives `file_name` and `file_hash` from `S3_Supplier` then
 uses [FileService](../src/main/kotlin/com/hamza/springai/rag/file/FileService.kt) (don't focus on db services, it's out
 of scop here) to check if a DB entry with same content hash exists:
 
-- exits: move file from `/` to `/processed/`, then trigger `Document_Reader` with empty message
+- exits: move file from `/` to `/processed/`, then drop the message from the pipeline (do not forward to
+  `Document_Reader`)
 - not: move file from `/` to `/processing/`, then trigger `Document_Reader` with `/processing/file_name`
 
 ### Document_Reader
@@ -103,7 +104,9 @@ Should forward list of token it produces to `Vector_Store_Writer`
 - Receives list of tokens from `Document_Splitter`
 - write them in vector store
 - write file hash in DB :
-  - if there's a hash unique constraint error (race condition) move file to `/error/`
+  - if there's a hash unique constraint error (same-content race condition): log a WARN and continue — vectors are
+    already written to Qdrant so the file is effectively processed; archive to `/processed/` via the normal
+    `S3_Archiver` path (not `/error/`, which would cause a manual retry and double-ingestion)
 - forward `file_name` to `S3_Archiver`
 
 Vector and DB write are not atomic in V1

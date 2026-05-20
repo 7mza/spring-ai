@@ -23,12 +23,7 @@ class RagService(
 ) : IRagService {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    private val chatClient =
-        chatClientBuilder
-            .build()
-            .mutate()
-            .defaultAdvisors(QuestionAnswerAdvisor.builder(vectorStore).build())
-            .build()
+    private val chatClient = chatClientBuilder.build()
 
     private val promptTemplate =
         """
@@ -70,6 +65,9 @@ class RagService(
 
     override fun promptWithAdvisor(request: RagRequest): PromptResponse =
         chatClient
+            .mutate()
+            .defaultAdvisors(QuestionAnswerAdvisor.builder(vectorStore).build())
+            .build()
             .prompt()
             .user(request.prompt)
             // .advisors(QuestionAnswerAdvisor.builder(vectorStore).build())

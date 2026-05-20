@@ -17,11 +17,13 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.cloud.function.context.FunctionCatalog
 import org.springframework.context.annotation.Import
 import java.util.concurrent.TimeUnit
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = ["custom.supplier.polling-interval=999999999"],
+)
 @Import(TestcontainersConfig::class, PipelineHelperService::class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @TestInstance(Lifecycle.PER_CLASS)
@@ -36,11 +38,12 @@ class FunctionsIntegrationTest {
     private lateinit var repo: IFileRepo
 
     @Autowired
-    private lateinit var catalog: FunctionCatalog
+    private lateinit var functions: Functions
 
     @BeforeAll
     fun beforeAll() {
         helper.initBucket("default")
+        functions.pollS3()
     }
 
     @Test
@@ -83,10 +86,9 @@ class FunctionsIntegrationTest {
         await().atMost(1, TimeUnit.MINUTES).until { repo.count() == files.size.toLong() }
         val chunkCountBefore = files.keys.sumOf { helper.collectDocumentChunks(it).size }
         // trigger a second pipeline
-        catalog.lookup<Runnable>(null).run()
+        functions.pollS3()
         await()
-            .pollDelay(30, TimeUnit.SECONDS)
-            .atMost(1, TimeUnit.MINUTES)
+            .atMost(10, TimeUnit.SECONDS)
             .until {
                 // check no new ingestion + no new chuck
                 repo.count() == files.size.toLong() &&
