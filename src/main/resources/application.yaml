@@ -59,6 +59,7 @@ spring:
     vectorstore:
       qdrant:
         collection-name: embeddings
+        host: localhost
         initialize-schema: true
   application:
     name: spring-ai

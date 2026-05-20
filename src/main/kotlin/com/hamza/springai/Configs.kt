@@ -26,6 +26,7 @@ import org.springframework.context.event.ContextClosedEvent
 import org.springframework.context.event.EventListener
 import org.springframework.http.client.JdkClientHttpRequestFactory
 import org.springframework.retry.annotation.EnableRetry
+import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.web.client.RestClient
 import org.zalando.logbook.spring.LogbookClientHttpRequestInterceptor
 import software.amazon.awssdk.services.s3.S3AsyncClient
@@ -36,6 +37,7 @@ import java.time.Duration
 
 @Configuration
 @EnableRetry
+@EnableScheduling
 class Configs(
     @Value($$"${server.port}") private val port: Int,
 ) {
@@ -112,7 +114,7 @@ class Configs(
 @ConditionalOnProperty(name = ["spring.jpa.hibernate.ddl-auto"], havingValue = "create-drop")
 class QdrantConfigs(
     private val restClientBuilder: RestClient.Builder,
-    @Value($$"${spring.ai.vectorstore.qdrant.host:localhost}") private val host: String,
+    @Value($$"${spring.ai.vectorstore.qdrant.host}") private val host: String,
     @Value($$"${spring.ai.vectorstore.qdrant.collection-name}") private val name: String,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)

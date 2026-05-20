@@ -15,7 +15,7 @@ Spring AI experimentation workspace with some design choices
 - LLM object response parsing with retry/recover
 - LLM eval
 - continuous file ingestion pipeline using spring cloud functions
-- [enrichers/transformers](src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt)
+- [enrichers/transformers](src/main/kotlin/com/hamza/springai/rag/pipeline/Transformers.kt)
   - language detection
   - quality evaluation
   - keywords

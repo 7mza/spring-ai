@@ -87,9 +87,10 @@ class FunctionsIntegrationTest {
         val chunkCountBefore = files.keys.sumOf { helper.collectDocumentChunks(it).size }
         // reupload same files
         helper.initBucket("default")
-        // check nothing changed in DBs
+        // wait for new polls
         await()
-            .atMost(10, TimeUnit.SECONDS)
+            .during(10, TimeUnit.SECONDS)
+            .atMost(11, TimeUnit.SECONDS)
             .until {
                 // check no new ingestion + no new chuck
                 repo.count() == files.size.toLong() &&
