@@ -1,6 +1,6 @@
 package com.hamza.springai.prompt
 
-import com.hamza.springai.OllamaContainerWithGpu
+import com.hamza.springai.TestcontainersConfig
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import
 import reactor.test.StepVerifier
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(OllamaContainerWithGpu::class)
+@Import(TestcontainersConfig::class)
 class PromptServiceIntegrationTest {
     private val logger = LoggerFactory.getLogger(javaClass)
 

@@ -1,6 +1,6 @@
 package com.hamza.springai.evaluation
 
-import com.hamza.springai.OllamaContainerWithGpu
+import com.hamza.springai.TestcontainersConfig
 import org.assertj.core.api.Assertions.assertThat
 import org.junitpioneer.jupiter.RetryingTest
 import org.slf4j.LoggerFactory
@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(OllamaContainerWithGpu::class)
+@Import(TestcontainersConfig::class)
 class EvalServiceIntegrationTest {
     private val logger = LoggerFactory.getLogger(javaClass)
 

@@ -6,19 +6,29 @@ import com.github.dockerjava.api.model.Volume
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.context.annotation.Bean
+import org.springframework.test.context.DynamicPropertyRegistrar
+import org.testcontainers.containers.MinIOContainer
 import org.testcontainers.ollama.OllamaContainer
 import org.testcontainers.qdrant.QdrantContainer
 import org.testcontainers.utility.DockerImageName
 
 @TestConfiguration(proxyBeanMethods = false)
-class OllamaContainer {
+class TestcontainersConfig {
+    @Bean
+    fun minioContainer(): MinIOContainer = MinIOContainer(DockerImageName.parse("minio/minio:latest"))
+
+    @Bean
+    fun minioProperties(minioContainer: MinIOContainer): DynamicPropertyRegistrar =
+        DynamicPropertyRegistrar {
+            it.add("spring.cloud.aws.credentials.access-key") { minioContainer.userName }
+            it.add("spring.cloud.aws.credentials.secret-key") { minioContainer.password }
+            it.add("spring.cloud.aws.s3.endpoint") { minioContainer.s3URL }
+        }
+
     @Bean
     @ServiceConnection
-    fun ollamaContainer(): OllamaContainer = OllamaContainer(DockerImageName.parse("ollama/ollama:latest"))
-}
+    fun qdrantContainer(): QdrantContainer = QdrantContainer(DockerImageName.parse("qdrant/qdrant:latest"))
 
-@TestConfiguration(proxyBeanMethods = false)
-class OllamaContainerWithGpu {
     @Bean
     @ServiceConnection
     fun ollamaContainer(): OllamaContainer =
@@ -36,11 +46,4 @@ class OllamaContainerWithGpu {
                         ),
                     ).withBinds(Bind("ollama_data", Volume("/root/.ollama")))
             }
-}
-
-@TestConfiguration(proxyBeanMethods = false)
-class QdrantContainer {
-    @Bean
-    @ServiceConnection
-    fun qdrantContainer(): QdrantContainer = QdrantContainer(DockerImageName.parse("qdrant/qdrant:latest"))
 }

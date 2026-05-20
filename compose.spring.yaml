@@ -1,4 +1,11 @@
 services:
+  minio:
+    extends:
+      file: compose.yaml
+      service: minio
+    profiles:
+      - minio
+
   ollama:
     extends:
       file: compose.yaml
@@ -14,5 +21,7 @@ services:
       - qdrant
 
 volumes:
+  minio_data:
+    name: minio_data
   ollama_data:
     name: ollama_data

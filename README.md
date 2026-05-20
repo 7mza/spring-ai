@@ -5,8 +5,9 @@
 Spring AI experimentation workspace with some design choices
 
 - Ollama as LLM backend
-- qdrant as vector store
-- embedded h2 as db
+- Qdrant as vector store
+- MinIO as object store
+- embedded H2 as DB
 
 ## demo
 
@@ -24,15 +25,32 @@ Spring AI experimentation workspace with some design choices
   - advisors
 - ...
 
-```text
-# ${INGEST_DIR} will be mounted as /home/${INGEST_DIR} in docker
+### [ingestion pipeline](src/main/kotlin/com/hamza/springai/rag/Functions.kt)
 
-${INGEST_DIR}/
-    |
-    |-> fileSupplier -> duplicationFilter -> documentReader -> documentSplitter -> (*Enricher) -> vectorStoreWriter
+```text
+                  1: poll
+customS3Supplier ------> ${MINIO_DEFAULT_BUCKET}/
+    |2: trigger                   |
+    |           |-- duplicate --> |_ processed/ <----------------------------------------------------------|
+    |           |                 |                                                                        |
+    |           |------ new ----> |_ processing/ <------------------|                                      |
+    |           |                 |                                 |                                      |
+    |           |                 |- error/                         |                                      |
+    |           |                                                   |                                      |
+    |           |                   |-------------------------------|                                      |
+    |           |                   |                                                                      |
+    |           |4                  |5: pull                                                               |7: archive
+    |-> duplicationFilter -> documentReader -> documentSplitter -> (*Enricher) -> vectorStoreWriter -> s3Archiver
+                |3                                                       |                   |6: write
+                |---- content hash check ----> DB <---|                  |----> LLM          |
+                                                      |                                      |---> Qdrant
+                                                      |                                      |
+                                                      |--------- content hash write ---------|
 ```
 
-to test 1 or many enricher functions add them in `spring.cloud.function.definition` in [application.yml](src/main/resources/application.yaml) between documentSplitter and vectorStoreWriter (they will slow down pipeline)
+any error in pipeline will move file to `/error` for manual correction
+
+to test 1 or many enricher functions (unstable) add them in `spring.cloud.function.definition` in [application.yml](src/main/resources/application.yaml) between documentSplitter and vectorStoreWriter (they will slow down pipeline)
 
 ## requirements
 
@@ -83,7 +101,9 @@ docker compose up --build
 
 ## misc
 
-[qdrant ui](http://localhost:6333/dashboard#/collections)
+[MinIO console](http://localhost:9001/browser/default/)
+
+[Qdrant console](http://localhost:6333/dashboard#/collections)
 
 delete qdrant collection:
 
@@ -91,4 +111,9 @@ delete qdrant collection:
 curl -X DELETE "http://localhost:6333/collections/embeddings"
 ```
 
-[h2](http://localhost:8080/h2) `# jdbc url = jdbc:h2:mem:test_db (from .env)`
+[H2 console](http://localhost:8080/h2) `# jdbc url = jdbc:h2:mem:test_db (from .env)`
+
+## todo
+
+- `app --poll--> minio` to `app <--notify-- minio` (SQS/SNS)
+- atomic H2 and Qdrant write: outbox (H2 as source of truth)

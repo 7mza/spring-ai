@@ -1,7 +1,9 @@
-file:
+custom:
   supplier:
-    directory: ${INGEST_DIR}
     filename-regex: ${INGEST_FILES_FILTER}
+    pipeline-timeout: 3600000
+    polling-interval: 30000
+    remote-dir: ${MINIO_DEFAULT_BUCKET}
 logbook:
   format:
     style: http
@@ -61,8 +63,17 @@ spring:
   application:
     name: spring-ai
   cloud:
+    aws:
+      credentials:
+        access-key: ${MINIO_ROOT_USER}
+        secret-key: ${MINIO_ROOT_PASSWORD}
+      region:
+        static: us-east-1
+      s3:
+        endpoint: http://localhost:9000
+        path-style-access-enabled: true
     function:
-      definition: fileSupplier|duplicationFilter|documentReader|documentSplitter|vectorStoreWriter
+      definition: customS3Supplier|duplicationFilter|documentReader|documentSplitter|vectorStoreWriter|s3Archiver
   config:
     activate:
       on-profile: default
@@ -87,6 +98,7 @@ spring:
       file: compose.spring.yaml
       profiles:
         active:
+          - minio
           - ollama
           - qdrant
       start:
@@ -173,9 +185,6 @@ springdoc:
     path: /swagger-ui
     tagsSorter: alpha
 ---
-file:
-  supplier:
-    directory: /home/${INGEST_DIR}
 server:
   compression:
     enabled: false
@@ -187,6 +196,10 @@ spring:
     vectorstore:
       qdrant:
         host: qdrant
+  cloud:
+    aws:
+      s3:
+        endpoint: http://minio:9000
   config:
     activate:
       on-profile: container

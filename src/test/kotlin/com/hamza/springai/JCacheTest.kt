@@ -11,12 +11,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.transaction.PlatformTransactionManager
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = ["spring.jpa.properties.hibernate.cache.use_second_level_cache=true"],
 )
+@Import(TestcontainersConfig::class)
 class JCacheTest {
     @Autowired
     private lateinit var repo: IFileRepo

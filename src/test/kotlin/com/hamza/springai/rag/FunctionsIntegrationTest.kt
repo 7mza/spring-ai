@@ -1,32 +1,30 @@
 package com.hamza.springai.rag
 
 import com.hamza.springai.IPipelineHelperService
-import com.hamza.springai.OllamaContainerWithGpu
 import com.hamza.springai.PipelineHelperService
-import com.hamza.springai.QdrantContainer
+import com.hamza.springai.TestcontainersConfig
 import com.hamza.springai.rag.file.IFileRepo
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.function.context.FunctionCatalog
 import org.springframework.context.annotation.Import
-import org.springframework.test.context.ActiveProfiles
 import java.util.concurrent.TimeUnit
 
-/*
- * ingestion pipeline integration tests
- */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("default", "ingestion-test")
-@Import(OllamaContainerWithGpu::class, QdrantContainer::class, PipelineHelperService::class)
+@Import(TestcontainersConfig::class, PipelineHelperService::class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+@TestInstance(Lifecycle.PER_CLASS)
 class FunctionsIntegrationTest {
     @Autowired
     private lateinit var helper: IPipelineHelperService
@@ -40,18 +38,23 @@ class FunctionsIntegrationTest {
     @Autowired
     private lateinit var catalog: FunctionCatalog
 
+    @BeforeAll
+    fun beforeAll() {
+        helper.initBucket("default")
+    }
+
     @Test
     @Order(1)
     fun `ingestion pipeline should trigger on start and ingest all files from configured path`() {
         // collect files and compute hashes
-        val files = helper.collectFiles()
+        val files = helper.collectFileNameHashPairs()
         // wait for pipeline
         await().atMost(1, TimeUnit.MINUTES).until { repo.count() == files.size.toLong() }
         files.forEach { (name, hash) ->
             // check all files were ingested
             assertTrue(repo.existsByHash(hash)) { "file $name was not ingested" }
             // check all files contributed in vector store
-            val chunks = helper.collectChunks(name)
+            val chunks = helper.collectDocumentChunks(name)
             assertThat(chunks).isNotEmpty()
             // check pipeline decorated metadata with file_name and file_hash
             chunks.forEach { chunk ->
@@ -64,7 +67,7 @@ class FunctionsIntegrationTest {
     @Test
     @Order(2)
     fun `after ingestion, similarity search should be done in correct file`() {
-        val files = helper.collectFiles()
+        val files = helper.collectFileNameHashPairs()
         await().atMost(1, TimeUnit.MINUTES).until { repo.count() == files.size.toLong() }
         val document = vectorStore.similaritySearch("what is the opposite of hope?").first()
         assertThat(document.metadata["file_name"]).isEqualTo("hope.pdf")
@@ -76,9 +79,9 @@ class FunctionsIntegrationTest {
     @Test
     @Order(3)
     fun `pipeline should not re-ingest already ingested files`() {
-        val files = helper.collectFiles()
+        val files = helper.collectFileNameHashPairs()
         await().atMost(1, TimeUnit.MINUTES).until { repo.count() == files.size.toLong() }
-        val chunkCountBefore = files.keys.sumOf { helper.collectChunks(it).size }
+        val chunkCountBefore = files.keys.sumOf { helper.collectDocumentChunks(it).size }
         // trigger a second pipeline
         catalog.lookup<Runnable>(null).run()
         await()
@@ -87,7 +90,7 @@ class FunctionsIntegrationTest {
             .until {
                 // check no new ingestion + no new chuck
                 repo.count() == files.size.toLong() &&
-                    files.keys.sumOf { helper.collectChunks(it).size } == chunkCountBefore
+                    files.keys.sumOf { helper.collectDocumentChunks(it).size } == chunkCountBefore
             }
     }
 }

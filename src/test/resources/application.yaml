@@ -1,3 +1,9 @@
+custom:
+  supplier:
+    filename-regex: .*\.(md|pdf|txt)
+    pipeline-timeout: 3600000
+    polling-interval: 30000
+    remote-dir: default
 logging:
   include-application-name: false
   level:
@@ -19,6 +25,23 @@ spring:
     vectorstore:
       qdrant:
         collection-name: embeddings
+        initialize-schema: true
+  cloud:
+    aws:
+      credentials:
+        access-key: from_test_container
+        secret-key: from_test_container
+      region:
+        static: us-east-1
+      s3:
+        enabled: true
+        endpoint: from_test_container
+        path-style-access-enabled: true
+    function:
+      definition: customS3Supplier|duplicationFilter|documentReader|documentSplitter|vectorStoreWriter|s3Archiver
+  config:
+    activate:
+      on-profile: default
   data:
     web:
       pageable:
@@ -85,19 +108,3 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
----
-file:
-  supplier:
-    directory: src/test/resources/docs
-    filename-regex: .*\.(md|pdf|txt)
-spring:
-  ai:
-    vectorstore:
-      qdrant:
-        initialize-schema: true
-  cloud:
-    function:
-      definition: fileSupplier|duplicationFilter|documentReader|documentSplitter|vectorStoreWriter
-  config:
-    activate:
-      on-profile: ingestion-test

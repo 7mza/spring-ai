@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.ai.model.ollama.autoconfigure.OllamaConnectionDetails
 import org.springframework.ai.ollama.api.OllamaApi
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.ansi.AnsiColor
 import org.springframework.boot.ansi.AnsiOutput
 import org.springframework.boot.ansi.AnsiStyle
@@ -22,6 +23,8 @@ import org.springframework.http.client.JdkClientHttpRequestFactory
 import org.springframework.retry.annotation.EnableRetry
 import org.springframework.web.client.RestClient
 import org.zalando.logbook.spring.LogbookClientHttpRequestInterceptor
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.BucketAlreadyOwnedByYouException
 import java.net.InetAddress
 import java.time.Duration
 
@@ -75,6 +78,15 @@ class Configs(
                         },
                     ).requestInterceptor(interceptor),
             ).build()
+
+    @Bean
+    fun createBucket(
+        s3Client: S3Client,
+        @Value($$"${custom.supplier.remote-dir}") bucket: String,
+    ) = ApplicationRunner {
+        runCatching { s3Client.createBucket { it.bucket(bucket) } }
+            .onFailure { if (it !is BucketAlreadyOwnedByYouException) throw it }
+    }
 }
 
 // mirror jpa create-drop: wipe vector store on shutdown

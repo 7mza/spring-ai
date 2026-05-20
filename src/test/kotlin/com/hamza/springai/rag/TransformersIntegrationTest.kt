@@ -1,34 +1,32 @@
 package com.hamza.springai.rag
 
 import com.hamza.springai.IPipelineHelperService
-import com.hamza.springai.OllamaContainerWithGpu
 import com.hamza.springai.PipelineHelperService
-import com.hamza.springai.QdrantContainer
+import com.hamza.springai.TestcontainersConfig
 import com.hamza.springai.rag.file.IFileRepo
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
-import org.springframework.test.context.ActiveProfiles
 import java.util.concurrent.TimeUnit
 
-/*
- * transformers integration tests
- */
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
         """spring.cloud.function.definition=\
-fileSupplier|duplicationFilter|documentReader|documentSplitter|languageEnricher|vectorStoreWriter""",
+customS3Supplier|duplicationFilter|documentReader|documentSplitter|languageEnricher|vectorStoreWriter|s3Archiver""",
     ],
 )
-@ActiveProfiles("default", "ingestion-test")
-@Import(OllamaContainerWithGpu::class, QdrantContainer::class, PipelineHelperService::class)
+@Import(TestcontainersConfig::class, PipelineHelperService::class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+@TestInstance(Lifecycle.PER_CLASS)
 class TransformersIntegrationTest {
     @Autowired
     private lateinit var helper: IPipelineHelperService
@@ -36,41 +34,46 @@ class TransformersIntegrationTest {
     @Autowired
     private lateinit var repo: IFileRepo
 
+    @BeforeAll
+    fun beforeAll() {
+        helper.initBucket("default")
+    }
+
     @Test
     fun `languageEnricher is correctly adding language metadata`() {
-        val files = helper.collectFiles()
-        await().atMost(1, TimeUnit.MINUTES).until { repo.count() == files.size.toLong() }
+        val files = helper.collectFileNameHashPairs()
+        await().atMost(2, TimeUnit.MINUTES).until { repo.count() == files.size.toLong() }
         assertThat(
             helper
-                .collectChunks("amal.txt")
+                .collectDocumentChunks("amal.txt")
                 .first()
                 .metadata["language"]
                 .toString(),
         ).isEqualToIgnoringCase("ar")
         assertThat(
             helper
-                .collectChunks("espoir.txt")
+                .collectDocumentChunks("espoir.txt")
                 .first()
                 .metadata["language"]
                 .toString(),
         ).isEqualToIgnoringCase("fr")
         assertThat(
             helper
-                .collectChunks("gandalf.txt")
+                .collectDocumentChunks("gandalf.txt")
                 .first()
                 .metadata["language"]
                 .toString(),
         ).isEqualToIgnoringCase("en")
         assertThat(
             helper
-                .collectChunks("hope.pdf")
+                .collectDocumentChunks("hope.pdf")
                 .first()
                 .metadata["language"]
                 .toString(),
         ).isEqualToIgnoringCase("en")
         assertThat(
             helper
-                .collectChunks("lion.md")
+                .collectDocumentChunks("lion.md")
                 .first()
                 .metadata["language"]
                 .toString(),
