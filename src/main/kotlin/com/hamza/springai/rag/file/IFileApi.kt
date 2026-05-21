@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.multipart.MultipartFile
 import reactor.core.publisher.Mono
 
-@Tag(name = "file", description = "")
+@Tag(name = "file", description = "Files/Documents ingestion")
 @RequestMapping(value = ["/api/file"], produces = [MediaType.APPLICATION_JSON_VALUE])
 interface IFileApi {
     @Operation(

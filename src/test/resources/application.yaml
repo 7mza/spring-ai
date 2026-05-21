@@ -15,6 +15,11 @@ server:
     enabled: false
 spring:
   ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
     ollama:
       chat:
         model: granite4.1:3b

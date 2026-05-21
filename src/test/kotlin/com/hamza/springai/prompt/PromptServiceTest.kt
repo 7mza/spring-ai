@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -25,8 +26,12 @@ class PromptServiceTest {
     @Autowired
     private lateinit var service: IPromptService
 
-    @MockitoBean // prevent autoconf of vector store, not needed in this test
+    @MockitoBean // prevent autoconf of embedding vector store, not needed in this test
     private lateinit var vectorStore: VectorStore
+
+    @MockitoBean
+    @Qualifier("chatMemoryVectorStore") // prevent autoconf of memory vector store, not needed in this test
+    private lateinit var chatMemoryVectorStore: VectorStore
 
     @BeforeEach
     fun beforeEach() {

@@ -47,6 +47,11 @@ server:
     enabled: false
 spring:
   ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: embedded
     ollama:
       chat:
         model: ${OLLAMA_MODEL}

@@ -25,6 +25,8 @@ Spring AI experimentation workspace with some design choices
   - advisors
   - query enhancing/expanding
 - Persistent chat memory
+  - JDBC backend
+  - VectorStore backend
 - ...
 
 ### [ingestion pipeline](src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt)

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 
-@Tag(name = "evaluation", description = "")
+@Tag(name = "evaluation", description = "LLM response evaluation")
 @RequestMapping(value = ["/api/eval"], produces = [MediaType.APPLICATION_JSON_VALUE])
 interface IEvalApi {
     @Operation(

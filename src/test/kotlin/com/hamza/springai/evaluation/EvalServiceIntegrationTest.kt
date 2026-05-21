@@ -6,6 +6,7 @@ import org.junitpioneer.jupiter.RetryingTest
 import org.slf4j.LoggerFactory
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
@@ -24,8 +25,12 @@ class EvalServiceIntegrationTest {
 
     private val prompt = "What is the capital of France?"
 
-    @MockitoBean // prevent autoconf of vector store, not needed in this test
+    @MockitoBean // prevent autoconf of embedding vector store, not needed in this test
     private lateinit var vectorStore: VectorStore
+
+    @MockitoBean
+    @Qualifier("chatMemoryVectorStore") // prevent autoconf of memory vector store, not needed in this test
+    private lateinit var chatMemoryVectorStore: VectorStore
 
     // FIXME: retry N times because small models are unreliable
     @RetryingTest(maxAttempts = 5, suspendForMs = 1000)

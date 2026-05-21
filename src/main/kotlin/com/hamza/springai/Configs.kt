@@ -3,12 +3,19 @@ package com.hamza.springai
 import io.awspring.cloud.autoconfigure.core.AwsClientBuilderConfigurer
 import io.awspring.cloud.autoconfigure.core.AwsConnectionDetails
 import io.awspring.cloud.autoconfigure.s3.properties.S3Properties
+import io.qdrant.client.QdrantClient
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
 import org.h2.tools.Server
 import org.slf4j.LoggerFactory
+import org.springframework.ai.chat.memory.ChatMemory
+import org.springframework.ai.chat.memory.ChatMemoryRepository
+import org.springframework.ai.chat.memory.MessageWindowChatMemory
+import org.springframework.ai.embedding.EmbeddingModel
 import org.springframework.ai.model.ollama.autoconfigure.OllamaConnectionDetails
 import org.springframework.ai.ollama.api.OllamaApi
+import org.springframework.ai.vectorstore.VectorStore
+import org.springframework.ai.vectorstore.qdrant.QdrantVectorStore
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.ApplicationRunner
@@ -125,6 +132,27 @@ class Configs(
             port,
         )
     }
+
+    // chat memory window configs
+    @Bean
+    fun chatMemory(chatMemoryRepository: ChatMemoryRepository): ChatMemory =
+        MessageWindowChatMemory
+            .builder()
+            .chatMemoryRepository(chatMemoryRepository)
+            .maxMessages(50)
+            .build()
+
+    // separate collection for chat memory
+    @Bean(name = ["chatMemoryVectorStore"], defaultCandidate = false)
+    fun chatMemoryVectorStore(
+        client: QdrantClient,
+        embeddingModel: EmbeddingModel,
+    ): VectorStore =
+        QdrantVectorStore
+            .builder(client, embeddingModel)
+            .collectionName("chat_memory")
+            .initializeSchema(true)
+            .build()
 }
 
 // mirror jpa create-drop: wipe vector store on shutdown

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import reactor.core.publisher.Flux
 
-@Tag(name = "prompt", description = "")
+@Tag(name = "prompt", description = "LLM prompting/response parsing")
 @RequestMapping(value = ["/api/prompt"], produces = [MediaType.APPLICATION_JSON_VALUE])
 interface IPromptApi {
     @PostMapping

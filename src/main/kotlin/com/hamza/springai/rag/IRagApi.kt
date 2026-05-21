@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import io.swagger.v3.oas.annotations.parameters.RequestBody as OasRequestBody
 
-@Tag(name = "rag", description = "")
+@Tag(name = "rag", description = "RAG/Context pull")
 @RequestMapping(value = ["/api/rag"], produces = [MediaType.APPLICATION_JSON_VALUE])
 interface IRagApi {
     @PostMapping("/manual")
     @Operation(
-        summary = "Send a prompt to LLM",
+        summary = "Prompt LLM with manual context pull",
         description = """
 Manual context pull (similarity search) from vector store before forwarding request to LLM.<br /><br />
 To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.<br /><br />
@@ -56,7 +56,7 @@ Example files in `./docs/examples/`.
 
     @PostMapping("/advisor/qa")
     @Operation(
-        summary = "Send a prompt to LLM",
+        summary = "Prompt LLM with automatic context pull",
         description = """
 Automatic context pull from vector store, using `QuestionAnswerAdvisor`, before forwarding request to LLM.<br /><br />
 To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.<br /><br />
@@ -92,7 +92,7 @@ Example files in `./docs/examples/`.
 
     @PostMapping("/advisor/modular/enhance")
     @Operation(
-        summary = "Send a prompt to LLM",
+        summary = "Prompt LLM with query enhancing",
         description = """
 Query enhancements (translation, rewrite, ...etc.) using `RetrievalAugmentationAdvisor` before context pull from vector store, then forwarding request to LLM.<br /><br />
 To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.<br /><br />
@@ -148,7 +148,7 @@ Example files in `./docs/examples/`.
 
     @PostMapping("/advisor/modular/expand")
     @Operation(
-        summary = "Send a prompt to LLM",
+        summary = "Prompt LLM with query expanding",
         description = """
 Query expanding (rewrite N times in different forms for larger vector matching) using `RetrievalAugmentationAdvisor` before context pull from vector store, then forwarding request to LLM.<br /><br />
 To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.<br /><br />
