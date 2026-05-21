@@ -5,6 +5,7 @@ import io.awspring.cloud.autoconfigure.core.AwsConnectionDetails
 import io.awspring.cloud.autoconfigure.s3.properties.S3Properties
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
+import org.h2.tools.Server
 import org.slf4j.LoggerFactory
 import org.springframework.ai.model.ollama.autoconfigure.OllamaConnectionDetails
 import org.springframework.ai.ollama.api.OllamaApi
@@ -22,6 +23,7 @@ import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomize
 import org.springframework.boot.restclient.RestClientCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.context.event.ContextClosedEvent
 import org.springframework.context.event.EventListener
 import org.springframework.http.client.JdkClientHttpRequestFactory
@@ -106,6 +108,22 @@ class Configs(
     ) = ApplicationRunner {
         runCatching { s3Client.createBucket { it.bucket(bucket) } }
             .onFailure { if (it !is BucketAlreadyOwnedByYouException) throw it }
+    }
+
+    /* to use external DB tool (IntelliJ DB viewer for example) to connect to H2
+     * url: jdbc:h2:tcp://localhost:PORT/~/DB_NAME */
+    @Profile("h2-tcp")
+    @Bean(initMethod = "start", destroyMethod = "stop")
+    fun h2TcpServer(
+        @Value($$"${custom.h2.port}") port: String,
+    ): Server {
+        logger.info("launching h2 in tcp mode")
+        return Server.createTcpServer(
+            "-tcp",
+            "-tcpAllowOthers",
+            "-tcpPort",
+            port,
+        )
     }
 }
 

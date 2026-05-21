@@ -247,3 +247,11 @@ springdoc:
     operationsSorter: method
     path: /swagger-ui
     tagsSorter: alpha
+---
+custom:
+  h2:
+    port: 9092
+spring:
+  config:
+    activate:
+      on-profile: h2-tcp

@@ -57,7 +57,7 @@ class OllamaContainerConfig {
     @ServiceConnection
     @Conditional(NvidiaRuntimeAvailable::class)
     fun ollamaContainerGpu(): OllamaContainer {
-        logger.debug("nvidia runtime detected, starting ollama with gpu")
+        logger.info("nvidia runtime detected, starting ollama with gpu")
         return OllamaContainer(DockerImageName.parse("ollama/ollama:latest"))
             .withEnv("OLLAMA_NUM_PARALLEL", "4")
             .withEnv("OLLAMA_MAX_LOADED_MODELS", "1")
@@ -78,7 +78,7 @@ class OllamaContainerConfig {
     @ServiceConnection
     @ConditionalOnMissingBean(OllamaContainer::class)
     fun ollamaContainerCpu(): OllamaContainer {
-        logger.debug("nvidia runtime not available, starting ollama with cpu")
+        logger.info("nvidia runtime not available, starting ollama with cpu")
         return OllamaContainer(DockerImageName.parse("ollama/ollama:latest"))
             .withEnv("OLLAMA_NUM_PARALLEL", "2")
             .withEnv("OLLAMA_MAX_LOADED_MODELS", "1")

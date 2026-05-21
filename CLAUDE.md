@@ -221,5 +221,9 @@ the Ollama client. HTTP request/response bodies are logged at TRACE level
 
 - Swagger UI: http://localhost:8080/swagger-ui
 - H2 console: http://localhost:8080/h2 (JDBC URL: `jdbc:h2:file:~/springai_db` from .env)
+- H2 TCP (IntelliJ DB viewer): activate the `h2-tcp` Spring profile; connect with
+  `jdbc:h2:tcp://localhost:9092/~/springai_db`, user/password from `.env`. The app's datasource URL stays unchanged —
+  mixed mode runs both in the same JVM. **Requires a non-empty `DB_PASSWORD`** — H2 2.x rejects null vs empty string
+  differently, which breaks external JDBC clients even with correct credentials.
 - MinIO console: http://localhost:9001/browser/default/
 - Qdrant dashboard: http://localhost:6333/dashboard#/collections
