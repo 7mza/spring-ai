@@ -70,7 +70,17 @@ class RagServiceIntegrationTest {
     }
 
     @Test
-    fun promptWithAdvisor() {
+    fun promptWithQAAdvisor() {
+        // FIXME
+    }
+
+    @Test
+    fun promptWithModularAdvisor() {
+        // FIXME
+    }
+
+    @Test
+    fun promptWithExpanding() {
         // FIXME
     }
 }

@@ -13,4 +13,6 @@ class RagCtrl(
 
     override fun promptWithModularAdvisor(request: RagRequest): PromptResponse =
         service.promptWithModularAdvisor(request)
+
+    override fun promptWithExpanding(request: RagRequest): PromptResponse = service.promptWithExpanding(request)
 }

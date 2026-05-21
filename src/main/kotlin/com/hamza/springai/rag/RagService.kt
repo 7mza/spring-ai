@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor
+import org.springframework.ai.rag.preretrieval.query.expansion.MultiQueryExpander
 import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQueryTransformer
 import org.springframework.ai.rag.preretrieval.query.transformation.TranslationQueryTransformer
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever
@@ -21,6 +22,8 @@ interface IRagService {
     fun promptWithQAAdvisor(request: RagRequest): PromptResponse
 
     fun promptWithModularAdvisor(request: RagRequest): PromptResponse
+
+    fun promptWithExpanding(request: RagRequest): PromptResponse
 }
 
 @Service
@@ -94,12 +97,8 @@ class RagService(
                 RetrievalAugmentationAdvisor
                     .builder()
                     // you can create your own `org.springframework.ai.rag.retrieval.search.DocumentRetriever`
-                    .documentRetriever(
-                        VectorStoreDocumentRetriever
-                            .builder()
-                            .vectorStore(vectorStore)
-                            .build(),
-                    ).queryTransformers(
+                    .documentRetriever(VectorStoreDocumentRetriever.builder().vectorStore(vectorStore).build())
+                    .queryTransformers(
                         // use LLM to translate query
                         TranslationQueryTransformer
                             .builder()
@@ -123,6 +122,37 @@ class RagService(
             }.call()
             .content()
             ?.let { PromptResponse(prompt = request.prompt, enhancedPrompt = enhancedQuery.get(), response = it) }
+            ?: error("LLM response was null")
+    }
+
+    override fun promptWithExpanding(request: RagRequest): PromptResponse {
+        val expandedQueries = AtomicReference<String>()
+        val expander =
+            MultiQueryExpander
+                .builder()
+                .chatClientBuilder(chatClientBuilder)
+                .numberOfQueries(4)
+                .includeOriginal(false)
+                .build()
+        return chatClient
+            .mutate()
+            .defaultAdvisors(
+                RetrievalAugmentationAdvisor
+                    .builder()
+                    .documentRetriever(VectorStoreDocumentRetriever.builder().vectorStore(vectorStore).build())
+                    .queryExpander { query ->
+                        val expanded = expander.expand(query)
+                        val joined = expanded.joinToString(" | ") { it.text() }
+                        expandedQueries.set(joined)
+                        logger.info("expanded queries: {}", joined)
+                        expanded
+                    }.build(),
+            ).build()
+            .prompt()
+            .user(request.prompt)
+            .call()
+            .content()
+            ?.let { PromptResponse(prompt = request.prompt, enhancedPrompt = expandedQueries.get(), response = it) }
             ?: error("LLM response was null")
     }
 

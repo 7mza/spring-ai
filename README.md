@@ -23,6 +23,8 @@ Spring AI experimentation workspace with some design choices
 - RAG
   - manual
   - advisors
+  - query enhancing/expanding
+- Persistent chat memory
 - ...
 
 ### [ingestion pipeline](src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt)

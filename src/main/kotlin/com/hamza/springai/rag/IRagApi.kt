@@ -90,7 +90,7 @@ Example files in `./docs/examples/`.
         @RequestBody @Valid request: RagRequest,
     ): PromptResponse
 
-    @PostMapping("/advisor/modular")
+    @PostMapping("/advisor/modular/enhance")
     @Operation(
         summary = "Send a prompt to LLM",
         description = """
@@ -143,6 +143,46 @@ Example files in `./docs/examples/`.
         ],
     )
     fun promptWithModularAdvisor(
+        @RequestBody @Valid request: RagRequest,
+    ): PromptResponse
+
+    @PostMapping("/advisor/modular/expand")
+    @Operation(
+        summary = "Send a prompt to LLM",
+        description = """
+Query expanding (rewrite N times in different forms for larger vector matching) using `RetrievalAugmentationAdvisor` before context pull from vector store, then forwarding request to LLM.<br /><br />
+To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.<br /><br />
+Example files in `./docs/examples/`.
+""",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "OK",
+                content = [
+                    Content(
+                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                        schema = Schema(implementation = PromptResponse::class),
+                        examples = [
+                            ExampleObject(
+                                name = "example-0",
+                                description = "",
+                                value = """
+{
+  "prompt": "What is the capital of France?",
+  "enhancedPrompt": "What is the capital city of France? | France's capital | Official capital of France | Major cities in France and their capitals",
+  "response": "The capital of France is Paris."
+}
+""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun promptWithExpanding(
         @RequestBody @Valid request: RagRequest,
     ): PromptResponse
 }
