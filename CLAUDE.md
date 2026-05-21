@@ -109,10 +109,10 @@ class Test
 When working on the pipeline, always check `docs/pipeline_specs_v1.md` for drift. **Never modify that file directly** —
 report inconsistencies to the user first.
 
-Spring Cloud Function beans wired via `spring.cloud.function.definition` in `application.yaml`:
+Spring Cloud Function beans wired via `spring.cloud.function.definition` in `application.yaml` (pipe-separated):
 
 ```
-customS3Supplier → duplicationFilter → documentReader → documentSplitter → vectorStoreWriter → s3Archiver
+customS3Supplier|duplicationFilter|documentReader|documentSplitter|vectorStoreWriter|s3Archiver
 ```
 
 **File lifecycle in MinIO**: `root/` → `processing/` → `processed/` (or `error/` on failure).
@@ -130,10 +130,19 @@ Key design decisions documented in the `Functions` class KDoc:
 
 ### Enrichers (not yet wired)
 
-`languageEnricher`, `qualityEnricher`, `keywordEnricher`, `summaryEnricher` beans exist in `Functions.kt` but are **not
-** in `spring.cloud.function.definition`. To enable one, add it between `documentSplitter` and `vectorStoreWriter` in
-the definition string. Read the `qualityEnricher` KDoc before wiring `qualityEnricher` — there is a known silent-drop
-risk that must be fixed first.
+Four enricher beans exist in `Functions.kt` but are **not** in `spring.cloud.function.definition`. To enable one, add
+it between `documentSplitter` and `vectorStoreWriter` in the definition string.
+
+| Bean               | Implementation                                                                                       |
+| ------------------ | ---------------------------------------------------------------------------------------------------- |
+| `languageEnricher` | Thin Reactor wrapper → delegates to `Transformers.languageEnricher()` (LLM-based, `Transformers.kt`) |
+| `qualityEnricher`  | Thin Reactor wrapper → delegates to `Transformers.qualityEvaluator()` (LLM-based, `Transformers.kt`) |
+| `keywordEnricher`  | Spring AI `KeywordMetadataEnricher`                                                                  |
+| `summaryEnricher`  | Spring AI `SummaryMetadataEnricher`                                                                  |
+
+`Transformers.kt` holds the actual LLM prompt logic for the first two; `Functions.kt` wraps them in
+`Flux`-compatible beans with `subscribeOn(vtScheduler)`. Read the `qualityEnricher` KDoc in `Functions.kt` before
+wiring `qualityEnricher` — there is a known silent-drop risk that must be fixed first.
 
 ### RAG (`rag/RagService.kt`)
 
@@ -192,11 +201,21 @@ Key variables consumed by `application.yaml` (set in `.env` for local dev):
 
 ## Testing conventions
 
-- Integration tests import **only necessary** containers through `TestcontainersConfig` file and optionally
-  `PipelineHelperService` to init bucket.
+- `TestcontainersConfig.kt` defines three separate `@TestConfiguration` classes — import only the ones a test needs:
+  - `MinioTestContainerConfig` — MinIO container + dynamic S3 properties
+  - `OllamaContainerConfig` — Ollama container; auto-detects NVIDIA GPU via `NvidiaRuntimeAvailable` condition and
+    falls back to CPU; mounts a shared `ollama_data` Docker volume to avoid re-downloading models
+  - `QdrantContainerConfig` — Qdrant container
+- Optionally import `PipelineHelperService` to upload files and collect chunks in pipeline tests.
 - WireMock (`wiremock-spring-boot`) for HTTP-level LLM mocking in unit tests when possible.
 - S3 autoconfiguration (for pipeline) is optional through `spring.cloud.aws.s3.enabled` and disabled by default in tests
   conf. Enable it explicitly when a test needs it, example `FunctionsIntegrationTest`.
+
+### HTTP logging
+
+Logbook (`org.zalando.logbook`) is wired via `LogbookClientHttpRequestInterceptor` into every `RestClient` including
+the Ollama client. HTTP request/response bodies are logged at TRACE level
+(`logging.level.org.zalando.logbook: trace` in `application.yaml`). Enable for debugging without code changes.
 
 ## Dev consoles
 

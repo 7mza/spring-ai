@@ -62,12 +62,16 @@ down pipeline)
 
 [docker](https://docs.docker.com/engine/install/)
 
-[Nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
-(only if Nvidia gpu, if not drop services.ollama.deploy block in [compose.yaml](compose.yaml))
+for Nvidia
+gpu [Nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+
+if not, disable `services.ollama.deploy` section in [compose.yaml](compose.yaml)
 
 ## conf
 
 [.env](.env)
+
+Choose an [LLM](https://ollama.com/search) that will fit your hardware, `gemma4:e4b` is configured by default
 
 ## build
 
@@ -84,12 +88,18 @@ sdk env install
 ```
 
 ```shell
-./gradlew clean ktlintFormat ktlintCheck build
+./gradlew clean ktlintFormat ktlintCheck build -x test --no-build-cache && ./gradlew --stop
 ```
 
 ## run
 
-Spring is configured with compose support, run with ide or
+Spring is configured with compose support, run with Gradle
+
+```shell
+./gradlew bootRun
+```
+
+or with compose
 
 ```shell
 ./gradlew jibDockerBuild -x test --no-build-cache && ./gradlew --stop

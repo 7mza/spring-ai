@@ -36,7 +36,7 @@ repositories { mavenCentral() }
 extra["springAiVersion"] = "2.0.0-M6"
 extra["springAwsVersion"] = "4.0.2"
 extra["springCloudVersion"] = "2025.1.1"
-extra["springFunctionsCatalogVersion"] = "6.0.0"
+// extra["springFunctionsCatalogVersion"] = "6.0.0"
 
 val awaitilityVersion = "4.3.0"
 val dataFakerVersion = "2.5.4"
@@ -113,9 +113,7 @@ dependencyManagement {
     imports {
         mavenBom("io.awspring.cloud:spring-cloud-aws-dependencies:${property("springAwsVersion")}")
         mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
-        mavenBom(
-            "org.springframework.cloud.fn:spring-functions-catalog-bom:${property("springFunctionsCatalogVersion")}",
-        )
+        // mavenBom("org.springframework.cloud.fn:spring-functions-catalog-bom:${property("springFunctionsCatalogVersion")}")
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
     }
 }
