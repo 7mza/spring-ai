@@ -14,6 +14,7 @@ data class PromptRequest(
 
 data class PromptResponse(
     val prompt: String,
+    val enhancedPrompt: String? = null,
     val response: String,
 )
 

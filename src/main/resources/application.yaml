@@ -14,6 +14,7 @@ logging:
     org.hibernate:
       SQL: debug
       stat: debug
+    org.springframework.ai.rag: debug
     org.zalando.logbook: trace
 management:
   endpoint:

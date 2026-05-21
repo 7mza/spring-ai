@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Off-limits
+
+- **Never read `docs/examples/*`** — test fixtures only, not representative of the codebase.
+
 ## Stack
 
 - **Language**: Kotlin / Spring Boot 4.0.6 / Java 25

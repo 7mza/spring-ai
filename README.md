@@ -73,6 +73,15 @@ if not, disable `services.ollama.deploy` section in [compose.yaml](compose.yaml)
 
 Choose an [LLM](https://ollama.com/search) that will fit your hardware, `gemma4:e4b` is configured by default
 
+RAG quality depends on:
+
+- **Input documents quality**
+- temperature
+- top_k
+- top_p
+
+Tweak these sampling parameters in [.env](.env)
+
 ## build
 
 ```shell
@@ -124,6 +133,13 @@ curl -X DELETE "http://localhost:6333/collections/embeddings"
 ```
 
 [H2 console](http://localhost:8080/h2) `# jdbc url = jdbc:h2:file:~/springai_db (from .env)`
+
+Download a wiki article as MD:
+
+```shell
+# apt install pandoc
+curl -s "https://en.wikipedia.org/w/index.php?action=raw&title=Paris" | pandoc -f mediawiki -t markdown -o paris.md
+```
 
 ## todo
 

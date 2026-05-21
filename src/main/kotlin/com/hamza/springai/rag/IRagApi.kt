@@ -13,6 +13,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import io.swagger.v3.oas.annotations.parameters.RequestBody as OasRequestBody
 
 @Tag(name = "rag", description = "")
 @RequestMapping(value = ["/api/rag"], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -22,7 +23,8 @@ interface IRagApi {
         summary = "Send a prompt to LLM",
         description = """
 Manual context pull (similarity search) from vector store before forwarding request to LLM.<br /><br />
-To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.
+To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.<br /><br />
+Example files in `./docs/examples/`.
 """,
     )
     @ApiResponses(
@@ -52,12 +54,13 @@ To test, upload your documents through `/api/file` or via MinIO console. Ingesti
         @RequestBody @Valid request: RagRequest,
     ): PromptResponse
 
-    @PostMapping("/advisor")
+    @PostMapping("/advisor/qa")
     @Operation(
         summary = "Send a prompt to LLM",
         description = """
-Automatic context pull (using advisor) from vector store before forwarding request to LLM.<br /><br />
-To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.
+Automatic context pull from vector store, using `QuestionAnswerAdvisor`, before forwarding request to LLM.<br /><br />
+To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.<br /><br />
+Example files in `./docs/examples/`.
 """,
     )
     @ApiResponses(
@@ -83,7 +86,63 @@ To test, upload your documents through `/api/file` or via MinIO console. Ingesti
             ),
         ],
     )
-    fun promptWithAdvisor(
+    fun promptWithQAAdvisor(
+        @RequestBody @Valid request: RagRequest,
+    ): PromptResponse
+
+    @PostMapping("/advisor/modular")
+    @Operation(
+        summary = "Send a prompt to LLM",
+        description = """
+Query enhancements (translation, rewrite, ...etc.) using `RetrievalAugmentationAdvisor` before context pull from vector store, then forwarding request to LLM.<br /><br />
+To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.<br /><br />
+Example files in `./docs/examples/`.
+""",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "OK",
+                content = [
+                    Content(
+                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                        schema = Schema(implementation = PromptResponse::class),
+                        examples = [
+                            ExampleObject(
+                                name = "example-0",
+                                description = "",
+                                value = """
+{
+  "prompt": "Je souhaite obtenir des informations détaillées concernant la capitale officielle de la République française. Pourriez-vous me préciser quelle est la ville qui occupe le rôle de capitale politique, administrative et culturelle de la France ? Je m'intéresse également à son importance historique en tant que siège du gouvernement, ainsi qu'à sa position géographique au sein du territoire français. Quelle est donc cette ville qui abrite les principales institutions de l'État français, telles que le Palais de l'Élysée, l'Assemblée nationale et le Sénat ?",
+  "enhancedPrompt": "Capital city of the French Republic and its governmental institutions.",
+  "response": "The capital of France is Paris."
+}
+""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+    @OasRequestBody(
+        content = [
+            Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = Schema(implementation = RagRequest::class),
+                examples = [
+                    ExampleObject(
+                        name = "example-0",
+                        value = """
+{ "prompt": "Je souhaite obtenir des informations détaillées concernant la capitale officielle de la République française. Pourriez-vous me préciser quelle est la ville qui occupe le rôle de capitale politique, administrative et culturelle de la France ? Je m'intéresse également à son importance historique en tant que siège du gouvernement, ainsi qu'à sa position géographique au sein du territoire français. Quelle est donc cette ville qui abrite les principales institutions de l'État français, telles que le Palais de l'Élysée, l'Assemblée nationale et le Sénat ?" }
+""",
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun promptWithModularAdvisor(
         @RequestBody @Valid request: RagRequest,
     ): PromptResponse
 }

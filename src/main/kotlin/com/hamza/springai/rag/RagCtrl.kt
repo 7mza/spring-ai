@@ -9,5 +9,8 @@ class RagCtrl(
 ) : IRagApi {
     override fun promptWithManualRag(request: RagRequest): PromptResponse = service.promptWithManualRag(request)
 
-    override fun promptWithAdvisor(request: RagRequest): PromptResponse = service.promptWithAdvisor(request)
+    override fun promptWithQAAdvisor(request: RagRequest): PromptResponse = service.promptWithQAAdvisor(request)
+
+    override fun promptWithModularAdvisor(request: RagRequest): PromptResponse =
+        service.promptWithModularAdvisor(request)
 }
