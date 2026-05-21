@@ -87,6 +87,6 @@ class RagService(
                     .query(prompt)
                     .similarityThresholdAll()
                     .build(),
-            ).forEach { logger.debug("file={}    score={}", it.metadata["file_name"], it.score) }
+            ).forEach { logger.info("file={}    score={}", it.metadata["file_name"], it.score) }
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.util.DigestUtils
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException
 
 interface IPipelineHelperService {
     fun collectResources(): List<Resource>
@@ -20,6 +21,11 @@ interface IPipelineHelperService {
     fun collectDocumentChunks(name: String): List<Document>
 
     fun initBucket(bucket: String)
+
+    fun existsInS3(
+        bucket: String,
+        key: String,
+    ): Boolean
 }
 
 @TestComponent
@@ -48,6 +54,17 @@ class PipelineHelperService(
                 .filterExpression(FilterExpressionBuilder().eq("file_name", name).build())
                 .build(),
         )
+
+    override fun existsInS3(
+        bucket: String,
+        key: String,
+    ): Boolean =
+        try {
+            s3Client.headObject { it.bucket(bucket).key(key) }
+            true
+        } catch (e: NoSuchKeyException) {
+            false
+        }
 
     override fun initBucket(bucket: String) {
         if (s3Client.listBuckets().buckets().none { it.name() == bucket }) {

@@ -39,7 +39,7 @@ stack (SCF support empty).
 - just pass `file_name` in all stages for logging.
 - if there's any error anywhere in pipeline, move current file to `/error/` for manual correction.
 
-### worth nothing
+### worth mentioning
 
 - If it's possible to avoid webflux all together without a gas factory around Optionals, it's even better. If not we
   can

@@ -56,7 +56,7 @@ npm run format           # prettier for YAML/JSON/XML/MD
 ### Misc
 
 ```shell
-./gradlew dependencyUpdates          # check for newer versions
+./update.sh                          # npm-check-updates + gradlew dependencyUpdates (combined upgrade check)
 ./gradlew generateOpenApiDocs        # generate docs/api-docs.yaml (starts app on port 8013)
 ./gradlew dependencyCheckAnalyze     # OWASP CVE scan (needs NVD_APIKEY env var)
 ./clean.sh                           # hard clean: removes .gradle/, node_modules/, package-lock.json
@@ -75,12 +75,24 @@ Three packages under `com.hamza.springai`, each following the same layering:
 | `evaluation/` | LLM-as-judge evaluation via Spring AI `Evaluator`                                                |
 
 Each package has a `I*Api` interface (OpenAPI contract), `*Ctrl` (REST controller), `*Service`/`I*Service`, and `*Dtos`.
+A `shared/` package provides `PageMeta` and `SortField` for paginated responses used across all feature areas.
+
+### File API (`rag/file/`)
+
+`POST /api/file` (multipart) — uploads a file directly to the MinIO bucket root; the pipeline picks it up on its next
+poll. `GET /api/file` — paginated list of already-ingested files (name, hash, createdAt). File upload requires S3 to
+be enabled (`spring.cloud.aws.s3.enabled=true`); `FileService` uses `ObjectProvider<S3AsyncClient>` and will throw at
+runtime if called with S3 disabled.
 
 ### Data layer (`data/`)
 
 All JPA entities extend `BaseEntity<ID>` which provides `createdAt`, `updatedAt`, and `version` (optimistic locking).
 Entity PKs are TSID-based: stored as `Long` in H2, exposed as base62 strings in the API via `TSID.encode(62)`. The
 `TSIDAttributeConverter` applies automatically via `@Converter(autoApply = true)`.
+
+Each entity requires a companion `@Embeddable` ID class (e.g. `FileId`) implementing the `EntityId` interface, with a
+no-arg constructor for JPA, a string constructor that decodes base62, and a `toString()` that encodes to base62. Use
+`@EmbeddedId` on the entity field, not `@Id`.
 
 ### Caching
 
@@ -153,6 +165,24 @@ overridden to 2 minutes in `Configs.kt` to accommodate slow model responses.
 
 `QdrantConfigs` (in `Configs.kt`) mirrors JPA `create-drop`: it wipes the Qdrant collection on shutdown when
 `spring.jpa.hibernate.ddl-auto=create-drop`. This is active in the `default` profile for clean dev restarts.
+
+**Compose files**: `compose.yaml` is the full service definition. `compose.spring.yaml` (used by Spring Boot's Docker
+Compose support in dev mode) re-exports the same services behind profiles (`minio`, `ollama`, `qdrant`) for selective
+startup. The `container` profile points to the hostnames defined in `compose.yaml`.
+
+### Environment variables
+
+Key variables consumed by `application.yaml` (set in `.env` for local dev):
+
+| Variable                                             | Purpose                                          |
+| ---------------------------------------------------- | ------------------------------------------------ |
+| `INGEST_FILES_FILTER`                                | Regex to filter which S3 keys enter the pipeline |
+| `INGEST_POLL_INTERVAL`                               | Polling interval in ms for the S3 supplier       |
+| `MINIO_DEFAULT_BUCKET`                               | MinIO bucket name (`custom.supplier.remote-dir`) |
+| `OLLAMA_MODEL`                                       | Chat model name (e.g. `llama3.2`)                |
+| `OLLAMA_EMBEDDING_MODEL`                             | Embedding model name (e.g. `nomic-embed-text`)   |
+| `OLLAMA_TEMPERATURE`, `OLLAMA_TOP_K`, `OLLAMA_TOP_P` | LLM sampling params                              |
+| `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD`            | MinIO credentials                                |
 
 ### Atomicity / known limitations
 

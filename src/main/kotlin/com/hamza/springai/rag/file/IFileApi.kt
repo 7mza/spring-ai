@@ -11,7 +11,9 @@ import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestPart
@@ -95,4 +97,22 @@ Max size is configured via YAML: `spring.servlet.multipart.max-file-size=100MB`"
     fun upload(
         @RequestPart("file") file: MultipartFile,
     ): Mono<Void>
+
+    @Operation(
+        summary = "Delete an ingested file by id",
+        description = "Removes from DB, vector store, and S3 `processed/`.",
+    )
+    @ApiResponse(responseCode = "204", description = "Deleted")
+    @ApiResponse(responseCode = "404", description = "Not found")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteById(
+        @PathVariable id: String,
+    )
+
+    @Operation(summary = "Delete all ingested files", description = "Wipes DB, vector store, and S3 `processed/`.")
+    @ApiResponse(responseCode = "204", description = "Deleted")
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteAll()
 }

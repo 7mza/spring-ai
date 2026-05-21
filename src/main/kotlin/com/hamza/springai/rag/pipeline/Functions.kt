@@ -158,7 +158,7 @@ class Functions(
     @Scheduled(fixedDelayString = $$"${custom.supplier.polling-interval}")
     fun pollS3() {
         if (!pipelineRunning.compareAndSet(false, true)) {
-            logger.debug("poll skipped — pipeline still running")
+            logger.warn("poll skipped, pipeline still running")
             return
         }
         pipelineStartedAt.set(System.currentTimeMillis())
@@ -425,7 +425,7 @@ class Functions(
                                 fileService.save(File(hash = hash, name = name))
                             } catch (_: DataIntegrityViolationException) {
                                 // same-ETag race — see KDoc above
-                                logger.warn("duplicate content race for: {}, archiving anyway", name)
+                                logger.error("duplicate content race for: {}, archiving anyway", name)
                             }
                             logger.info("{} documents written to vector store", docs.size)
                             name
@@ -501,7 +501,7 @@ class Functions(
             }.onErrorResume { ex ->
                 val isNotFound = ex is NoSuchKeyException || ex.cause is NoSuchKeyException
                 if (isNotFound) {
-                    logger.warn("source key not found, skipping move: {} → {}", sourceKey, destinationKey)
+                    logger.error("source key not found, skipping move: {} → {}", sourceKey, destinationKey)
                     Mono.empty()
                 } else {
                     Mono.error(ex)

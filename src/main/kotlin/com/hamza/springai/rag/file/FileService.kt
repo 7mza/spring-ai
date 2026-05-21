@@ -3,14 +3,19 @@ package com.hamza.springai.rag.file
 import com.hamza.springai.shared.PageMeta
 import com.hamza.springai.shared.SortField
 import jakarta.annotation.PreDestroy
+import org.springframework.ai.vectorstore.VectorStore
+import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.server.ResponseStatusException
 import reactor.core.publisher.Mono
 import software.amazon.awssdk.core.async.AsyncRequestBody
 import software.amazon.awssdk.services.s3.S3AsyncClient
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier
 import java.util.concurrent.Executors
 
 interface IFileService {
@@ -21,11 +26,16 @@ interface IFileService {
     fun findAll(pageable: Pageable): FilesPage
 
     fun upload(file: MultipartFile): Mono<Void>
+
+    fun deleteById(id: String)
+
+    fun deleteAll()
 }
 
 @Service
 class FileService(
     private val repo: IFileRepo,
+    private val vectorStore: VectorStore,
     private val s3: ObjectProvider<S3AsyncClient>,
     @Value($$"${custom.supplier.remote-dir}") private val bucket: String,
 ) : IFileService {
@@ -74,4 +84,32 @@ class FileService(
                     sort = it.sort.toList().map { field -> SortField(field.property, field.direction) },
                 )
             }
+
+    override fun deleteById(id: String) {
+        val file = repo.findById(FileId(id)).orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, id) }
+        vectorStore.delete(FilterExpressionBuilder().eq("file_name", file.name).build())
+        s3.ifAvailable?.deleteObject { it.bucket(bucket).key("processed/${file.name}") }?.join()
+        repo.delete(file)
+    }
+
+    override fun deleteAll() {
+        repo
+            .findAll()
+            .map { it.name }
+            .takeIf { it.isNotEmpty() }
+            ?.let { vectorStore.delete(FilterExpressionBuilder().`in`("file_name", it).build()) }
+        s3.ifAvailable?.let { client ->
+            generateSequence(client.listObjectsV2 { it.bucket(bucket).prefix("processed/") }.join()) { page ->
+                page.nextContinuationToken()?.let { token ->
+                    client.listObjectsV2 { it.bucket(bucket).prefix("processed/").continuationToken(token) }.join()
+                }
+            }.flatMap { it.contents() }
+                .map { ObjectIdentifier.builder().key(it.key()).build() }
+                .chunked(1000)
+                .forEach { chunk ->
+                    client.deleteObjects { req -> req.bucket(bucket).delete { it.objects(chunk) } }.join()
+                }
+        }
+        repo.deleteAll()
+    }
 }

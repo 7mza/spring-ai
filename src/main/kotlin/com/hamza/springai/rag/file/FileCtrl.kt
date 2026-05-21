@@ -12,4 +12,8 @@ class FileCtrl(
     override fun findAll(pageable: Pageable): FilesPage = service.findAll(pageable)
 
     override fun upload(file: MultipartFile): Mono<Void> = service.upload(file)
+
+    override fun deleteById(id: String) = service.deleteById(id)
+
+    override fun deleteAll() = service.deleteAll()
 }
