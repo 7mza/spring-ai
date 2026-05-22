@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.bean.override.mockito.MockitoBean
@@ -21,9 +20,6 @@ class PromptServiceIntegrationTest {
     @Autowired
     private lateinit var service: IPromptService
 
-    @Value($$"${spring.ai.ollama.chat.model}")
-    private lateinit var model: String
-
     private val prompt = "What is the capital of France?"
 
     @MockitoBean // prevent autoconf of embedding vector store, not needed in this test
@@ -36,17 +32,15 @@ class PromptServiceIntegrationTest {
     @Test
     fun `prompting LLM should return a string response`() {
         val response = service.prompt(PromptRequest(prompt))
-
+        logger.debug("prompt: {}", response)
         assertThat(response.prompt).isEqualTo(prompt)
         assertThat(response.response).isNotBlank
-
-        logger.debug("model: `{}` # response: `{}`", model, response)
     }
 
     @Test
     fun `asking LLM to generate a list of songs should return a valid wrapper object`() {
         val response = service.songs(2006)
-
+        logger.debug("songs: {}", response)
         assertThat(response).isInstanceOf(SongResponse::class.java)
         assertThat(response.response)
             .isNotEmpty
@@ -54,8 +48,6 @@ class PromptServiceIntegrationTest {
                 assertThat(it).isInstanceOf(Song::class.java)
                 assertThat(it.title).isNotBlank()
             }
-
-        logger.debug("model: `{}` # response: `{}`", model, response)
     }
 
     @Test
@@ -64,7 +56,7 @@ class PromptServiceIntegrationTest {
             .create(service.movies(2013).collectList())
             .assertNext {
                 assertThat(it.joinToString("")).isNotBlank()
-                logger.debug("model: `{}` # response: `{}`", model, it.joinToString(", "))
+                logger.debug("movies: {}", it.joinToString(", "))
             }.verifyComplete()
     }
 }

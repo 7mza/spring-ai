@@ -4,8 +4,9 @@ import com.hamza.springai.OllamaContainerConfig
 import com.hamza.springai.rag.file.File
 import com.hamza.springai.rag.file.IFileRepo
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.verify
 import org.slf4j.LoggerFactory
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,8 +14,8 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 
-@Disabled // test LLMs bad
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(OllamaContainerConfig::class)
 class ToolServiceIntegrationTest {
@@ -26,6 +27,9 @@ class ToolServiceIntegrationTest {
     @Autowired
     private lateinit var repo: IFileRepo
 
+    @MockitoSpyBean
+    private lateinit var tools: ITools
+
     @MockitoBean // prevent autoconf of embedding vector store, not needed in this test
     private lateinit var vectorStore: VectorStore
 
@@ -35,15 +39,22 @@ class ToolServiceIntegrationTest {
 
     @Test
     fun getCurrentTimeAt() {
+        // tell llm to call tool
         val response = service.getCurrentTimeAt("Riyadh")
-        logger.debug("response: {}", response)
-        assertThat(response).isNotBlank
-        assertThat(response).containsIgnoringCase("Riyadh")
-        assertThat(response).containsIgnoringCase("time")
+        logger.debug("getCurrentTimeAt: {}", response)
+        // check tool was called
+        val captor = argumentCaptor<String>()
+        verify(tools).getCurrentTimeAt(captor.capture())
+        assertThat(captor.firstValue).satisfiesAnyOf(
+            { assertThat(it).containsIgnoringCase("Riyadh") },
+            { assertThat(it).containsIgnoringCase("Asia") },
+        )
+        // dont care about response
     }
 
     @Test
     fun listIngestedFiles() {
+        // init DB to lower LLM hallucination
         repo.saveAll(
             listOf(
                 File(name = "file1", hash = "hash1"),
@@ -51,15 +62,11 @@ class ToolServiceIntegrationTest {
                 File(name = "file3", hash = "hash3"),
             ),
         )
+        // tell llm to call tool
         val response = service.listIngestedFiles(size = 10, page = 0)
-        logger.debug("response: {}", response)
-        assertThat(response.content).hasSize(3)
-        assertThat(response.page.isFirst).isTrue
-        assertThat(response.page.isLast).isTrue
-        assertThat(response.page.number).isZero
-        assertThat(response.page.size).isEqualTo(10)
-        assertThat(response.page.totalPages).isOne
-        assertThat(response.page.totalElements).isEqualTo(3)
-        assertThat(response.sort).isEmpty()
+        logger.debug("listIngestedFiles: {}", response)
+        // check tool was called
+        verify(tools).listIngestedFiles(10, 0)
+        // dont care about response
     }
 }

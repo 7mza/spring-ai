@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.bean.override.mockito.MockitoBean
@@ -19,9 +18,6 @@ class EvalServiceIntegrationTest {
 
     @Autowired
     private lateinit var service: IEvalService
-
-    @Value($$"${spring.ai.ollama.chat.model}")
-    private lateinit var model: String
 
     private val prompt = "What is the capital of France?"
 
@@ -39,7 +35,7 @@ class EvalServiceIntegrationTest {
 
         val evaluation = service.eval(EvalRequest(prompt, response))
 
-        logger.debug("evaluation: {}", evaluation)
+        logger.debug("eval: {}", evaluation)
 
         assertThat(evaluation.prompt).isEqualTo(prompt)
         assertThat(evaluation.response).isEqualTo(response)
@@ -54,7 +50,7 @@ class EvalServiceIntegrationTest {
 
         val evaluation = service.eval(EvalRequest(prompt, response))
 
-        logger.debug("evaluation: {}", evaluation)
+        logger.debug("eval wrong: {}", evaluation)
 
         assertThat(evaluation.prompt).isEqualTo(prompt)
         assertThat(evaluation.response).isEqualTo(response)

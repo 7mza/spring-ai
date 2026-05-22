@@ -49,7 +49,7 @@ class MemoryServiceIntegrationTest {
                 .param("id", conversationId)
                 .query(MemoryRow::class.java)
                 .list()
-        rows.forEach { logger.debug("type={} content={}", it?.type, it?.content) }
+        rows.forEach { logger.debug("jdbc:  type={} content={}", it?.type, it?.content) }
         assertThat(rows).hasSize(2)
         assertThat(rows).anyMatch { it?.content == prompt }
         // vague prompt with same session
@@ -77,7 +77,7 @@ class MemoryServiceIntegrationTest {
                     .filterExpression(FilterExpressionBuilder().eq("conversationId", conversationId).build())
                     .build(),
             )
-        documents.forEach { logger.debug("type={} content={}", it.metadata["messageType"], it.text) }
+        documents.forEach { logger.debug("vector:   type={} content={}", it.metadata["messageType"], it.text) }
         assertThat(documents).hasSize(2)
         assertThat(documents).anyMatch { it.text == prompt }
         // vague prompt with same session

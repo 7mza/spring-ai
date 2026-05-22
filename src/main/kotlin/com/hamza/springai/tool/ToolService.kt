@@ -44,8 +44,9 @@ class ToolService(
     private val timeTemplate = "What is the current time in {location}?"
     private val fileTemplate =
         """
-        Call the listIngestedFiles tool with page={page} and size={size}.
+        You MUST call listIngestedFiles tool with page={page} and size={size}.
         Return the tool result as-is in raw JSON. Do not summarize, narrate, or add any explanation.
+        Do not generate or invent any data. Only return what the tool gives you.
         """.trimIndent()
 
     override fun getCurrentTimeAt(location: String): String =
