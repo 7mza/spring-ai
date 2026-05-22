@@ -1,5 +1,6 @@
 package com.hamza.springai.memory
 
+import com.hamza.springai.prompt.PromptResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
@@ -35,7 +36,7 @@ To test, keep prompting about the same topic or changing conversationId.
                 content = [
                     Content(
                         mediaType = MediaType.APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = MemoryResponse::class),
+                        schema = Schema(implementation = PromptResponse::class),
                         examples = [
                             ExampleObject(
                                 name = "example-0",
@@ -57,7 +58,7 @@ To test, keep prompting about the same topic or changing conversationId.
         )
         @RequestHeader(value = "X_CONVERSATION_ID", defaultValue = "default") conversationId: String,
         @RequestBody @Valid request: MemoryRequest,
-    ): MemoryResponse
+    ): PromptResponse
 
     @PostMapping("/vector")
     @Operation(
@@ -75,7 +76,7 @@ To test, keep prompting about the same topic or changing conversationId.
                 content = [
                     Content(
                         mediaType = MediaType.APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = MemoryResponse::class),
+                        schema = Schema(implementation = PromptResponse::class),
                         examples = [
                             ExampleObject(
                                 name = "example-0",
@@ -97,5 +98,5 @@ To test, keep prompting about the same topic or changing conversationId.
         )
         @RequestHeader(value = "X_CONVERSATION_ID", defaultValue = "default") conversationId: String,
         @RequestBody @Valid request: MemoryRequest,
-    ): MemoryResponse
+    ): PromptResponse
 }

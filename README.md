@@ -2,7 +2,7 @@
 
 ## desc
 
-Spring AI experimentation workspace with some design choices
+Spring AI learning/experimentation workspace
 
 - Ollama as LLM backend
 - Qdrant as vector store
@@ -27,6 +27,8 @@ Spring AI experimentation workspace with some design choices
 - Persistent chat memory
   - JDBC backend
   - VectorStore backend
+- Tools
+- MCP
 - ...
 
 ### [ingestion pipeline](src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt)
@@ -123,6 +125,12 @@ docker compose up --build
 ```
 
 [http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui)
+
+## stop
+
+```shell
+./gradlew --stop
+```
 
 ## misc
 

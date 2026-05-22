@@ -24,6 +24,7 @@ import reactor.core.publisher.Mono
 @Tag(name = "file", description = "Files/Documents ingestion")
 @RequestMapping(value = ["/api/file"], produces = [MediaType.APPLICATION_JSON_VALUE])
 interface IFileApi {
+    @GetMapping
     @Operation(
         summary = "List ingested files",
         description = "",
@@ -80,39 +81,39 @@ interface IFileApi {
             ),
         ],
     )
-    @GetMapping
     fun findAll(
         @ParameterObject pageable: Pageable,
     ): FilesPage
 
+    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(
         summary = "Upload a file for ingestion",
         description = """
 Puts the file in the MinIO bucket root. Ingestion pipeline picks it up on next poll.<br /><br />
-Max size is configured via YAML: `spring.servlet.multipart.max-file-size=100MB`""",
+Max size is configured via YAML: `spring.servlet.multipart.max-file-size=100MB`
+""",
     )
     @ApiResponse(responseCode = "202", description = "Accepted")
-    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @ResponseStatus(HttpStatus.ACCEPTED)
     fun upload(
         @RequestPart("file") file: MultipartFile,
     ): Mono<Void>
 
+    @DeleteMapping("/{id}")
     @Operation(
         summary = "Delete an ingested file by id",
         description = "Removes from DB, vector store, and S3 `processed/`.",
     )
     @ApiResponse(responseCode = "204", description = "Deleted")
     @ApiResponse(responseCode = "404", description = "Not found")
-    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteById(
         @PathVariable id: String,
     )
 
+    @DeleteMapping
     @Operation(summary = "Delete all ingested files", description = "Wipes DB, vector store, and S3 `processed/`.")
     @ApiResponse(responseCode = "204", description = "Deleted")
-    @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteAll()
 }

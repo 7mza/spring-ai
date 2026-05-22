@@ -12,7 +12,4 @@ data class MemoryRequest(
     val prompt: String,
 )
 
-data class MemoryResponse(
-    val prompt: String,
-    val response: String,
-)
+internal class MemoryDtos

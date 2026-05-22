@@ -1,5 +1,6 @@
 package com.hamza.springai.memory
 
+import com.hamza.springai.prompt.PromptResponse
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor
@@ -13,12 +14,12 @@ interface IMemoryService {
     fun promptWithJdbcMemory(
         conversationId: String,
         request: MemoryRequest,
-    ): MemoryResponse
+    ): PromptResponse
 
     fun promptWithVectorStoreMemory(
         conversationId: String,
         request: MemoryRequest,
-    ): MemoryResponse
+    ): PromptResponse
 }
 
 @Service
@@ -36,7 +37,7 @@ class MemoryService(
     override fun promptWithJdbcMemory(
         conversationId: String,
         request: MemoryRequest,
-    ): MemoryResponse =
+    ): PromptResponse =
         chatClient
             .prompt()
             .user(request.prompt)
@@ -44,13 +45,13 @@ class MemoryService(
             .advisors { it.param(ChatMemory.CONVERSATION_ID, conversationId) }
             .call()
             .content()
-            ?.let { MemoryResponse(prompt = request.prompt, response = it) }
+            ?.let { PromptResponse(prompt = request.prompt, response = it) }
             ?: error("LLM response was null")
 
     override fun promptWithVectorStoreMemory(
         conversationId: String,
         request: MemoryRequest,
-    ): MemoryResponse =
+    ): PromptResponse =
         chatClient
             .prompt()
             .user(request.prompt)
@@ -58,6 +59,6 @@ class MemoryService(
             .advisors { it.param(ChatMemory.CONVERSATION_ID, conversationId) }
             .call()
             .content()
-            ?.let { MemoryResponse(prompt = request.prompt, response = it) }
+            ?.let { PromptResponse(prompt = request.prompt, response = it) }
             ?: error("LLM response was null")
 }

@@ -41,8 +41,7 @@ Example files in `./docs/examples/`.
                                 name = "example-0",
                                 description = "",
                                 value = """
-{ "prompt": "What is the capital of France?", "response": "The capital of France is Paris." }
-""",
+{ "prompt": "What is the capital of France?", "response": "The capital of France is Paris." }""",
                             ),
                         ],
                     ),
@@ -77,8 +76,7 @@ Example files in `./docs/examples/`.
                                 name = "example-0",
                                 description = "",
                                 value = """
-{ "prompt": "What is the capital of France?", "response": "The capital of France is Paris." }
-""",
+{ "prompt": "What is the capital of France?", "response": "The capital of France is Paris." }""",
                             ),
                         ],
                     ),

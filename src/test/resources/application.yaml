@@ -1,4 +1,6 @@
 custom:
+  memory:
+    store: chat_memory
   supplier:
     filename-regex: .*\.(md|pdf|txt)
     pipeline-timeout: 120000

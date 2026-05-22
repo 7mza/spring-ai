@@ -16,7 +16,7 @@ import org.springframework.jdbc.core.simple.JdbcClient
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(QdrantContainerConfig::class, OllamaContainerConfig::class)
-class MemoryServiceTest {
+class MemoryServiceIntegrationTest {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired
@@ -77,7 +77,7 @@ class MemoryServiceTest {
                     .filterExpression(FilterExpressionBuilder().eq("conversationId", conversationId).build())
                     .build(),
             )
-        documents.forEach { logger.debug("type={} content={}", it?.metadata["messageType"], it.text) }
+        documents.forEach { logger.debug("type={} content={}", it.metadata["messageType"], it.text) }
         assertThat(documents).hasSize(2)
         assertThat(documents).anyMatch { it.text == prompt }
         // vague prompt with same session
@@ -88,13 +88,5 @@ class MemoryServiceTest {
         response = service.promptWithVectorStoreMemory("new", MemoryRequest("is he alive?"))
         // LLM should not remember
         assertThat(response.response).doesNotContainIgnoringCase("gandalf")
-    }
-
-    @Test
-    fun chatMemoryConfig() {
-        // FIXME:
-        // override maxMessages to 1
-        // multiple prompts
-        // test only 1 memory
     }
 }

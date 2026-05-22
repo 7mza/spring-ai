@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 @Tag(name = "evaluation", description = "LLM response evaluation")
 @RequestMapping(value = ["/api/eval"], produces = [MediaType.APPLICATION_JSON_VALUE])
 interface IEvalApi {
+    @PostMapping
     @Operation(
         summary = "Evaluate & score prompt/response relevancy using LLM",
         description = """
@@ -51,7 +52,6 @@ Retry mechanism for parsing errors.<br /><br />
             ),
         ],
     )
-    @PostMapping
     fun eval(
         @RequestBody @Valid request: EvalRequest,
     ): EvalResponse

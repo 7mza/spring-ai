@@ -1,4 +1,6 @@
 custom:
+  memory:
+    store: chat_memory
   supplier:
     filename-regex: ${INGEST_FILES_FILTER}
     pipeline-timeout: 600000
@@ -51,7 +53,7 @@ spring:
       memory:
         repository:
           jdbc:
-            initialize-schema: embedded
+            initialize-schema: always
     ollama:
       chat:
         model: ${OLLAMA_MODEL}

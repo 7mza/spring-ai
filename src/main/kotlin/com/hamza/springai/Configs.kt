@@ -34,6 +34,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.context.event.ContextClosedEvent
 import org.springframework.context.event.EventListener
 import org.springframework.http.client.JdkClientHttpRequestFactory
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.retry.annotation.EnableRetry
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.web.client.RestClient
@@ -147,26 +148,38 @@ class Configs(
     fun chatMemoryVectorStore(
         client: QdrantClient,
         embeddingModel: EmbeddingModel,
+        @Value($$"${custom.memory.store}") name: String,
     ): VectorStore =
         QdrantVectorStore
             .builder(client, embeddingModel)
-            .collectionName("chat_memory")
+            .collectionName(name)
             .initializeSchema(true)
             .build()
 }
 
-// mirror jpa create-drop: wipe vector store on shutdown
+// mirror jpa create-drop: wipe vector/memory stores on shutdown
 @Configuration
 @ConditionalOnProperty(name = ["spring.jpa.hibernate.ddl-auto"], havingValue = "create-drop")
-class QdrantConfigs(
+class CleanConfigs(
     private val restClientBuilder: RestClient.Builder,
     @Value($$"${spring.ai.vectorstore.qdrant.host}") private val host: String,
-    @Value($$"${spring.ai.vectorstore.qdrant.collection-name}") private val name: String,
+    @Value($$"${spring.ai.vectorstore.qdrant.collection-name}") private val embeddingStoreName: String,
+    @Value($$"${custom.memory.store}") private val chatMemoryStore: String,
+    private val jdbcTemplate: JdbcTemplate,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @EventListener(ContextClosedEvent::class)
-    fun wipeStore() {
+    fun clean() {
+        wipeStore(embeddingStoreName)
+        wipeStore(chatMemoryStore)
+        runCatching {
+            jdbcTemplate.execute("delete from SPRING_AI_CHAT_MEMORY")
+            logger.info("wiped table '{}'", "SPRING_AI_CHAT_MEMORY")
+        }.onFailure { logger.warn("error wiping table '{}': {}", "SPRING_AI_CHAT_MEMORY", it.message) }
+    }
+
+    private fun wipeStore(name: String) {
         runCatching {
             restClientBuilder
                 .baseUrl("http://$host:6333")

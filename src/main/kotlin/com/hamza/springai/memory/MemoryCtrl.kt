@@ -1,5 +1,6 @@
 package com.hamza.springai.memory
 
+import com.hamza.springai.prompt.PromptResponse
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -9,10 +10,10 @@ class MemoryCtrl(
     override fun promptWithJdbcMemory(
         conversationId: String,
         request: MemoryRequest,
-    ): MemoryResponse = service.promptWithJdbcMemory(conversationId, request)
+    ): PromptResponse = service.promptWithJdbcMemory(conversationId, request)
 
     override fun promptWithVectorStoreMemory(
         conversationId: String,
         request: MemoryRequest,
-    ): MemoryResponse = service.promptWithVectorStoreMemory(conversationId, request)
+    ): PromptResponse = service.promptWithVectorStoreMemory(conversationId, request)
 }
