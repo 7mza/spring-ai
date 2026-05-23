@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
-        "custom.supplier.polling-interval=10000", // give N ms to OLLAMA for each file
         "spring.cloud.aws.s3.enabled=true",
         """spring.cloud.function.definition=\
 customS3Supplier|duplicationFilter|documentReader|documentSplitter|languageEnricher|vectorStoreWriter|s3Archiver""",
@@ -52,7 +51,7 @@ class TransformersIntegrationTest {
         await().atMost(2, TimeUnit.MINUTES).until { repo.count() == files.size.toLong() }
     }
 
-    // FIXME: retry N times because small models are unreliable
+    // retry N times because small models are unreliable
     @RetryingTest(maxAttempts = 2, suspendForMs = 1000)
     fun `languageEnricher is correctly adding language metadata`() {
         assertThat(

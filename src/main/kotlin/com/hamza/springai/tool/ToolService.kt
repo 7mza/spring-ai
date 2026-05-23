@@ -38,13 +38,13 @@ class ToolService(
     private val chatClient =
         chatClientBuilder
             .defaultTools(tools)
-            // OR: .defaultToolNames("getCurrentTimeAt")
+            // OR: .defaultToolNames("getTimeAt", "listFiles")
             .build()
 
     private val timeTemplate = "What is the current time in {location}?"
     private val fileTemplate =
         """
-        You MUST call listIngestedFiles tool with page={page} and size={size}.
+        You MUST call listFiles tool with page={page} and size={size}.
         Return the tool result as-is in raw JSON. Do not summarize, narrate, or add any explanation.
         Do not generate or invent any data. Only return what the tool gives you.
         """.trimIndent()
@@ -54,12 +54,12 @@ class ToolService(
             .prompt()
             .user { it.text(timeTemplate).param("location", location) }
             // OR: .tools(tools)
-            // OR: .toolNames("getCurrentTimeAt")
+            // OR: .toolNames("getTimeAt", "listFiles")
             .call()
             .content()
             ?: error("LLM response was null")
 
-    @Retryable(retryFor = [JacksonException::class], maxAttempts = 5)
+    @Retryable(retryFor = [JacksonException::class, NumberFormatException::class], maxAttempts = 5)
     override fun listIngestedFiles(
         size: Int,
         page: Int,
@@ -81,7 +81,7 @@ class ToolService(
 
     @Recover
     fun listIngestedFiles(
-        ex: JacksonException,
+        ex: Exception,
         size: Int,
         page: Int,
     ): FilesPage {
@@ -111,9 +111,9 @@ class ToolService(
 }
 
 interface ITools {
-    fun getCurrentTimeAt(timeZone: String): String
+    fun getTimeAt(timeZone: String): String
 
-    fun listIngestedFiles(
+    fun listFiles(
         size: Int,
         page: Int,
     ): FilesPage
@@ -126,7 +126,7 @@ class Tools(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Tool(
-        name = "getCurrentTimeAt",
+        name = "getTimeAt",
         description = """
 Get the current date and time for a given location.
 Use when the user asks what time or date it is in a specific city, country, or region.
@@ -135,7 +135,7 @@ Read-only, no side effects.
 Returns an ISO-8601 local datetime string, e.g. '2026-05-22T21:00:00', with no timezone offset included.
 """,
     )
-    override fun getCurrentTimeAt(
+    override fun getTimeAt(
         @ToolParam(
             description = """
 IANA timezone ID for the target location, e.g. 'Asia/Tokyo', 'America/New_York', 'Europe/Paris'.
@@ -149,7 +149,7 @@ IANA timezone ID for the target location, e.g. 'Asia/Tokyo', 'America/New_York',
     }
 
     @Tool(
-        name = "listIngestedFiles",
+        name = "listFiles",
         description = """
 List files that have been ingested into the knowledge base.
 Use when the user asks what documents, files, or content is available.
@@ -157,7 +157,7 @@ Read-only, no side effects.
 Returns a paginated list of file names and their ingestion date.
 """,
     )
-    override fun listIngestedFiles(
+    override fun listFiles(
         @ToolParam(description = "Number of files to return per page. Default to 10 if not specified by the user.")
         size: Int,
         @ToolParam(description = "Page number, zero-based. Use 0 for the first page.")

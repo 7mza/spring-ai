@@ -9,7 +9,7 @@ import org.springframework.boot.gradle.tasks.aot.ProcessTestAot
 
 plugins {
     kotlin("jvm") version "2.3.21"
-    kotlin("plugin.jpa") version "2.2.21"
+    kotlin("plugin.jpa") version "2.3.21"
     kotlin("plugin.spring") version "2.3.21"
     id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
@@ -32,11 +32,6 @@ version = "0.0.1-SNAPSHOT"
 java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
 
 repositories { mavenCentral() }
-
-extra["springAiVersion"] = "2.0.0-M6"
-extra["springAwsVersion"] = "4.0.2"
-extra["springCloudVersion"] = "2025.1.1"
-// extra["springFunctionsCatalogVersion"] = "6.0.0"
 
 val awaitilityVersion = "4.3.0"
 val dataFakerVersion = "2.5.4"
@@ -69,6 +64,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$openapiVersion")
     implementation("org.springframework.ai:spring-ai-advisors-vector-store")
     implementation("org.springframework.ai:spring-ai-rag")
+    // implementation("org.springframework.ai:spring-ai-starter-mcp-client")
     implementation("org.springframework.ai:spring-ai-starter-model-chat-memory-repository-jdbc")
     implementation("org.springframework.ai:spring-ai-starter-model-ollama")
     implementation("org.springframework.ai:spring-ai-starter-vector-store-qdrant")
@@ -111,12 +107,17 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+val springAiVersion = "2.0.0-M7"
+val springAwsVersion = "4.0.2"
+val springCloudVersion = "2025.1.1"
+// val springFunctionsCatalogVersion = "6.0.0"
+
 dependencyManagement {
     imports {
-        mavenBom("io.awspring.cloud:spring-cloud-aws-dependencies:${property("springAwsVersion")}")
-        mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
-        // mavenBom("org.springframework.cloud.fn:spring-functions-catalog-bom:${property("springFunctionsCatalogVersion")}")
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
+        mavenBom("io.awspring.cloud:spring-cloud-aws-dependencies:$springAwsVersion")
+        mavenBom("org.springframework.ai:spring-ai-bom:$springAiVersion")
+        // mavenBom("org.springframework.cloud.fn:spring-functions-catalog-bom:$springFunctionsCatalogVersion")
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
     }
 }
 
@@ -138,14 +139,13 @@ tasks {
     withType<JavaCompile>().configureEach {
         options.encoding = Charsets.UTF_8.name()
         options.isFork = true
-        options.isIncremental = true
     }
 
     withType<Test>().configureEach {
         useJUnitPlatform()
-        jvmArgs("-javaagent:${mockitoAgent.asPath}")
-        maxParallelForks = 2
-        // forkEvery = 100
+        jvmArgumentProviders += CommandLineArgumentProvider { listOf("-javaagent:${mockitoAgent.asPath}") }
+        maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+        forkEvery = 100
         reports {
             html.required = false
             junitXml.required = false
@@ -168,13 +168,7 @@ tasks {
     jacocoTestReport {
         dependsOn(test)
         classDirectories.setFrom(
-            files(
-                classDirectories.files.map {
-                    fileTree(it) {
-                        exclude("**/ApplicationKt.class")
-                    }
-                },
-            ),
+            classDirectories.files.map { fileTree(it) { exclude("**/ApplicationKt.class") } },
         )
         reports {
             csv.required = false
@@ -191,12 +185,13 @@ tasks {
 
     withType<ProcessTestAot>().configureEach { enabled = project.hasProperty("aot") }
 
-    processResources { dependsOn("npm_run_format") }
+    val npmRunFormat =
+        register("npm_run_format", NpmTask::class) {
+            description = ""
+            args = listOf("run", "format")
+        }
 
-    register("npm_run_format", NpmTask::class) {
-        description = ""
-        args = listOf("run", "format")
-    }
+    processResources { dependsOn(npmRunFormat) }
 }
 
 configure<KtlintExtension> {

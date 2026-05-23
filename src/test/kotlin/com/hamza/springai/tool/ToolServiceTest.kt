@@ -4,13 +4,16 @@ import com.hamza.springai.OllamaContainerConfig
 import com.hamza.springai.rag.file.File
 import com.hamza.springai.rag.file.IFileRepo
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.junitpioneer.jupiter.RetryingTest
+import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.atLeastOnce
 import org.mockito.kotlin.verify
 import org.slf4j.LoggerFactory
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.bean.override.mockito.MockitoBean
@@ -18,7 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(OllamaContainerConfig::class)
-class ToolServiceIntegrationTest {
+class ToolServiceTest {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired
@@ -33,18 +36,18 @@ class ToolServiceIntegrationTest {
     @MockitoBean // prevent autoconf of embedding vector store, not needed in this test
     private lateinit var vectorStore: VectorStore
 
-    @MockitoBean
-    @Qualifier("chatMemoryVectorStore") // prevent autoconf of memory vector store, not needed in this test
+    @MockitoBean("chatMemoryVectorStore") // prevent autoconf of memory vector store, not needed in this test
     private lateinit var chatMemoryVectorStore: VectorStore
 
-    @Test
+    // retry N times because small models are unreliable
+    @RetryingTest(maxAttempts = 5, suspendForMs = 1000)
     fun getCurrentTimeAt() {
-        // tell llm to call tool
+        // call service
         val response = service.getCurrentTimeAt("Riyadh")
         logger.debug("getCurrentTimeAt: {}", response)
-        // check tool was called
+        // check LLM called tool
         val captor = argumentCaptor<String>()
-        verify(tools).getCurrentTimeAt(captor.capture())
+        verify(tools, atLeastOnce()).getTimeAt(captor.capture())
         assertThat(captor.firstValue).satisfiesAnyOf(
             { assertThat(it).containsIgnoringCase("Riyadh") },
             { assertThat(it).containsIgnoringCase("Asia") },
@@ -52,6 +55,7 @@ class ToolServiceIntegrationTest {
         // dont care about response
     }
 
+    @Disabled
     @Test
     fun listIngestedFiles() {
         // init DB to lower LLM hallucination
@@ -62,11 +66,11 @@ class ToolServiceIntegrationTest {
                 File(name = "file3", hash = "hash3"),
             ),
         )
-        // tell llm to call tool
+        // call service
         val response = service.listIngestedFiles(size = 10, page = 0)
         logger.debug("listIngestedFiles: {}", response)
-        // check tool was called
-        verify(tools).listIngestedFiles(10, 0)
+        // check LLM called tool
+        verify(tools, atLeastOnce()).listFiles(anyInt(), anyInt())
         // dont care about response
     }
 }

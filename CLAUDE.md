@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Stack
 
 - **Language**: Kotlin / Spring Boot 4.0.6 / Java 25
-- **AI**: Spring AI 2.0.0-M6 with Ollama (chat + embeddings)
+- **AI**: Spring AI 2.0.0-M7 with Ollama (chat + embeddings)
 - **Vector store**: Qdrant
 - **Object store**: MinIO (S3-compatible)
 - **Database**: H2, local file
@@ -70,13 +70,15 @@ npm run format           # prettier for YAML/JSON/XML/MD
 
 ### Feature areas
 
-Three packages under `com.hamza.springai`, each following the same layering:
+Five packages under `com.hamza.springai`, each following the same layering:
 
 | Package       | Purpose                                                                                          |
 | ------------- | ------------------------------------------------------------------------------------------------ |
 | `prompt/`     | Basic + template prompting, structured JSON responses, streaming, Spring Retry on parse failures |
-| `rag/`        | Ingestion pipeline, manual RAG, advisor-based RAG                                                |
+| `rag/`        | Ingestion pipeline, manual RAG, advisor-based RAG, query enhancement                             |
 | `evaluation/` | LLM-as-judge evaluation via Spring AI `Evaluator`                                                |
+| `tool/`       | Spring AI tool calling; `Tools` registers `@Tool` methods; `ToolService` drives them             |
+| `memory/`     | Chat memory with JDBC and Qdrant vector store backends                                           |
 
 Each package has a `I*Api` interface (OpenAPI contract), `*Ctrl` (REST controller), `*Service`/`I*Service`, and `*Dtos`.
 A `shared/` package provides `PageMeta` and `SortField` for paginated responses used across all feature areas.
@@ -148,11 +150,44 @@ it between `documentSplitter` and `vectorStoreWriter` in the definition string.
 `Flux`-compatible beans with `subscribeOn(vtScheduler)`. Read the `qualityEnricher` KDoc in `Functions.kt` before
 wiring `qualityEnricher` — there is a known silent-drop risk that must be fixed first.
 
+### Tool calling (`tool/`)
+
+`Tools` (a `@Component`) holds the actual `@Tool`-annotated methods: `getCurrentTimeAt` (IANA timezone → ISO-8601
+datetime) and `listIngestedFiles` (delegates to `IFileService`). Both are registered globally via
+`chatClientBuilder.defaultTools(tools)` in `ToolService`. The `@Retryable` + `@Recover` pattern is reused on
+`listIngestedFiles` for the same reasons as in `PromptService.songs()`.
+
+In tests, use `@MockitoSpyBean` on `ITools` to verify the LLM actually called the tool (argument captor on the spy).
+Mock out both `VectorStore` and `chatMemoryVectorStore` beans to prevent Qdrant autoconfiguration — they are not needed
+in tool tests.
+
+### Chat memory (`memory/`)
+
+Two backends exposed via `IMemoryService`, both scoped by `conversationId`:
+
+- **JDBC** (`promptWithJdbcMemory`): `MessageChatMemoryAdvisor` backed by `MessageWindowChatMemory` (max 50 messages),
+  stored in the `SPRING_AI_CHAT_MEMORY` H2 table via `spring-ai-starter-model-chat-memory-repository-jdbc`.
+- **Vector store** (`promptWithVectorStoreMemory`): `VectorStoreChatMemoryAdvisor` backed by a dedicated Qdrant
+  collection configured via `custom.memory.store` (separate from the RAG embedding collection).
+
+Both beans (`chatMemory` and `chatMemoryVectorStore`) are declared in `Configs.kt`. `CleanConfigs` wipes both memory
+stores (the Qdrant collection and the JDBC table) on shutdown when `ddl-auto=create-drop`.
+
+Memory integration tests require both `QdrantContainerConfig` and `OllamaContainerConfig`.
+
 ### RAG (`rag/RagService.kt`)
 
-Two modes: manual (fetch context with `similaritySearch` then template-inject) and advisor-based (
-`QuestionAnswerAdvisor`). Similarity threshold is 0.3; a debug log prints all scores without threshold for tuning. The
-advisor mode supports Qdrant metadata filtering (e.g. `language == 'en'`) — useful once enrichers are wired.
+Four modes:
+
+- `promptWithManualRag` — manual `similaritySearch` (threshold 0.3) then template-inject into prompt
+- `promptWithQAAdvisor` — `QuestionAnswerAdvisor`; supports Qdrant metadata filter via
+  `QuestionAnswerAdvisor.FILTER_EXPRESSION` advisor param
+- `promptWithModularAdvisor` — `RetrievalAugmentationAdvisor` with `TranslationQueryTransformer` (→ English) then
+  `RewriteQueryTransformer`; the final rewritten query is captured in `PromptResponse.enhancedPrompt`
+- `promptWithExpanding` — `RetrievalAugmentationAdvisor` with `MultiQueryExpander` (4 variants, original excluded);
+  all expanded queries joined with `|` are stored in `PromptResponse.enhancedPrompt`
+
+A debug log in `pullContext` prints all document scores without threshold for similarity tuning.
 
 ### Prompt templates
 

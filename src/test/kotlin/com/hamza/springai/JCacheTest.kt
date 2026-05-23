@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.transaction.PlatformTransactionManager
@@ -37,8 +36,7 @@ class JCacheTest {
     @MockitoBean // prevent autoconf of embedding vector store, not needed in this test
     private lateinit var vectorStore: VectorStore
 
-    @MockitoBean
-    @Qualifier("chatMemoryVectorStore") // prevent autoconf of memory vector store, not needed in this test
+    @MockitoBean("chatMemoryVectorStore") // prevent autoconf of memory vector store, not needed in this test
     private lateinit var chatMemoryVectorStore: VectorStore
 
     @BeforeEach

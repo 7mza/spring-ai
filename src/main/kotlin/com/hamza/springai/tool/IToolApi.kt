@@ -51,7 +51,7 @@ interface IToolApi {
     @Operation(
         summary = "Ask LLM for the list of ingested files",
         description = """
-Complex tool with paginated input, JSON output and DB call and retry/recover.<br /><br />
+Complex tool with paginated input, JSON output, DB call and retry/recover.<br /><br />
 Might give Jackson errors if LLM doesn't respect JSON format.
 """,
     )

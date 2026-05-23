@@ -21,10 +21,7 @@ import java.util.concurrent.TimeUnit
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = [
-        "custom.supplier.polling-interval=1000", // ingest as fast as possible
-        "spring.cloud.aws.s3.enabled=true",
-    ],
+    properties = ["spring.cloud.aws.s3.enabled=true"],
 )
 @Import(
     MinioTestContainerConfig::class,
