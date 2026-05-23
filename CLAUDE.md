@@ -98,7 +98,8 @@ Entity PKs are TSID-based: stored as `Long` in H2, exposed as base62 strings in 
 
 Each entity requires a companion `@Embeddable` ID class (e.g. `FileId`) implementing the `EntityId` interface, with a
 no-arg constructor for JPA, a string constructor that decodes base62, and a `toString()` that encodes to base62. Use
-`@EmbeddedId` on the entity field, not `@Id`.
+`@EmbeddedId` on the entity field, not `@Id`. Use the extension functions `encodeToString()` / `decodeToTSID()` from
+`data/TSIDGenerator.kt` rather than calling `TSID.encode(62)` / `TSID.decode(...)` directly.
 
 ### Caching
 
@@ -114,6 +115,10 @@ class Test
 
 When working on the pipeline, always check `docs/pipeline_specs_v1.md` for drift. **Never modify that file directly** —
 report inconsistencies to the user first.
+
+The entire `Functions` class is `@ConditionalOnProperty(name = ["spring.cloud.aws.s3.enabled"], havingValue = "true")`.
+No pipeline beans exist at all unless S3 is enabled — this is why pipeline tests must set
+`spring.cloud.aws.s3.enabled=true` explicitly.
 
 Spring Cloud Function beans wired via `spring.cloud.function.definition` in `application.yaml` (pipe-separated):
 
@@ -249,6 +254,8 @@ Key variables consumed by `application.yaml` (set in `.env` for local dev):
 - WireMock (`wiremock-spring-boot`) for HTTP-level LLM mocking in unit tests when possible.
 - S3 autoconfiguration (for pipeline) is optional through `spring.cloud.aws.s3.enabled` and disabled by default in tests
   conf. Enable it explicitly when a test needs it, example `FunctionsIntegrationTest`.
+- Use `@RetryingTest(maxAttempts = N, suspendForMs = M)` from `org.junit-pioneer:junit-pioneer` instead of `@Test` for
+  integration tests that call a real LLM — small models are non-deterministic and may fail parsing on the first attempt.
 
 ### HTTP logging
 

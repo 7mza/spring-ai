@@ -1,4 +1,4 @@
-# [Spring AI](https://docs.spring.io/spring-ai/reference/)
+# [Spring AI](https://spring.io/projects/spring-ai#learn)
 
 ## desc
 

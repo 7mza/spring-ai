@@ -14,10 +14,14 @@ import org.springframework.context.annotation.Conditional
 import org.springframework.core.type.AnnotatedTypeMetadata
 import org.springframework.test.context.DynamicPropertyRegistrar
 import org.testcontainers.DockerClientFactory
+import org.testcontainers.containers.BindMode
+import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.MinIOContainer
+import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.ollama.OllamaContainer
 import org.testcontainers.qdrant.QdrantContainer
 import org.testcontainers.utility.DockerImageName
+import java.nio.file.Files
 
 private class NvidiaRuntimeAvailable : Condition {
     override fun matches(
@@ -93,4 +97,39 @@ class QdrantContainerConfig {
     @Bean
     @ServiceConnection
     fun qdrantContainer(): QdrantContainer = QdrantContainer(DockerImageName.parse("qdrant/qdrant:latest"))
+}
+
+@TestConfiguration(proxyBeanMethods = false)
+class MCPFSContainerConfig {
+    private fun createFakeTree(): String =
+        Files
+            .createTempDirectory("fake_tree_")
+            .also {
+                Files.createDirectory(it.resolve("amal"))
+                Files.writeString(it.resolve("amal/2006.txt"), "hello")
+                Files.createDirectory(it.resolve("hope"))
+                Files.writeString(it.resolve("hope/2010.md"), "# bye")
+                Files.writeString(it.resolve("espoir.md"), "# in the next")
+                // remove tmp folder at jvm shutdown
+                Runtime.getRuntime().addShutdownHook(Thread { it.toFile().deleteRecursively() })
+            }.toString()
+
+    @Bean
+    fun mcpFsContainer(): GenericContainer<*> =
+        GenericContainer(DockerImageName.parse("node:lts-alpine"))
+            .withCommand(
+                "/bin/sh",
+                "-c",
+                "npx --yes supergateway --stdio 'npx --yes @modelcontextprotocol/server-filesystem /projects' --outputTransport streamableHttp --port 3000 --healthEndpoint /health",
+            ).withExposedPorts(3000)
+            .withFileSystemBind(createFakeTree(), "/projects", BindMode.READ_ONLY)
+            .waitingFor(Wait.forHttp("/health").forResponsePredicate { it.contains("ok") })
+
+    @Bean
+    fun mcpFsProperties(mcpFsContainer: GenericContainer<*>): DynamicPropertyRegistrar =
+        DynamicPropertyRegistrar {
+            it.add("spring.ai.mcp.client.streamable-http.connections.filesystem.url") {
+                "http://${mcpFsContainer.host}:${mcpFsContainer.getMappedPort(3000)}/mcp"
+            }
+        }
 }

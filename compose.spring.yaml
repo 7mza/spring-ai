@@ -1,4 +1,11 @@
 services:
+  mcp-filesystem:
+    extends:
+      file: compose.yaml
+      service: mcp-filesystem
+    profiles:
+      - mcp-filesystem
+
   minio:
     extends:
       file: compose.yaml

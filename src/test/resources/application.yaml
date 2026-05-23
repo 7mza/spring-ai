@@ -17,6 +17,7 @@ server:
     enabled: false
 spring:
   ai:
+    # mcp.client.streamable-http.connections.filesystem.url: from_test_container # done though test containers so other tests don't complain
     chat:
       memory:
         repository:

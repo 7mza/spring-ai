@@ -49,6 +49,12 @@ server:
     enabled: false
 spring:
   ai:
+    mcp:
+      client:
+        streamable-http:
+          connections:
+            filesystem:
+              url: http://localhost:3000/mcp
     chat:
       memory:
         repository:
@@ -108,6 +114,7 @@ spring:
       file: compose.spring.yaml
       profiles:
         active:
+          - mcp-filesystem
           - minio
           - ollama
           - qdrant
@@ -202,6 +209,12 @@ server:
   port: 80
 spring:
   ai:
+    mcp:
+      client:
+        streamable-http:
+          connections:
+            filesystem:
+              url: http://mcp-filesystem:3000/mcp
     ollama:
       base-url: http://ollama:11434
     vectorstore:

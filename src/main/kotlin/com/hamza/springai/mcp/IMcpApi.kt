@@ -1,0 +1,69 @@
+package com.hamza.springai.mcp
+
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.ExampleObject
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
+import org.springframework.http.MediaType
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import reactor.core.publisher.Flux
+
+@Tag(name = "mcp", description = "MCP usage")
+@RequestMapping(value = ["/api/mcp"], produces = [MediaType.APPLICATION_JSON_VALUE])
+interface IMcpApi {
+    @PostMapping(
+        value = ["/file"],
+        produces = [MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_NDJSON_VALUE, MediaType.TEXT_EVENT_STREAM_VALUE],
+    )
+    @Operation(
+        summary = "Ask LLM to do folder/file ops",
+        description = """
+Will make use of `Filesystem MCP client`.<br /><br />
+`Filesystem MCP STDIO server` is wrapped with `supergateway` (for SSE) and exposed as a container.<br /><br />
+Only read only ops on `/projects/**` (which is mapped to the root of this project) are allowed.<br /><br />
+`curl -N` for streaming response.
+""",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "OK",
+                content = [
+                    Content(
+                        mediaType = MediaType.TEXT_PLAIN_VALUE,
+                        schema = Schema(type = "string"),
+                        examples = [
+                            ExampleObject(
+                                name = "example-0",
+                                description = "streamed plain-text output",
+                                value = """
+Line 1
+Line 2
+Line 3
+""",
+                            ),
+                        ],
+                    ),
+                    Content(
+                        mediaType = MediaType.APPLICATION_NDJSON_VALUE,
+                        schema = Schema(type = "string"),
+                    ),
+                    Content(
+                        mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+                        schema = Schema(type = "string"),
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun files(
+        @RequestBody @Valid request: McpRequest,
+    ): Flux<String>
+}

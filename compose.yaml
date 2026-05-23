@@ -1,4 +1,31 @@
 services:
+  mcp-filesystem:
+    build:
+      dockerfile: ${PWD}/docker/node/Dockerfile
+    command: >
+      /bin/sh -c "npx --yes supergateway
+      --stdio 'npx --yes @modelcontextprotocol/server-filesystem /projects'
+      --outputTransport streamableHttp
+      --port 3000
+      --healthEndpoint /health"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh",
+          "-c",
+          'wget -qO- localhost:3000/health | grep -q "ok" || exit 1',
+        ]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    volumes:
+      - .:/projects:ro
+
   minio:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
@@ -94,6 +121,8 @@ services:
   spring-ai:
     image: spring-ai:latest
     depends_on:
+      mcp-filesystem:
+        condition: service_healthy
       minio:
         condition: service_healthy
       qdrant:
