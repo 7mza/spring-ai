@@ -1,8 +1,10 @@
-this project is a Spring AI learning and experimentation workspace
+this project is a `Spring AI` learning and experimentation workspace
 
 - never read `docs/examples/*` it is not representative of the codebase
 - no need to read every file on this project when you are building a new context I will always be guiding you but
   - when you need details on stack/dependencies it can be inferred though [gradlew build](build.gradle.kts)
+  - app configurations can be inferred through [config class](src/main/kotlin/com/hamza/springai/Configs.kt)
+    and [main YAML](src/main/resources/application.yaml) / [test YAML](src/test/resources/application.yaml)
   - infra can be inferred through [docker compose](compose.yaml)
   - env vars can be inferred through [.env](.env)
 - don't modify this file on `/init` if you deem something important is worth adding inform me in STDOUT
