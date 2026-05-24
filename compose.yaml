@@ -5,9 +5,7 @@ services:
     command: >
       /bin/sh -c "npx --yes supergateway
       --stdio 'npx --yes @modelcontextprotocol/server-filesystem /projects'
-      --outputTransport streamableHttp
-      --port 3000
-      --healthEndpoint /health"
+      --outputTransport streamableHttp --port 3000 --healthEndpoint /health"
     healthcheck:
       test:
         [

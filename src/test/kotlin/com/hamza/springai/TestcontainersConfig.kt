@@ -120,7 +120,10 @@ class MCPFSContainerConfig {
             .withCommand(
                 "/bin/sh",
                 "-c",
-                "npx --yes supergateway --stdio 'npx --yes @modelcontextprotocol/server-filesystem /projects' --outputTransport streamableHttp --port 3000 --healthEndpoint /health",
+                """
+                npx --yes supergateway --stdio 'npx --yes @modelcontextprotocol/server-filesystem /projects' \
+                --outputTransport streamableHttp --port 3000 --healthEndpoint /health
+                """.trimIndent(),
             ).withExposedPorts(3000)
             .withFileSystemBind(createFakeTree(), "/projects", BindMode.READ_ONLY)
             .waitingFor(Wait.forHttp("/health").forResponsePredicate { it.contains("ok") })
