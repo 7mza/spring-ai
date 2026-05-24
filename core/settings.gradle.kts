@@ -1,2 +1,1 @@
 rootProject.name = "spring-ai"
-include(":core")

@@ -8,14 +8,22 @@ this project is a `Spring AI` learning and experimentation workspace
 
 never read `docs/examples/*` it is not representative of the codebase
 
+## structure
+
+mono repo multi subprojects to handle main app and custom mcp servers in same lifecycle
+
+- root is an aggregator (no build artifacts)
+- `core/` is main app
+- no other subprojects for now
+
 ## code base discovery
 
 no need to read every file on this project when you are building a new context I will always be guiding you
 
-when you need details on stack / dependencies it can be inferred though [gradlew build](build.gradle.kts)
+when you need details on stack / dependencies it can be inferred though [root build](build.gradle.kts) and the
+corresponding sub `build.gradle.kts`
 
-app configurations can be inferred through [config class](src/main/kotlin/com/hamza/springai/Configs.kt)
-and [main YAML](src/main/resources/application.yaml) / [test YAML](src/test/resources/application.yaml)
+app configurations can be inferred through `Configs.kt` and main/test `application.yaml`
 
 infra can be inferred through [docker compose](compose.yaml)
 
@@ -46,7 +54,7 @@ when I ask you to note something as a todo do it in [todo](docs/todo.md)
 
 ## specs
 
-when working on [file ingestion pipeline](src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt) always
+when working on [file ingestion pipeline](core/src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt) always
 check its [specs](docs/pipeline_specs_v1.md)
 
 ## code style

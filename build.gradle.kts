@@ -2,226 +2,147 @@ import com.github.gradle.node.npm.task.NpmTask
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
-import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
 import org.owasp.dependencycheck.reporting.ReportGenerator.Format
-import org.springframework.boot.gradle.tasks.aot.ProcessAot
-import org.springframework.boot.gradle.tasks.aot.ProcessTestAot
 
 plugins {
     kotlin("jvm") version "2.3.21"
-    kotlin("plugin.jpa") version "2.3.21"
-    kotlin("plugin.spring") version "2.3.21"
-    id("org.springframework.boot") version "4.0.6"
-    id("io.spring.dependency-management") version "1.1.7"
-
+    kotlin("plugin.spring") version "2.3.21" apply false
+    id("org.springframework.boot") version "4.0.6" apply false
+    id("io.spring.dependency-management") version "1.1.7" apply false
     id("com.autonomousapps.dependency-analysis") version "3.13.0"
     id("com.github.ben-manes.versions") version "0.54.0"
     id("com.github.node-gradle.node") version "7.1.0"
-    id("com.google.cloud.tools.jib") version "3.5.3"
-    // id("org.graalvm.buildtools.native") version "1.1.0"
-    // id("org.hibernate.orm") version "7.2.12.Final"
+    id("com.google.cloud.tools.jib") version "3.5.3" apply false
+    id("org.graalvm.buildtools.native") version "1.1.0" apply false
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     id("org.owasp.dependencycheck") version "12.2.2"
-    id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
     jacoco
 }
 
-group = "com.hamza"
-version = "0.0.1-SNAPSHOT"
+allprojects {
+    plugins.apply("org.jetbrains.kotlin.jvm")
+    plugins.apply("com.autonomousapps.dependency-analysis")
+    plugins.apply("com.github.ben-manes.versions")
+    plugins.apply("org.jlleitschuh.gradle.ktlint")
 
-java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
+    repositories { mavenCentral() }
 
-repositories { mavenCentral() }
+    java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
 
-val awaitilityVersion = "4.3.0"
-val dataFakerVersion = "2.5.4"
-val hypersistenceTsidVersion = "2.1.4"
-val junitPioneerVersion = "2.3.0"
-val logbookSpringVersion = "4.0.4"
-val mockitoCoreVersion = "5.23.0"
-val mockitoKotlinVersion = "6.3.0"
-val openapiVersion = "3.0.3"
-val picocliVersion = "4.7.7"
-val springRetryVersion = "2.0.12"
-val wiremockSpringBootVersion = "4.2.1"
-
-val mockitoAgent: Configuration = configurations.create("mockitoAgent")
-
-dependencies {
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-
-    developmentOnly("org.springframework.ai:spring-ai-spring-boot-docker-compose")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
-    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
-
-    // implementation("info.picocli:picocli-spring-boot-starter:$picocliVersion")
-    implementation("io.awspring.cloud:spring-cloud-aws-starter-s3")
-    implementation("io.hypersistence:hypersistence-tsid:$hypersistenceTsidVersion")
-    // implementation("net.datafaker:datafaker:$dataFakerVersion")
-    implementation("org.ehcache:ehcache::jakarta")
-    implementation("org.hibernate.orm:hibernate-jcache")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$openapiVersion")
-    implementation("org.springframework.ai:spring-ai-advisors-vector-store")
-    implementation("org.springframework.ai:spring-ai-autoconfigure-mcp-client-common") // McpSseClientProperties
-    implementation("org.springframework.ai:spring-ai-rag")
-    implementation("org.springframework.ai:spring-ai-starter-mcp-client")
-    implementation("org.springframework.ai:spring-ai-starter-model-chat-memory-repository-jdbc")
-    implementation("org.springframework.ai:spring-ai-starter-model-ollama")
-    implementation("org.springframework.ai:spring-ai-starter-vector-store-qdrant")
-    implementation("org.springframework.ai:spring-ai-tika-document-reader")
-    implementation("org.springframework.boot:spring-boot-h2console")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-aspectj")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-restclient")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-webmvc")
-    implementation("org.springframework.cloud:spring-cloud-function-context")
-    implementation("org.springframework.integration:spring-integration-file")
-    implementation("org.springframework.retry:spring-retry:$springRetryVersion")
-    implementation("org.zalando:logbook-spring-boot-starter:$logbookSpringVersion")
-    implementation("tools.jackson.module:jackson-module-kotlin")
-
-    mockitoAgent("org.mockito:mockito-core:$mockitoCoreVersion") { isTransitive = false }
-
-    runtimeOnly("com.h2database:h2")
-
-    testImplementation("org.awaitility:awaitility-kotlin:$awaitilityVersion")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testImplementation("org.junit-pioneer:junit-pioneer:$junitPioneerVersion")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
-    testImplementation("org.springframework.ai:spring-ai-spring-boot-testcontainers")
-    testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-restclient-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
-    testImplementation("org.testcontainers:testcontainers-minio")
-    testImplementation("org.testcontainers:testcontainers-ollama")
-    testImplementation("org.testcontainers:testcontainers-qdrant")
-    testImplementation("org.wiremock.integrations:wiremock-spring-boot:$wiremockSpringBootVersion")
-
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-val springAiVersion = "2.0.0-M7"
-val springAwsVersion = "4.0.2"
-val springCloudVersion = "2025.1.1"
-// val springFunctionsCatalogVersion = "6.0.0"
-
-dependencyManagement {
-    imports {
-        mavenBom("io.awspring.cloud:spring-cloud-aws-dependencies:$springAwsVersion")
-        mavenBom("org.springframework.ai:spring-ai-bom:$springAiVersion")
-        // mavenBom("org.springframework.cloud.fn:spring-functions-catalog-bom:$springFunctionsCatalogVersion")
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+    kotlin {
+        compilerOptions {
+            freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
+        }
     }
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
+subprojects {
+    plugins.apply("org.jetbrains.kotlin.plugin.spring")
+    plugins.apply("org.springframework.boot")
+    plugins.apply("io.spring.dependency-management")
+    plugins.apply("jacoco")
+
+    val awaitilityVersion = "4.3.0"
+    val junitPioneerVersion = "2.3.0"
+    val logbookSpringVersion = "4.0.4"
+    val mockitoCoreVersion = "5.23.0"
+    val mockitoKotlinVersion = "6.3.0"
+    val wiremockSpringBootVersion = "4.2.1"
+
+    val mockitoAgent: Configuration = configurations.create("mockitoAgent")
+
+    dependencies {
+        annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+        add("developmentOnly", "org.springframework.boot:spring-boot-devtools")
+
+        implementation("org.jetbrains.kotlin:kotlin-reflect")
+        implementation("org.springframework.boot:spring-boot-starter-actuator")
+        implementation("org.zalando:logbook-spring-boot-starter:$logbookSpringVersion")
+        implementation("tools.jackson.module:jackson-module-kotlin")
+
+        mockitoAgent("org.mockito:mockito-core:$mockitoCoreVersion") { isTransitive = false }
+
+        testImplementation("org.awaitility:awaitility-kotlin:$awaitilityVersion")
+        testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+        testImplementation("org.junit-pioneer:junit-pioneer:$junitPioneerVersion")
+        testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
+        testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
+        testImplementation("org.springframework.boot:spring-boot-testcontainers")
+        testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+        testImplementation("org.wiremock.integrations:wiremock-spring-boot:$wiremockSpringBootVersion")
+
+        testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     }
-}
 
-// hibernate { enhancement { enableAssociationManagement = true } }
+    tasks {
+        withType<JavaCompile>().configureEach {
+            options.encoding = Charsets.UTF_8.name()
+            options.isFork = true
+        }
 
-allOpen {
-    annotation("jakarta.persistence.Entity")
-    annotation("jakarta.persistence.MappedSuperclass")
-    annotation("jakarta.persistence.Embeddable")
+        withType<Test>().configureEach {
+            useJUnitPlatform()
+            jvmArgumentProviders += CommandLineArgumentProvider { listOf("-javaagent:${mockitoAgent.asPath}") }
+            maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+            forkEvery = 100
+            reports {
+                html.required = false
+                junitXml.required = false
+            }
+            testLogging {
+                events = setOf(FAILED)
+                exceptionFormat = FULL
+                showCauses = true
+                showExceptions = true
+                showStackTraces = true
+                showStandardStreams = false
+            }
+            finalizedBy(jacocoTestReport)
+            extensions.configure<JacocoTaskExtension> {
+                excludes = listOf("jdk.internal.*")
+                isIncludeNoLocationClasses = true
+            }
+        }
+
+        jacocoTestReport {
+            dependsOn(test)
+            classDirectories.setFrom(
+                classDirectories.files.map { fileTree(it) { exclude("**/ApplicationKt.class") } },
+            )
+            reports {
+                csv.required = false
+                html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
+                xml.required = false
+            }
+        }
+
+        jar { enabled = false }
+    }
+
+    configure<KtlintExtension> {
+        android.set(false)
+        coloredOutput.set(true)
+        debug.set(true)
+        verbose.set(true)
+        version.set("1.8.0")
+    }
 }
 
 tasks {
-    withType<JavaCompile>().configureEach {
-        options.encoding = Charsets.UTF_8.name()
-        options.isFork = true
-    }
-
-    withType<Test>().configureEach {
-        useJUnitPlatform()
-        jvmArgumentProviders += CommandLineArgumentProvider { listOf("-javaagent:${mockitoAgent.asPath}") }
-        maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
-        forkEvery = 100
-        reports {
-            html.required = false
-            junitXml.required = false
-        }
-        testLogging {
-            events = setOf(FAILED)
-            exceptionFormat = FULL
-            showCauses = true
-            showExceptions = true
-            showStackTraces = true
-            showStandardStreams = false
-        }
-        finalizedBy(jacocoTestReport)
-        extensions.configure<JacocoTaskExtension> {
-            excludes = listOf("jdk.internal.*")
-            isIncludeNoLocationClasses = true
-        }
-    }
-
-    jacocoTestReport {
-        dependsOn(test)
-        classDirectories.setFrom(
-            classDirectories.files.map { fileTree(it) { exclude("**/ApplicationKt.class") } },
-        )
-        reports {
-            csv.required = false
-            html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
-            xml.required = false
-        }
-    }
-
-    jar { enabled = false }
-
-    jibDockerBuild { dependsOn(build) }
-
-    withType<ProcessAot>().configureEach { enabled = project.hasProperty("aot") }
-
-    withType<ProcessTestAot>().configureEach { enabled = project.hasProperty("aot") }
-
     val npmRunFormat =
         register("npm_run_format", NpmTask::class) {
-            description = ""
+            description = "npm run format hook"
             args = listOf("run", "format")
         }
 
     processResources { dependsOn(npmRunFormat) }
 }
 
-configure<KtlintExtension> {
-    android.set(false)
-    coloredOutput.set(true)
-    debug.set(true)
-    verbose.set(true)
-    version.set("1.8.0")
-}
-
-configure<DependencyCheckExtension> { format = Format.HTML.toString() }
-
-jib {
-    from { image = "eclipse-temurin:25-jre-alpine" }
-    to { tags = setOf("latest") }
-    container { ports = listOf("80") }
-}
-
-springBoot { buildInfo() }
-
-// https://nvd.nist.gov/developers/request-an-api-key
-dependencyCheck { nvd.apiKey = System.getenv("NVD_APIKEY") ?: "" }
-
 node { download = true }
 
-openApi {
-    apiDocsUrl.set("http://localhost:8013/api-docs.yaml")
-    customBootRun { args.set(listOf("--spring.profiles.active=openapi")) }
-    outputDir.set(file("./docs/"))
-    outputFileName.set("api-docs.yaml")
-    waitTimeInSeconds.set(60)
+// https://nvd.nist.gov/developers/request-an-api-key
+dependencyCheck {
+    nvd.apiKey = System.getenv("NVD_APIKEY") ?: ""
+    format = Format.HTML.toString()
 }
