@@ -1,0 +1,17 @@
+custom:
+  weather:
+    api: https://wttr.in
+logging:
+  include-application-name: false
+spring:
+  config:
+    activate:
+      on-profile: default
+  main:
+    banner-mode: off
+  output:
+    ansi:
+      enabled: always
+  threads:
+    virtual:
+      enabled: true

@@ -1,13 +1,13 @@
 custom:
-  weather:
-    api: https://wttr.in
+  currency:
+    api: https://api.frankfurter.dev/v2/rate
 logging:
   include-application-name: false
+server:
+  port: 0
+  ssl:
+    enabled: false
 spring:
-  ai:
-    mcp:
-      server:
-        stdio: true
   config:
     activate:
       on-profile: default
@@ -16,6 +16,3 @@ spring:
   output:
     ansi:
       enabled: always
-  threads:
-    virtual:
-      enabled: true

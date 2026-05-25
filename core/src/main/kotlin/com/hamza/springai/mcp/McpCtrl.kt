@@ -10,4 +10,6 @@ class McpCtrl(
     override fun files(request: McpRequest): Flux<String> = service.prompt(request)
 
     override fun weather(request: McpRequest): Flux<String> = service.prompt(request)
+
+    override fun currency(request: McpRequest): Flux<String> = service.prompt(request)
 }

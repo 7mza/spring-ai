@@ -23,14 +23,16 @@ dependencies {
 
     implementation("io.awspring.cloud:spring-cloud-aws-starter-s3")
     implementation("io.hypersistence:hypersistence-tsid:$hypersistenceTsidVersion")
-    implementation("org.eclipse.jetty.http2:jetty-http2-server")
     implementation("org.ehcache:ehcache::jakarta")
     implementation("org.hibernate.orm:hibernate-jcache")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$openapiVersion")
     implementation("org.springframework.ai:spring-ai-advisors-vector-store")
     implementation("org.springframework.ai:spring-ai-autoconfigure-mcp-client-common") // McpSseClientProperties
     implementation("org.springframework.ai:spring-ai-rag")
-    implementation("org.springframework.ai:spring-ai-starter-mcp-client")
+    implementation("org.springframework.ai:spring-ai-starter-mcp-client-webflux") {
+        // streamableHttp = mode shouldn't matter
+        // whether sync or async servers, just use webflux mcp client + mark all clients async + hit servers on / not /mcp
+    }
     implementation("org.springframework.ai:spring-ai-starter-model-chat-memory-repository-jdbc")
     implementation("org.springframework.ai:spring-ai-starter-model-ollama")
     implementation("org.springframework.ai:spring-ai-starter-vector-store-qdrant")
@@ -39,12 +41,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-aspectj")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-jetty")
     implementation("org.springframework.boot:spring-boot-starter-restclient")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-webmvc") {
-        exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
-    }
+    implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.cloud:spring-cloud-function-context")
     implementation("org.springframework.integration:spring-integration-file")
     implementation("org.springframework.retry:spring-retry:$springRetryVersion")
@@ -79,12 +78,13 @@ dependencyManagement {
 }
 
 tasks {
-    bootJar {
-        archiveBaseName = "spring-ai"
-        dependsOn(":mcp:stdio:bootJar")
-    }
+    bootJar { archiveBaseName = "spring-ai" }
 
-    bootRun { workingDir = rootProject.projectDir }
+    bootRun {
+        dependsOn(":mcp:mcp-currency:jibDockerBuild")
+        dependsOn(":mcp:mcp-weather:bootJar")
+        workingDir = rootProject.projectDir
+    }
 
     // withType<ProcessAot>().configureEach { enabled = project.hasProperty("aot") }
     // withType<ProcessTestAot>().configureEach { enabled = project.hasProperty("aot") }

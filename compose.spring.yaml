@@ -1,4 +1,11 @@
 services:
+  mcp-currency:
+    extends:
+      file: compose.yaml
+      service: mcp-currency
+    profiles:
+      - mcp-currency
+
   mcp-filesystem:
     extends:
       file: compose.yaml
@@ -6,12 +13,12 @@ services:
     profiles:
       - mcp-filesystem
 
-  mcp-stdio:
+  mcp-weather:
     extends:
       file: compose.yaml
-      service: mcp-stdio
+      service: mcp-weather
     profiles:
-      - mcp-stdio
+      - mcp-weather
 
   minio:
     extends:

@@ -1,14 +1,10 @@
 package com.hamza.springai.mcp
 
-import org.springframework.ai.tool.ToolCallbackProvider
-import org.springframework.ai.tool.annotation.Tool
-import org.springframework.ai.tool.annotation.ToolParam
-import org.springframework.ai.tool.method.MethodToolCallbackProvider
+import org.springframework.ai.mcp.annotation.McpTool
+import org.springframework.ai.mcp.annotation.McpToolParam
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
@@ -31,10 +27,9 @@ class WeatherTools(
 ) : IWeatherTools {
     private val client = builder.baseUrl(api).build()
 
-    @Tool(name = "getWeatherAt", description = "Get current weather for a location")
+    @McpTool(name = "getWeatherAt", description = "Get current weather for a location")
     override fun getWeatherAt(
-        @ToolParam(description = "Name of the location, can be a city or a country")
-        location: String,
+        @McpToolParam(description = "Name of the location, can be a city or a country") location: String,
     ): String =
         client
             .get()
@@ -42,11 +37,4 @@ class WeatherTools(
             .retrieve()
             .body<String>()
             ?: "No weather data for $location"
-}
-
-@Configuration
-class Configs {
-    @Bean
-    fun toolCallbackProvider(tools: IWeatherTools): ToolCallbackProvider =
-        MethodToolCallbackProvider.builder().toolObjects(tools).build()
 }

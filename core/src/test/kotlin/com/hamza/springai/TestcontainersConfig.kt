@@ -132,7 +132,7 @@ class MCPFSContainerConfig {
     fun mcpFsProperties(mcpFsContainer: GenericContainer<*>): DynamicPropertyRegistrar =
         DynamicPropertyRegistrar {
             it.add("spring.ai.mcp.client.streamable-http.connections.filesystem.url") {
-                "http://${mcpFsContainer.host}:${mcpFsContainer.getMappedPort(3000)}/mcp"
+                "http://${mcpFsContainer.host}:${mcpFsContainer.getMappedPort(3000)}"
             }
         }
 }

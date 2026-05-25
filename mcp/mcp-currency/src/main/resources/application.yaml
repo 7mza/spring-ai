@@ -1,0 +1,69 @@
+custom:
+  currency:
+    api: https://api.frankfurter.dev/v2/rate
+logging:
+  include-application-name: false
+management:
+  endpoint:
+    env:
+      show-values: always
+    health:
+      group:
+        readiness:
+          include: "*"
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+server:
+  compression:
+    enabled: true
+    mime-types: application/javascript,application/json,application/x-ndjson,application/xml,text/css,text/event-stream,text/html,text/javascript,text/plain,text/xml
+    min-response-size: 1500B
+  forward-headers-strategy: native
+  http2:
+    enabled: true
+  port: 3002
+  ssl:
+    enabled: false
+spring:
+  ai:
+    mcp:
+      server:
+        name: currency
+        protocol: streamable
+        type: async
+  application:
+    name: mcp-currency
+  config:
+    activate:
+      on-profile: default
+  devtools:
+    livereload:
+      enabled: true
+  main:
+    banner-mode: off
+  output:
+    ansi:
+      enabled: always
+---
+server:
+  compression:
+    enabled: false
+  port: 80
+spring:
+  config:
+    activate:
+      on-profile: container
+  devtools:
+    add-properties: false
+    livereload:
+      enabled: false
+    restart:
+      enabled: false

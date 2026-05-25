@@ -24,6 +24,7 @@ allprojects {
     plugins.apply("com.autonomousapps.dependency-analysis")
     plugins.apply("com.github.ben-manes.versions")
     plugins.apply("org.jlleitschuh.gradle.ktlint")
+    plugins.apply("org.owasp.dependencycheck")
 
     repositories { mavenCentral() }
 
@@ -33,6 +34,13 @@ allprojects {
         compilerOptions {
             freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
         }
+    }
+
+    // https://nvd.nist.gov/developers/request-an-api-key
+    dependencyCheck {
+        data.directory = "${System.getProperty("user.home")}/owasp-data"
+        format = Format.HTML.toString()
+        nvd.apiKey = System.getenv("NVD_APIKEY") ?: ""
     }
 }
 
@@ -129,9 +137,3 @@ tasks {
 }
 
 node { download = true }
-
-// https://nvd.nist.gov/developers/request-an-api-key
-dependencyCheck {
-    nvd.apiKey = System.getenv("NVD_APIKEY") ?: ""
-    format = Format.HTML.toString()
-}

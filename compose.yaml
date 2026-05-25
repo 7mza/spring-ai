@@ -1,4 +1,34 @@
 services:
+  mcp-currency:
+    image: mcp-currency:latest
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+    environment:
+      JAVA_TOOL_OPTIONS: |
+        -Dspring.aot.enabled=false
+        -XX:+UseG1GC
+        -XX:+UseStringDeduplication
+        -XX:MaxRAMPercentage=75.0
+      SPRING_PROFILES_ACTIVE: default, container
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh",
+          "-c",
+          'wget -qO- localhost/actuator/health/liveness | grep -q "UP" || exit 1',
+        ]
+      interval: 30s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
+    ports:
+      - "3002:80"
+    pull_policy: never
+    restart: unless-stopped
+
   mcp-filesystem:
     build:
       dockerfile: ${PWD}/docker/node/Dockerfile
@@ -24,9 +54,9 @@ services:
     volumes:
       - .:/projects:ro
 
-  mcp-stdio:
+  mcp-weather:
     build:
-      context: ${PWD}/mcp/stdio
+      context: ${PWD}/mcp/mcp-weather
       dockerfile: Dockerfile
     healthcheck:
       test:
@@ -125,9 +155,11 @@ services:
   spring-ai:
     image: spring-ai:latest
     depends_on:
+      mcp-currency:
+        condition: service_healthy
       mcp-filesystem:
         condition: service_healthy
-      mcp-stdio:
+      mcp-weather:
         condition: service_healthy
       minio:
         condition: service_healthy
@@ -173,6 +205,7 @@ services:
       timeout: 10s
     ports:
       - "8080:80"
+    pull_policy: never
     restart: unless-stopped
     volumes:
       - springai_data:/data

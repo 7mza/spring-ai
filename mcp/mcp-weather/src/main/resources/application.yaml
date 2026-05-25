@@ -9,9 +9,11 @@ spring:
   ai:
     mcp:
       server:
+        name: weather
         stdio: true
+        type: sync
   application:
-    name: mcp-stdio
+    name: mcp-weather
   config:
     activate:
       on-profile: default

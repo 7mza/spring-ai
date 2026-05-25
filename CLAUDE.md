@@ -14,8 +14,8 @@ mono repo multi subprojects to handle main app and custom mcp servers in same li
 
 - root is an aggregator (no build artifacts)
 - `core/` is main app
-- `mcp/stdio/` is an example mcp server running in stdio mode but wrapped with `supergateway` in infra
-- `mcp/http/` is an example mcp server running directly in streamableHttp mode
+- `mcp/mcp-weather/` is an example mcp server running in sync/STDIO modes but wrapped with supergateway in infra
+- `mcp/mcp-currency/` is an example mcp server running directly in async/streamableHttp modes
 
 ## code base discovery
 
@@ -32,7 +32,7 @@ env vars can be inferred through [.env](.env)
 
 don't modify this file on `/init` if you deem something is important and worth adding inform me in STDOUT
 
-if you can infer it through walking code base = it's not important to add to `claude.md`
+if you can infer it through walking code base = it's not important to add to `CLAUDE.md`
 
 if you can only infer it through current context or a memory = it's a good candidate inform me
 

@@ -25,8 +25,7 @@ interface IMcpApi {
     @Operation(
         summary = "Ask LLM to do folder/file ops",
         description = """
-Will make use of `Filesystem MCP client`.<br /><br />
-`Filesystem MCP STDIO server` is wrapped with `supergateway` (for SSE) and exposed as a container.<br /><br />
+Anthropic's `MCP Filesystem Server` is running in STDIO mode but wrapped with supergateway for streamableHttp and exposed as a container.<br /><br />
 Only read only ops on `/projects/**` (which is mapped to the root of this project) are allowed.<br /><br />
 `curl -N` for streaming response.
 """,
@@ -75,7 +74,7 @@ Line 3
     @Operation(
         summary = "Ask LLM for the current weather",
         description = """
-`mcp/stdio` example server is running in stdio mode but wrapped with `supergateway` (for SSE) and exposed as a container.<br /><br />
+`./mcp/mcp-weather/` server is running in sync/STDIO modes but wrapped with supergateway for streamableHttp and exposed as a container.<br /><br />
 `curl -N` for streaming response.
 """,
     )
@@ -127,6 +126,69 @@ Line 3
         ],
     )
     fun weather(
+        @RequestBody @Valid request: McpRequest,
+    ): Flux<String>
+
+    @PostMapping(
+        value = ["/currency"],
+        produces = [MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_NDJSON_VALUE, MediaType.TEXT_EVENT_STREAM_VALUE],
+    )
+    @Operation(
+        summary = "Ask LLM for the current exchange rate",
+        description = """
+`./mcp/mcp-currency/` server is running directly in async/streamableHttp modes and exposed as a container.<br /><br />
+`curl -N` for streaming response.
+""",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "OK",
+                content = [
+                    Content(
+                        mediaType = MediaType.TEXT_PLAIN_VALUE,
+                        schema = Schema(type = "string"),
+                        examples = [
+                            ExampleObject(
+                                name = "example-0",
+                                description = "streamed plain-text output",
+                                value = """
+Line 1
+Line 2
+Line 3
+""",
+                            ),
+                        ],
+                    ),
+                    Content(
+                        mediaType = MediaType.APPLICATION_NDJSON_VALUE,
+                        schema = Schema(type = "string"),
+                    ),
+                    Content(
+                        mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+                        schema = Schema(type = "string"),
+                    ),
+                ],
+            ),
+        ],
+    )
+    @OasRequestBody(
+        content = [
+            Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = Schema(implementation = McpRequest::class),
+                examples = [
+                    ExampleObject(
+                        name = "example-0",
+                        value = """
+{ "prompt": "What's today's exchange rate between euro and Mozambican/Saudi/Peruvian currencies?" }""",
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun currency(
         @RequestBody @Valid request: McpRequest,
     ): Flux<String>
 }

@@ -18,6 +18,8 @@ val springAiVersion = "2.0.0-M7"
 dependencyManagement { imports { mavenBom("org.springframework.ai:spring-ai-bom:$springAiVersion") } }
 
 tasks {
+    bootRun { enabled = false }
+
     // withType<ProcessAot>().configureEach { enabled = project.hasProperty("aot") }
     // withType<ProcessTestAot>().configureEach { enabled = project.hasProperty("aot") }
     // withType<CollectReachabilityMetadata>().configureEach { enabled = project.hasProperty("aot") }

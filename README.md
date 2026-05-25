@@ -30,8 +30,8 @@ Spring AI learning/experimentation workspace
   - VectorStore backend
 - Tools
 - MCP
-  - [stdio/supergateway](mcp/stdio)
-  - [streamableHttp](mcp/http)
+  - sync/STDIO + supergateway [server](mcp/mcp-weather/README.md) `inspector: npm run mcp + @localhost:3001/mcp`
+  - async/streamableHttp [server](mcp/mcp-currency/README.md) `inspector: npm run mcp + @localhost:3002/mcp`
 - ...
 
 ### [ingestion pipeline](core/src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt)
@@ -188,4 +188,24 @@ docker volume rm \
   ollama_data \
   qdrant_data \
   springai_data
+```
+
+### owasp deps check
+
+https://nvd.nist.gov/developers/request-an-api-key
+
+```shell
+mkdir -p ~/owasp-data && chmod 777 ~/owasp-data
+```
+
+```shell
+docker run --rm \
+  -v ~/owasp-data:/usr/share/dependency-check/data \
+  owasp/dependency-check:latest \
+  --updateonly \
+  --nvdApiKey "$NVD_APIKEY"
+```
+
+```shell
+./gradlew dependencyCheckAnalyze && ./gradlew --stop
 ```
