@@ -45,6 +45,7 @@ subprojects {
     val mockitoAgent: Configuration = configurations.create("mockitoAgent")
     val mockitoCoreVersion = "5.23.0"
     val mockitoKotlinVersion = "6.3.0"
+    val wiremockSpringBootVersion = "4.2.1"
 
     dependencies {
         implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -54,6 +55,7 @@ subprojects {
 
         testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
         testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
+        testImplementation("org.wiremock.integrations:wiremock-spring-boot:$wiremockSpringBootVersion")
 
         testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     }

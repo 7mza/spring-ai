@@ -14,8 +14,9 @@ Spring AI learning/experimentation workspace
 - basic + template prompting
 - LLM object response parsing with retry/recover
 - LLM eval
-- continuous file ingestion pipeline using spring cloud functions
-- [enrichers/transformers](src/main/kotlin/com/hamza/springai/rag/pipeline/Transformers.kt)
+- continuous [file ingestion pipeline](core/src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt) using spring
+  cloud functions
+- [enrichers/transformers](core/src/main/kotlin/com/hamza/springai/rag/pipeline/Transformers.kt)
   - language detection
   - quality evaluation
   - keywords
@@ -29,9 +30,11 @@ Spring AI learning/experimentation workspace
   - VectorStore backend
 - Tools
 - MCP
+  - [stdio/supergateway](mcp/stdio)
+  - [streamableHttp](mcp/http)
 - ...
 
-### [ingestion pipeline](src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt)
+### [ingestion pipeline](core/src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt)
 
 ```text
                   1: poll
@@ -57,8 +60,8 @@ customS3Supplier ------> ${MINIO_DEFAULT_BUCKET}/
 any error in pipeline will move file to `/error` for manual correction
 
 to test 1 or many enricher functions (unstable) add them in `spring.cloud.function.definition`
-in [application.yml](src/main/resources/application.yaml) between documentSplitter and vectorStoreWriter (they will slow
-down pipeline)
+in [application.yml](core/src/main/resources/application.yaml) between documentSplitter and vectorStoreWriter (they will
+slow down pipeline)
 
 ## requirements
 
@@ -108,13 +111,7 @@ sdk env install
 
 ## run
 
-Spring is configured with compose support, run with Gradle
-
-```shell
-./gradlew bootRun
-```
-
-or with compose
+With compose
 
 ```shell
 ./gradlew jibDockerBuild -x test --no-build-cache && ./gradlew --stop
@@ -122,6 +119,12 @@ or with compose
 
 ```shell
 docker compose up --build
+```
+
+or with spring compose support
+
+```shell
+./gradlew bootRun
 ```
 
 [http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui)

@@ -7,5 +7,7 @@ import reactor.core.publisher.Flux
 class McpCtrl(
     private val service: IMcpService,
 ) : IMcpApi {
-    override fun files(request: McpRequest): Flux<String> = service.files(request)
+    override fun files(request: McpRequest): Flux<String> = service.prompt(request)
+
+    override fun weather(request: McpRequest): Flux<String> = service.prompt(request)
 }

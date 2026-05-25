@@ -14,7 +14,8 @@ mono repo multi subprojects to handle main app and custom mcp servers in same li
 
 - root is an aggregator (no build artifacts)
 - `core/` is main app
-- no other subprojects for now
+- `mcp/stdio/` is an example mcp server running in stdio mode but wrapped with `supergateway` in infra
+- `mcp/http/` is an example mcp server running directly in streamableHttp mode
 
 ## code base discovery
 

@@ -3,15 +3,11 @@ custom:
     api: https://wttr.in
 logging:
   include-application-name: false
-  level:
-    root: error
 spring:
   ai:
     mcp:
       server:
         stdio: true
-  application:
-    name: mcp-stdio
   config:
     activate:
       on-profile: default
@@ -19,7 +15,7 @@ spring:
     banner-mode: off
   output:
     ansi:
-      enabled: never
+      enabled: always
   threads:
     virtual:
       enabled: true

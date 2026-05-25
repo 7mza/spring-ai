@@ -15,7 +15,6 @@ val junitPioneerVersion = "2.3.0"
 val logbookSpringVersion = "4.0.4"
 val openapiVersion = "3.0.3"
 val springRetryVersion = "2.0.12"
-val wiremockSpringBootVersion = "4.2.1"
 
 dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -66,7 +65,6 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers-minio")
     testImplementation("org.testcontainers:testcontainers-ollama")
     testImplementation("org.testcontainers:testcontainers-qdrant")
-    testImplementation("org.wiremock.integrations:wiremock-spring-boot:$wiremockSpringBootVersion")
 }
 
 val springAiVersion = "2.0.0-M7"
@@ -82,7 +80,10 @@ dependencyManagement {
 }
 
 tasks {
-    bootJar { archiveBaseName = "spring-ai" }
+    bootJar {
+        archiveBaseName = "spring-ai"
+        dependsOn(":mcp:stdio:bootJar")
+    }
 
     bootRun { workingDir = rootProject.projectDir }
 

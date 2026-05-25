@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import reactor.core.publisher.Flux
+import io.swagger.v3.oas.annotations.parameters.RequestBody as OasRequestBody
 
 @Tag(name = "mcp", description = "MCP usage")
 @RequestMapping(value = ["/api/mcp"], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -64,6 +65,68 @@ Line 3
         ],
     )
     fun files(
+        @RequestBody @Valid request: McpRequest,
+    ): Flux<String>
+
+    @PostMapping(
+        value = ["/weather"],
+        produces = [MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_NDJSON_VALUE, MediaType.TEXT_EVENT_STREAM_VALUE],
+    )
+    @Operation(
+        summary = "Ask LLM for the current weather",
+        description = """
+`mcp/stdio` example server is running in stdio mode but wrapped with `supergateway` (for SSE) and exposed as a container.<br /><br />
+`curl -N` for streaming response.
+""",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "OK",
+                content = [
+                    Content(
+                        mediaType = MediaType.TEXT_PLAIN_VALUE,
+                        schema = Schema(type = "string"),
+                        examples = [
+                            ExampleObject(
+                                name = "example-0",
+                                description = "streamed plain-text output",
+                                value = """
+Line 1
+Line 2
+Line 3
+""",
+                            ),
+                        ],
+                    ),
+                    Content(
+                        mediaType = MediaType.APPLICATION_NDJSON_VALUE,
+                        schema = Schema(type = "string"),
+                    ),
+                    Content(
+                        mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+                        schema = Schema(type = "string"),
+                    ),
+                ],
+            ),
+        ],
+    )
+    @OasRequestBody(
+        content = [
+            Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = Schema(implementation = McpRequest::class),
+                examples = [
+                    ExampleObject(
+                        name = "example-0",
+                        value = """{ "prompt": "What's the current weather in Salé?" }""",
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun weather(
         @RequestBody @Valid request: McpRequest,
     ): Flux<String>
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 
 interface IMcpService {
-    fun files(request: McpRequest): Flux<String>
+    fun prompt(request: McpRequest): Flux<String>
 }
 
 @Service
@@ -19,7 +19,7 @@ class McpService(
             .defaultToolCallbacks(tools) // FIXME: deprecation
             .build()
 
-    override fun files(request: McpRequest): Flux<String> =
+    override fun prompt(request: McpRequest): Flux<String> =
         chatClient
             .prompt()
             .user(request.prompt)

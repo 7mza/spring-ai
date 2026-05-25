@@ -1,5 +1,4 @@
 plugins {
-    id("com.google.cloud.tools.jib")
     // id("org.graalvm.buildtools.native")
 }
 
@@ -22,14 +21,6 @@ tasks {
     // withType<ProcessAot>().configureEach { enabled = project.hasProperty("aot") }
     // withType<ProcessTestAot>().configureEach { enabled = project.hasProperty("aot") }
     // withType<CollectReachabilityMetadata>().configureEach { enabled = project.hasProperty("aot") }
-
-    jibDockerBuild { dependsOn(build) }
-}
-
-jib {
-    from { image = "eclipse-temurin:25-jre-alpine" }
-    to { tags = setOf("latest") }
-    container { ports = listOf("80") }
 }
 
 springBoot { buildInfo() }

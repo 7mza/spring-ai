@@ -24,6 +24,26 @@ services:
     volumes:
       - .:/projects:ro
 
+  mcp-stdio:
+    build:
+      context: ${PWD}/mcp/stdio
+      dockerfile: Dockerfile
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh",
+          "-c",
+          'wget -qO- localhost:3000/health | grep -q "ok" || exit 1',
+        ]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+    ports:
+      - "3001:3000"
+    restart: unless-stopped
+
   minio:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
@@ -120,6 +140,8 @@ services:
     image: spring-ai:latest
     depends_on:
       mcp-filesystem:
+        condition: service_healthy
+      mcp-stdio:
         condition: service_healthy
       minio:
         condition: service_healthy

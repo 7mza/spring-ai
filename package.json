@@ -3,11 +3,13 @@
     "format": "npx prettier **/*.{json,md,xml,yaml,yml} --write",
     "clean": "npm prune && npm cache verify",
     "clear": "npm run clean",
+    "mcp": "npx @modelcontextprotocol/inspector",
     "ncu": "npx ncu"
   },
   "devDependencies": {
+    "@modelcontextprotocol/inspector": "^0.21.2",
     "@prettier/plugin-xml": "^3.4.2",
-    "npm-check-updates": "^22.2.0",
+    "npm-check-updates": "^22.2.1",
     "prettier": "^3.8.3"
   },
   "prettier": {

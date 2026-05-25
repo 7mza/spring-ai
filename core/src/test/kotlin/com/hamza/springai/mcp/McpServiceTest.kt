@@ -34,9 +34,9 @@ class McpServiceTest {
 
     // retry N times because small models are unreliable
     @RetryingTest(maxAttempts = 5, suspendForMs = 1000)
-    fun files() {
+    fun promptForFiles() {
         StepVerifier
-            .create(service.files(McpRequest(prompt)).collectList())
+            .create(service.prompt(McpRequest(prompt)).collectList())
             .assertNext {
                 assertThat(it.joinToString(""))
                     .containsIgnoringCase("amal")

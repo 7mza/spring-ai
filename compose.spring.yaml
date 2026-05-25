@@ -6,6 +6,13 @@ services:
     profiles:
       - mcp-filesystem
 
+  mcp-stdio:
+    extends:
+      file: compose.yaml
+      service: mcp-stdio
+    profiles:
+      - mcp-stdio
+
   minio:
     extends:
       file: compose.yaml

@@ -4,6 +4,7 @@ import org.springframework.ai.tool.ToolCallbackProvider
 import org.springframework.ai.tool.annotation.Tool
 import org.springframework.ai.tool.annotation.ToolParam
 import org.springframework.ai.tool.method.MethodToolCallbackProvider
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -26,8 +27,9 @@ interface IWeatherTools {
 @Service
 class WeatherTools(
     builder: RestClient.Builder,
+    @Value($$"${custom.weather.api}") api: String,
 ) : IWeatherTools {
-    private val client = builder.baseUrl("https://wttr.in").build()
+    private val client = builder.baseUrl(api).build()
 
     @Tool(name = "getWeatherAt", description = "Get current weather for a location")
     override fun getWeatherAt(
