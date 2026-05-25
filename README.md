@@ -164,13 +164,25 @@ curl -s "https://en.wikipedia.org/w/index.php?action=raw&title=Paris" | pandoc -
 
 ## clean
 
+remove local h2 db
+
 ```shell
-# remove local h2 db
 rm ~/springai_db.mv.db
 ```
 
+clean docker
+
 ```shell
-# clean docker volumes
+docker stop $(docker ps -aq) && \
+  docker rm $(docker ps -aq) && \
+  docker volume prune -f && \
+  docker network prune -f && \
+  docker image prune -f && \
+  docker builder prune -f && \
+  docker buildx prune -f
+```
+
+```shell
 docker volume rm \
   minio_data \
   ollama_data \

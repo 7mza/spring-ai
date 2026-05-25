@@ -38,7 +38,7 @@ class WeatherTools(
     ): String =
         client
             .get()
-            .uri("/{city}?format=3", location)
+            .uri("/{location}?format=3", location)
             .retrieve()
             .body<String>()
             ?: "No weather data for $location"

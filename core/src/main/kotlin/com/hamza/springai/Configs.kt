@@ -175,8 +175,8 @@ class CleanConfigs(
         wipeStore(chatMemoryStore)
         runCatching {
             jdbcTemplate.execute("delete from SPRING_AI_CHAT_MEMORY")
-            logger.info("wiped table '{}'", "SPRING_AI_CHAT_MEMORY")
-        }.onFailure { logger.warn("error wiping table '{}': {}", "SPRING_AI_CHAT_MEMORY", it.message) }
+            logger.debug("wiped table '{}'", "SPRING_AI_CHAT_MEMORY")
+        }.onFailure { logger.debug("error wiping table '{}': {}", "SPRING_AI_CHAT_MEMORY", it.message) }
     }
 
     private fun wipeStore(name: String) {
@@ -188,7 +188,7 @@ class CleanConfigs(
                 .uri("/collections/{name}", name)
                 .retrieve()
                 .toBodilessEntity()
-            logger.info("wiped qdrant collection '{}'", name)
-        }.onFailure { logger.warn("error wiping qdrant collection '{}': {}", name, it.message) }
+            logger.debug("wiped qdrant collection '{}'", name)
+        }.onFailure { logger.debug("error wiping qdrant collection '{}': {}", name, it.message) }
     }
 }

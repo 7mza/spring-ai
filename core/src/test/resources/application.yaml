@@ -9,7 +9,7 @@ custom:
 logging:
   include-application-name: false
   level:
-    com.hamza: debug
+    com.hamza: info
     org.zalando.logbook: off
 server:
   port: 0

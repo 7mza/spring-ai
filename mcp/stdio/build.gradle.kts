@@ -22,5 +22,3 @@ tasks {
     // withType<ProcessTestAot>().configureEach { enabled = project.hasProperty("aot") }
     // withType<CollectReachabilityMetadata>().configureEach { enabled = project.hasProperty("aot") }
 }
-
-springBoot { buildInfo() }

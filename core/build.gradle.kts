@@ -9,9 +9,7 @@ plugins {
 group = "com.hamza.springai"
 version = "0.0.1-SNAPSHOT"
 
-val awaitilityVersion = "4.3.0"
 val hypersistenceTsidVersion = "2.1.4"
-val junitPioneerVersion = "2.3.0"
 val logbookSpringVersion = "4.0.4"
 val openapiVersion = "3.0.3"
 val springRetryVersion = "2.0.12"
@@ -25,6 +23,7 @@ dependencies {
 
     implementation("io.awspring.cloud:spring-cloud-aws-starter-s3")
     implementation("io.hypersistence:hypersistence-tsid:$hypersistenceTsidVersion")
+    implementation("org.eclipse.jetty.http2:jetty-http2-server")
     implementation("org.ehcache:ehcache::jakarta")
     implementation("org.hibernate.orm:hibernate-jcache")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$openapiVersion")
@@ -40,9 +39,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-aspectj")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-jetty")
     implementation("org.springframework.boot:spring-boot-starter-restclient")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-webmvc")
+    implementation("org.springframework.boot:spring-boot-starter-webmvc") {
+        exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
+    }
     implementation("org.springframework.cloud:spring-cloud-function-context")
     implementation("org.springframework.integration:spring-integration-file")
     implementation("org.springframework.retry:spring-retry:$springRetryVersion")
@@ -50,9 +52,6 @@ dependencies {
 
     runtimeOnly("com.h2database:h2")
 
-    testImplementation("org.awaitility:awaitility-kotlin:$awaitilityVersion")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
-    testImplementation("org.junit-pioneer:junit-pioneer:$junitPioneerVersion")
     testImplementation("org.springframework.ai:spring-ai-spring-boot-testcontainers")
     testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")

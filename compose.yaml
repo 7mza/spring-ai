@@ -80,8 +80,7 @@ services:
     restart: on-failure
 
   ollama:
-    build:
-      dockerfile: ${PWD}/docker/ollama/Dockerfile
+    image: ollama/ollama:latest
     deploy:
       resources:
         reservations:
@@ -93,13 +92,7 @@ services:
       OLLAMA_NUM_PARALLEL: 4
       OLLAMA_MAX_LOADED_MODELS: 1
     healthcheck:
-      test:
-        [
-          "CMD",
-          "sh",
-          "-c",
-          'curl -fs localhost:11434 | grep -q "Ollama is running" || exit 1',
-        ]
+      test: ["CMD", "ollama", "list"]
       interval: 30s
       retries: 3
       start_period: 10s
@@ -113,16 +106,9 @@ services:
       - ollama_data:/root/.ollama
 
   qdrant:
-    build:
-      dockerfile: ${PWD}/docker/qdrant/Dockerfile
+    image: qdrant/qdrant:latest
     healthcheck:
-      test:
-        [
-          "CMD",
-          "sh",
-          "-c",
-          'curl -fs localhost:6333/healthz | grep -q "healthz check passed" || exit 1',
-        ]
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/6333"]
       interval: 30s
       retries: 3
       start_period: 10s
