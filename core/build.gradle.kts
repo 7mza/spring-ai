@@ -1,23 +1,26 @@
-import org.graalvm.buildtools.gradle.tasks.CollectReachabilityMetadata
-import org.springframework.boot.gradle.tasks.aot.ProcessAot
-import org.springframework.boot.gradle.tasks.aot.ProcessTestAot
-
 plugins {
     kotlin("plugin.jpa") version "2.3.21"
     id("com.google.cloud.tools.jib")
-    id("org.graalvm.buildtools.native")
-    id("org.hibernate.orm") version "7.2.12.Final"
+    // id("org.graalvm.buildtools.native")
+    // id("org.hibernate.orm") version "7.2.12.Final"
     id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
 }
 
-group = "com.hamza"
+group = "com.hamza.springai"
 version = "0.0.1-SNAPSHOT"
 
+val awaitilityVersion = "4.3.0"
 val hypersistenceTsidVersion = "2.1.4"
+val junitPioneerVersion = "2.3.0"
+val logbookSpringVersion = "4.0.4"
 val openapiVersion = "3.0.3"
 val springRetryVersion = "2.0.12"
+val wiremockSpringBootVersion = "4.2.1"
 
 dependencies {
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
     developmentOnly("org.springframework.ai:spring-ai-spring-boot-docker-compose")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
@@ -35,6 +38,7 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-starter-vector-store-qdrant")
     implementation("org.springframework.ai:spring-ai-tika-document-reader")
     implementation("org.springframework.boot:spring-boot-h2console")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-aspectj")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-restclient")
@@ -43,18 +47,26 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-function-context")
     implementation("org.springframework.integration:spring-integration-file")
     implementation("org.springframework.retry:spring-retry:$springRetryVersion")
+    implementation("org.zalando:logbook-spring-boot-starter:$logbookSpringVersion")
 
     runtimeOnly("com.h2database:h2")
 
+    testImplementation("org.awaitility:awaitility-kotlin:$awaitilityVersion")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
+    testImplementation("org.junit-pioneer:junit-pioneer:$junitPioneerVersion")
     testImplementation("org.springframework.ai:spring-ai-spring-boot-testcontainers")
+    testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
     testImplementation("org.springframework.boot:spring-boot-starter-restclient-test")
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testImplementation("org.testcontainers:testcontainers-minio")
     testImplementation("org.testcontainers:testcontainers-ollama")
     testImplementation("org.testcontainers:testcontainers-qdrant")
+    testImplementation("org.wiremock.integrations:wiremock-spring-boot:$wiremockSpringBootVersion")
 }
 
 val springAiVersion = "2.0.0-M7"
@@ -74,16 +86,14 @@ tasks {
 
     bootRun { workingDir = rootProject.projectDir }
 
-    withType<ProcessAot>().configureEach { enabled = project.hasProperty("aot") }
-
-    withType<ProcessTestAot>().configureEach { enabled = project.hasProperty("aot") }
-
-    withType<CollectReachabilityMetadata>().configureEach { enabled = project.hasProperty("aot") }
+    // withType<ProcessAot>().configureEach { enabled = project.hasProperty("aot") }
+    // withType<ProcessTestAot>().configureEach { enabled = project.hasProperty("aot") }
+    // withType<CollectReachabilityMetadata>().configureEach { enabled = project.hasProperty("aot") }
 
     jibDockerBuild { dependsOn(build) }
 }
 
-hibernate { enhancement { enableAssociationManagement = true } }
+// hibernate { enhancement { enableAssociationManagement = true } }
 
 allOpen {
     annotation("jakarta.persistence.Entity")

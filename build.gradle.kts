@@ -42,35 +42,18 @@ subprojects {
     plugins.apply("io.spring.dependency-management")
     plugins.apply("jacoco")
 
-    val awaitilityVersion = "4.3.0"
-    val junitPioneerVersion = "2.3.0"
-    val logbookSpringVersion = "4.0.4"
+    val mockitoAgent: Configuration = configurations.create("mockitoAgent")
     val mockitoCoreVersion = "5.23.0"
     val mockitoKotlinVersion = "6.3.0"
-    val wiremockSpringBootVersion = "4.2.1"
-
-    val mockitoAgent: Configuration = configurations.create("mockitoAgent")
 
     dependencies {
-        annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-
-        add("developmentOnly", "org.springframework.boot:spring-boot-devtools")
-
         implementation("org.jetbrains.kotlin:kotlin-reflect")
-        implementation("org.springframework.boot:spring-boot-starter-actuator")
-        implementation("org.zalando:logbook-spring-boot-starter:$logbookSpringVersion")
         implementation("tools.jackson.module:jackson-module-kotlin")
 
         mockitoAgent("org.mockito:mockito-core:$mockitoCoreVersion") { isTransitive = false }
 
-        testImplementation("org.awaitility:awaitility-kotlin:$awaitilityVersion")
         testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-        testImplementation("org.junit-pioneer:junit-pioneer:$junitPioneerVersion")
         testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
-        testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
-        testImplementation("org.springframework.boot:spring-boot-testcontainers")
-        testImplementation("org.testcontainers:testcontainers-junit-jupiter")
-        testImplementation("org.wiremock.integrations:wiremock-spring-boot:$wiremockSpringBootVersion")
 
         testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     }

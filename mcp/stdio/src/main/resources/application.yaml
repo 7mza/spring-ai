@@ -1,0 +1,22 @@
+logging:
+  include-application-name: false
+  level:
+    root: error
+spring:
+  ai:
+    mcp:
+      server:
+        stdio: true
+  application:
+    name: mcp-stdio
+  config:
+    activate:
+      on-profile: default
+  main:
+    banner-mode: off
+  output:
+    ansi:
+      enabled: never
+  threads:
+    virtual:
+      enabled: true
