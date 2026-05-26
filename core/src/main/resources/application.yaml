@@ -49,6 +49,11 @@ server:
     enabled: false
 spring:
   ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
     mcp:
       client:
         streamable-http:
@@ -60,11 +65,9 @@ spring:
             mcp-weather:
               url: http://localhost:3001
         type: async
-    chat:
-      memory:
-        repository:
-          jdbc:
-            initialize-schema: always
+    model:
+      chat: ollama
+      embedding: ollama
     ollama:
       chat:
         model: ${OLLAMA_MODEL}
@@ -75,6 +78,16 @@ spring:
         model: ${OLLAMA_EMBEDDING_MODEL}
       init:
         pull-model-strategy: when_missing
+    openai:
+      api-key: fake
+      audio:
+        speech:
+          model: tts
+          response-format: mp3
+          speed: 1.0
+        transcription:
+          model: whisper
+      base-url: http://localhost:8000/v1
     vectorstore:
       qdrant:
         collection-name: embeddings
@@ -229,6 +242,8 @@ spring:
               url: http://mcp-weather:3000
     ollama:
       base-url: http://ollama:11434
+    openai:
+      base-url: http://speaches:8000/v1
     vectorstore:
       qdrant:
         host: qdrant
@@ -253,7 +268,7 @@ spring:
 ---
 logging:
   level:
-    root: OFF
+    root: off
 server:
   port: 8013
 spring:

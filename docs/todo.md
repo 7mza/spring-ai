@@ -1,43 +1,35 @@
 # todo
 
-## transcription (speech-to-text)
+## audio endpoint: replace MultipartFile with octet-stream for browser MediaRecorder
 
-Spring AI 2.0.0-M7 only ships `OpenAiAudioTranscriptionModel` and `AzureOpenAiAudioTranscriptionModel` — both require
-paid cloud access. No free/self-hostable `TranscriptionModel` exists in the framework yet (Ollama starter covers chat +
-embeddings only).
+Current `POST /api/audio` uses `multipart/form-data` + `MultipartFile`. This works for form-based uploads (curl `-F`,
+HTML `<input type="file">`), but is wrong for browser real-time audio capture.
 
-**Recommended free approach: faster-whisper-server (drop-in)**
+**The browser use case**
 
-[faster-whisper-server](https://github.com/fedirz/faster-whisper-server) exposes an OpenAI-compatible
-`/v1/audio/transcriptions` endpoint — no custom code needed, just point the existing `OpenAiAudioTranscriptionModel` at
-it:
+The browser `MediaRecorder` API produces raw audio `Blob` chunks (e.g. `audio/webm;codecs=opus`). The natural way to
+send these is a plain `fetch` with the blob as the body — no form, no multipart wrapper:
 
-```yaml
-spring:
-  ai:
-    openai:
-      base-url: http://localhost:8000
-      api-key: ignored
-      audio:
-        transcription:
-          model: Systran/faster-whisper-small
+```js
+fetch("/api/audio", {
+  method: "POST",
+  headers: { "Content-Type": "audio/webm" },
+  body: audioBlob,
+});
 ```
 
-Add to `compose.yaml`:
+**What to change**
 
-```yaml
-faster-whisper:
-  image: fedirz/faster-whisper-server:latest-cpu # or latest-cuda
-  ports:
-    - "8000:8000"
-  environment:
-    WHISPER_MODEL: Systran/faster-whisper-small
-```
+- Change `consumes` from `MULTIPART_FORM_DATA_VALUE` to the audio mime types the browser produces:
+  `audio/webm`, `audio/ogg`, `audio/wav` (varies by browser/OS)
+- Change the parameter from `@RequestPart("file") file: MultipartFile` to
+  `@RequestBody body: ByteArray` (or `InputStream` for large files to avoid buffering)
+- Convert to a Spring `ByteArrayResource` / `InputStreamResource` before passing to `OpenAiAudioTranscriptionModel`
 
-**Alternative: custom `TranscriptionModel` over whisper.cpp**
+**Keep multipart as a fallback?**
 
-If faster-whisper-server doesn't fit, implement a thin `TranscriptionModel` wrapper that POSTs multipart audio to a
-`whisper.cpp` HTTP server.
+Only if there's a concrete need to support form uploads alongside browser streaming. Otherwise drop it — supporting
+both content types adds negotiation complexity for no current benefit.
 
 ---
 

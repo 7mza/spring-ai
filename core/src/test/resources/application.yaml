@@ -17,15 +17,15 @@ server:
     enabled: false
 spring:
   ai:
-    # mcp.client.streamable-http.connections.*.url: from_test_container # done though test containers so other tests don't complain
-    mcp:
-      client:
-        type: async
     chat:
       memory:
         repository:
           jdbc:
             initialize-schema: always
+    mcp:
+      client:
+        # streamable-http.connections.*.url: from_test_container # done though test containers so other tests don't complain
+        type: async
     ollama:
       chat:
         model: llama3.2:3b

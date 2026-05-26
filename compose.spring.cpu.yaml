@@ -39,6 +39,8 @@ services:
       service: speaches
     image: ghcr.io/speaches-ai/speaches:latest-cpu
     deploy: null
+    environment:
+      CUDA_VISIBLE_DEVICES: ""
 
 volumes:
   minio_data:
