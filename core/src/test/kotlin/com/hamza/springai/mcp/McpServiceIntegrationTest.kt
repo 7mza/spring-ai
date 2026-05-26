@@ -1,6 +1,7 @@
 package com.hamza.springai.mcp
 
-import com.hamza.springai.MCPFSContainerConfig
+import com.hamza.springai.CurrencyMcpContainerConfig
+import com.hamza.springai.FsMcpContainerConfig
 import com.hamza.springai.OllamaContainerConfig
 import org.assertj.core.api.Assertions.assertThat
 import org.junitpioneer.jupiter.RetryingTest
@@ -16,15 +17,18 @@ import reactor.test.StepVerifier
  * they are just used as building blocks for future work & to detect regression when updating
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(OllamaContainerConfig::class, MCPFSContainerConfig::class)
-class McpServiceTest {
+@Import(OllamaContainerConfig::class, FsMcpContainerConfig::class, CurrencyMcpContainerConfig::class)
+class McpServiceIntegrationTest {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired
     private lateinit var service: IMcpService
 
-    private val prompt =
+    private val filePrompt =
         "Can you list the content of /projects ? Return ONLY the names of all folders and files."
+
+    private val currencyPrompt =
+        "What's today's exchange rate between euro and Moroccan currency?"
 
     @MockitoBean // prevent autoconf of embedding vector store, not needed in this test
     private lateinit var vectorStore: VectorStore
@@ -36,13 +40,30 @@ class McpServiceTest {
     @RetryingTest(maxAttempts = 5, suspendForMs = 1000)
     fun promptForFiles() {
         StepVerifier
-            .create(service.prompt(McpRequest(prompt)).collectList())
+            .create(service.prompt(McpRequest(filePrompt)).collectList())
             .assertNext {
-                assertThat(it.joinToString(""))
+                val response = it.joinToString("")
+                assertThat(response)
                     .containsIgnoringCase("amal")
                     .containsIgnoringCase("hope")
                     .containsIgnoringCase("espoir")
-                logger.debug("files: {}", it.joinToString())
+                logger.debug("files: {}", response)
+            }.verifyComplete()
+    }
+
+    // retry N times because small models are unreliable
+    @RetryingTest(maxAttempts = 5, suspendForMs = 1000)
+    fun promptForCurrency() {
+        StepVerifier
+            .create(service.prompt(McpRequest(currencyPrompt)).collectList())
+            .assertNext {
+                val response = it.joinToString("")
+                assertThat(response)
+                    .containsIgnoringCase("EUR")
+                    .containsIgnoringCase("MAD")
+                    .containsIgnoringCase("rate")
+                    .containsIgnoringCase("=")
+                logger.debug("currency: {}", response)
             }.verifyComplete()
     }
 }

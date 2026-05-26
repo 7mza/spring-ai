@@ -45,7 +45,7 @@ class MinioTestContainerConfig {
     fun minioContainer(): MinIOContainer = MinIOContainer(DockerImageName.parse("minio/minio:latest"))
 
     @Bean
-    fun minioProperties(minioContainer: MinIOContainer): DynamicPropertyRegistrar =
+    fun mProperties(minioContainer: MinIOContainer): DynamicPropertyRegistrar =
         DynamicPropertyRegistrar {
             it.add("spring.cloud.aws.credentials.access-key") { minioContainer.userName }
             it.add("spring.cloud.aws.credentials.secret-key") { minioContainer.password }
@@ -100,7 +100,7 @@ class QdrantContainerConfig {
 }
 
 @TestConfiguration(proxyBeanMethods = false)
-class MCPFSContainerConfig {
+class FsMcpContainerConfig {
     private fun createFakeTree(): String =
         Files
             .createTempDirectory("fake_tree_")
@@ -115,24 +115,42 @@ class MCPFSContainerConfig {
             }.toString()
 
     @Bean
-    fun mcpFsContainer(): GenericContainer<*> =
+    fun fsMcpContainer(): GenericContainer<*> =
         GenericContainer(DockerImageName.parse("node:lts-alpine"))
             .withCommand(
                 "/bin/sh",
                 "-c",
                 """
                 npx --yes supergateway --stdio 'npx --yes @modelcontextprotocol/server-filesystem /projects' \
-                --outputTransport streamableHttp --port 3000 --healthEndpoint /health
+                --outputTransport streamableHttp --port 9962 --healthEndpoint /health
                 """.trimIndent(),
-            ).withExposedPorts(3000)
+            ).withExposedPorts(9962)
             .withFileSystemBind(createFakeTree(), "/projects", BindMode.READ_ONLY)
             .waitingFor(Wait.forHttp("/health").forResponsePredicate { it.contains("ok") })
 
     @Bean
-    fun mcpFsProperties(mcpFsContainer: GenericContainer<*>): DynamicPropertyRegistrar =
+    fun fProperties(fsMcpContainer: GenericContainer<*>): DynamicPropertyRegistrar =
         DynamicPropertyRegistrar {
             it.add("spring.ai.mcp.client.streamable-http.connections.filesystem.url") {
-                "http://${mcpFsContainer.host}:${mcpFsContainer.getMappedPort(3000)}"
+                "http://${fsMcpContainer.host}:${fsMcpContainer.getMappedPort(9962)}"
+            }
+        }
+}
+
+@TestConfiguration(proxyBeanMethods = false)
+class CurrencyMcpContainerConfig {
+    @Bean
+    fun currencyMcpContainer(): GenericContainer<*> =
+        GenericContainer(DockerImageName.parse("mcp-currency:latest"))
+            .withExposedPorts(3002)
+            .waitingFor(Wait.forHttp("/actuator/health/liveness").forResponsePredicate { it.contains("UP") })
+            .withImagePullPolicy { false }
+
+    @Bean
+    fun cProperties(currencyMcpContainer: GenericContainer<*>): DynamicPropertyRegistrar =
+        DynamicPropertyRegistrar {
+            it.add("spring.ai.mcp.client.streamable-http.connections.mcp-currency.url") {
+                "http://${currencyMcpContainer.host}:${currencyMcpContainer.getMappedPort(3002)}"
             }
         }
 }

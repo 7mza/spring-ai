@@ -14,8 +14,7 @@ mono repo multi subprojects to handle main app and custom mcp servers in same li
 
 - root is an aggregator (no build artifacts)
 - `core/` is main app
-- `mcp/mcp-weather/` is an example mcp server running in sync/STDIO modes but wrapped with supergateway in infra
-- `mcp/mcp-currency/` is an example mcp server running directly in async/streamableHttp modes
+- `mcp/*` example mcp servers
 
 ## code base discovery
 

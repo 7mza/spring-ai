@@ -86,6 +86,8 @@ tasks {
         workingDir = rootProject.projectDir
     }
 
+    test { dependsOn(":mcp:mcp-currency:jibDockerBuild") }
+
     // withType<ProcessAot>().configureEach { enabled = project.hasProperty("aot") }
     // withType<ProcessTestAot>().configureEach { enabled = project.hasProperty("aot") }
     // withType<CollectReachabilityMetadata>().configureEach { enabled = project.hasProperty("aot") }

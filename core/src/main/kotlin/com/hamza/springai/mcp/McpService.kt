@@ -12,11 +12,11 @@ interface IMcpService {
 @Service
 class McpService(
     chatClientBuilder: ChatClient.Builder,
-    tools: ToolCallbackProvider,
+    provider: ToolCallbackProvider,
 ) : IMcpService {
     private val chatClient =
         chatClientBuilder
-            .defaultToolCallbacks(tools) // FIXME: deprecation
+            .defaultTools { it.callbacks(provider) }
             .build()
 
     override fun prompt(request: McpRequest): Flux<String> =
