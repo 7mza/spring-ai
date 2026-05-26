@@ -25,9 +25,9 @@ interface IMcpApi {
     @Operation(
         summary = "Ask LLM to do folder/file ops",
         description = """
-Anthropic's `MCP Filesystem Server` is running in STDIO mode but wrapped with supergateway for streamableHttp and exposed as a container.<br /><br />
-Only read only ops on `/projects/**` (which is mapped to the root of this project) are allowed.<br /><br />
-`curl -N` for streaming response.
+Anthropic's `MCP Filesystem Server` is running in STDIO mode but wrapped with supergateway for streamableHttp and exposed as a container<br /><br />
+Only read only ops on `/projects/**` (which is mapped to the root of this project) are allowed<br /><br />
+`curl -N` for streaming response
 """,
     )
     @ApiResponses(
@@ -74,8 +74,8 @@ Line 3
     @Operation(
         summary = "Ask LLM for the current weather",
         description = """
-`./mcp/mcp-weather/` server is running in sync/STDIO modes but wrapped with supergateway for streamableHttp and exposed as a container.<br /><br />
-`curl -N` for streaming response.
+`./mcp/mcp-weather/` server is running in sync/STDIO modes but wrapped with supergateway for streamableHttp and exposed as a container<br /><br />
+`curl -N` for streaming response
 """,
     )
     @ApiResponses(
@@ -136,8 +136,8 @@ Line 3
     @Operation(
         summary = "Ask LLM for the current exchange rate",
         description = """
-`./mcp/mcp-currency/` server is running directly in async/streamableHttp modes and exposed as a container.<br /><br />
-`curl -N` for streaming response.
+`./mcp/mcp-currency/` server is running directly in async/streamableHttp modes and exposed as a container<br /><br />
+`curl -N` for streaming response
 """,
     )
     @ApiResponses(

@@ -115,12 +115,13 @@ services:
       resources:
         reservations:
           devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+            - capabilities: [gpu]
+              device_ids:
+                - nvidia.com/gpu=all
+              driver: cdi
     environment:
-      OLLAMA_NUM_PARALLEL: 4
-      OLLAMA_MAX_LOADED_MODELS: 1
+      OLLAMA_MAX_LOADED_MODELS: 2
+      OLLAMA_NUM_PARALLEL: 1
     healthcheck:
       test: ["CMD", "ollama", "list"]
       interval: 30s
@@ -152,6 +153,45 @@ services:
     volumes:
       - qdrant_data:/qdrant/storage
 
+  speaches:
+    image: ghcr.io/speaches-ai/speaches:latest-cuda-12.6.3
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              device_ids:
+                - nvidia.com/gpu=all
+              driver: cdi
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh",
+          "-c",
+          'curl -fs localhost:8000/health | grep -q "OK" || exit 1',
+        ]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    volumes:
+      - ${PWD}/docker/speaches/model_aliases.json:/home/ubuntu/speaches/model_aliases.json
+      - speaches_data:/home/ubuntu/.cache/huggingface/hub
+
+  speaches-init:
+    image: curlimages/curl:latest
+    command: >
+      /bin/sh -c "curl -fs -X POST speaches:8000/v1/models/tts &&
+      curl -fs -X POST speaches:8000/v1/models/whisper"
+    depends_on:
+      speaches:
+        condition: service_healthy
+    restart: on-failure
+
   spring-ai:
     image: spring-ai:latest
     depends_on:
@@ -163,9 +203,11 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      ollama:
+        condition: service_healthy
       qdrant:
         condition: service_healthy
-      ollama:
+      speaches:
         condition: service_healthy
     deploy:
       resources:
@@ -212,10 +254,12 @@ services:
 
 volumes:
   minio_data:
-    name: minio_data
+    name: sa_minio_data
   ollama_data:
-    name: ollama_data
+    name: sa_ollama_data
   qdrant_data:
-    name: qdrant_data
+    name: sa_qdrant_data
+  speaches_data:
+    name: sa_speaches_data
   springai_data:
-    name: springai_data
+    name: sa_springai_data

@@ -32,6 +32,7 @@ Spring AI learning/experimentation workspace
 - MCP
   - sync/STDIO + supergateway [server](mcp/mcp-weather/README.md) `inspector: npm run mcp + @localhost:3001/mcp`
   - async/streamableHttp [server](mcp/mcp-currency/README.md) `inspector: npm run mcp + @localhost:3002/mcp`
+- [local transcription/tts](https://github.com/speaches-ai/speaches/)
 - ...
 
 ### [ingestion pipeline](core/src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt)
@@ -74,13 +75,14 @@ slow down pipeline)
 for Nvidia
 gpu [Nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
 
-if not, disable `services.ollama.deploy` section in [compose.yaml](compose.yaml)
-
 ## conf
 
 [.env](.env)
 
-Choose an [LLM](https://ollama.com/search) that will fit your hardware, `gemma4:e4b` is configured by default
+**<span style="color:red;">Choose an [LLM](https://ollama.com/search) that will fit your hardware, especially if running
+in CPU mode</span>**
+
+`gemma4:e4b` is configured by default
 
 RAG quality depends on:
 
@@ -106,24 +108,32 @@ sdk env install
 ```
 
 ```shell
-./gradlew clean ktlintFormat ktlintCheck build -x test --no-build-cache && ./gradlew --stop
+./gradlew clean ktlintFormat ktlintCheck build jibDockerBuild -x test --no-build-cache && ./gradlew --stop
 ```
 
 ## run
 
-With compose
+run with docker compose
 
 ```shell
-./gradlew jibDockerBuild -x test --no-build-cache && ./gradlew --stop
+# CPU mode (ollama/speaches)
+docker compose -f compose.yaml -f compose.cpu.yaml up --build
 ```
 
 ```shell
+# GPU mode (require docker CDI)
 docker compose up --build
 ```
 
-or with spring compose support
+or run with spring compose support
 
 ```shell
+# CPU mode (ollama/speaches)
+SPRING_PROFILES_ACTIVE=default,cpu ./gradlew bootRun
+```
+
+```shell
+# GPU mode (require docker CDI)
 ./gradlew bootRun
 ```
 
@@ -132,7 +142,7 @@ or with spring compose support
 ## stop
 
 ```shell
-./gradlew --stop
+docker compose stop && ./gradlew --stop
 ```
 
 ## misc
@@ -148,6 +158,8 @@ curl -X DELETE "http://localhost:6333/collections/embeddings"
 ```
 
 [H2 console](http://localhost:8080/h2) `# jdbc url = jdbc:h2:file:~/springai_db (from .env)`
+
+[Speaches console](http://localhost:8000)
 
 Download a wiki article as MD:
 
@@ -173,21 +185,20 @@ rm ~/springai_db.mv.db
 clean docker
 
 ```shell
-docker stop $(docker ps -aq) && \
-  docker rm $(docker ps -aq) && \
-  docker volume prune -f && \
+docker volume prune -f && \
   docker network prune -f && \
   docker image prune -f && \
-  docker builder prune -f && \
-  docker buildx prune -f
+  docker builder prune -a -f && \
+  docker buildx prune -a -f
 ```
 
 ```shell
 docker volume rm \
-  minio_data \
-  ollama_data \
-  qdrant_data \
-  springai_data
+  sa_minio_data \
+  sa_ollama_data \
+  sa_qdrant_data \
+  sa_speaches_data \
+  sa_springai_data
 ```
 
 ### owasp deps check

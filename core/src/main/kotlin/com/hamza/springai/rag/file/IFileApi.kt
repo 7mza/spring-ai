@@ -89,7 +89,8 @@ interface IFileApi {
     @Operation(
         summary = "Upload a file for ingestion",
         description = """
-Puts the file in the MinIO bucket root. Ingestion pipeline picks it up on next poll.<br /><br />
+Puts the file in the MinIO bucket root. Ingestion pipeline picks it up on next poll<br /><br />
+Allowed file extensions are configured via `INGEST_FILES_FILTER` in `.env`<br /><br />
 Max size is configured via YAML: `spring.servlet.multipart.max-file-size=100MB`
 """,
     )
@@ -102,7 +103,7 @@ Max size is configured via YAML: `spring.servlet.multipart.max-file-size=100MB`
     @DeleteMapping("/{id}")
     @Operation(
         summary = "Delete an ingested file by id",
-        description = "Removes from DB, vector store, and S3 `processed/`.",
+        description = "Removes from DB, vector store, and S3 `processed/`",
     )
     @ApiResponse(responseCode = "204", description = "Deleted")
     @ApiResponse(responseCode = "404", description = "Not found")
@@ -112,7 +113,7 @@ Max size is configured via YAML: `spring.servlet.multipart.max-file-size=100MB`
     )
 
     @DeleteMapping
-    @Operation(summary = "Delete all ingested files", description = "Wipes DB, vector store, and S3 `processed/`.")
+    @Operation(summary = "Delete all ingested files", description = "Wipes DB, vector store, and S3 `processed/`")
     @ApiResponse(responseCode = "204", description = "Deleted")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteAll()

@@ -1,52 +1,44 @@
 services:
   mcp-currency:
     extends:
-      file: compose.yaml
+      file: compose.spring.yaml
       service: mcp-currency
-    profiles:
-      - mcp-currency
 
   mcp-filesystem:
     extends:
-      file: compose.yaml
+      file: compose.spring.yaml
       service: mcp-filesystem
-    profiles:
-      - mcp-filesystem
 
   mcp-weather:
     extends:
-      file: compose.yaml
+      file: compose.spring.yaml
       service: mcp-weather
-    profiles:
-      - mcp-weather
 
   minio:
     extends:
-      file: compose.yaml
+      file: compose.spring.yaml
       service: minio
-    profiles:
-      - minio
 
   ollama:
     extends:
-      file: compose.yaml
+      file: compose.spring.yaml
       service: ollama
-    profiles:
-      - ollama
+    deploy: null
+    environment:
+      CUDA_VISIBLE_DEVICES: ""
+      OLLAMA_MAX_LOADED_MODELS: 1
 
   qdrant:
     extends:
-      file: compose.yaml
+      file: compose.spring.yaml
       service: qdrant
-    profiles:
-      - qdrant
 
   speaches:
     extends:
-      file: compose.yaml
+      file: compose.spring.yaml
       service: speaches
-    profiles:
-      - speaches
+    image: ghcr.io/speaches-ai/speaches:latest-cpu
+    deploy: null
 
 volumes:
   minio_data:

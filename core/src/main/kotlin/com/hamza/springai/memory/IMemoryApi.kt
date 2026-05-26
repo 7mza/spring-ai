@@ -24,8 +24,8 @@ interface IMemoryApi {
     @Operation(
         summary = "Prompt LLM with memory enabled",
         description = """
-Conversation memory is enabled through `JDBC` backend.<br /><br />
-To test, keep prompting about the same topic or changing conversationId.
+Conversation memory is enabled through `JDBC` backend<br /><br />
+To test, keep prompting about the same topic or changing conversationId
 """,
     )
     @ApiResponses(
@@ -64,8 +64,8 @@ To test, keep prompting about the same topic or changing conversationId.
     @Operation(
         summary = "Prompt LLM with memory enabled",
         description = """
-Conversation memory is enabled through `VectorStore` backend.<br /><br />
-To test, keep prompting about the same topic or changing conversationId.
+Conversation memory is enabled through `VectorStore` backend<br /><br />
+To test, keep prompting about the same topic or changing conversationId
 """,
     )
     @ApiResponses(

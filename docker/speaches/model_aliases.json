@@ -1,0 +1,4 @@
+{
+  "tts": "speaches-ai/Kokoro-82M-v1.0-ONNX-fp16",
+  "whisper": "Systran/faster-whisper-small"
+}

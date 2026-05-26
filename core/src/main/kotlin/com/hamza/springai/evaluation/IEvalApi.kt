@@ -20,9 +20,9 @@ interface IEvalApi {
     @Operation(
         summary = "Evaluate & score prompt/response relevancy using LLM",
         description = """
-Return a `JSON object response` from LLM with automatic parsing.<br /><br />
-Retry mechanism for parsing errors.<br /><br />
-(Local LLMs are not accurate).
+Return a `JSON object response` from LLM with automatic parsing<br /><br />
+Retry mechanism for parsing errors<br /><br />
+(Local LLMs are not accurate)
 """,
     )
     @ApiResponses(

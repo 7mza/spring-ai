@@ -63,18 +63,18 @@ class OllamaContainerConfig {
     fun ollamaContainerGpu(): OllamaContainer {
         logger.info("nvidia runtime detected, starting ollama with gpu")
         return OllamaContainer(DockerImageName.parse("ollama/ollama:latest"))
-            .withEnv("OLLAMA_NUM_PARALLEL", "4")
-            .withEnv("OLLAMA_MAX_LOADED_MODELS", "1")
+            .withEnv("OLLAMA_MAX_LOADED_MODELS", "2")
+            .withEnv("OLLAMA_NUM_PARALLEL", "1")
             .withCreateContainerCmdModifier {
                 it.hostConfig!!
                     .withDeviceRequests(
                         listOf(
                             DeviceRequest()
-                                .withDriver("nvidia")
-                                .withCount(1)
-                                .withCapabilities(listOf(listOf("gpu"))),
+                                .withCapabilities(listOf(listOf("gpu")))
+                                .withDeviceIds(listOf("nvidia.com/gpu=all"))
+                                .withDriver("cdi"),
                         ),
-                    ).withBinds(Bind("ollama_data", Volume("/root/.ollama")))
+                    ).withBinds(Bind("sa_ollama_data", Volume("/root/.ollama")))
             }
     }
 
@@ -84,10 +84,10 @@ class OllamaContainerConfig {
     fun ollamaContainerCpu(): OllamaContainer {
         logger.info("nvidia runtime not available, starting ollama with cpu")
         return OllamaContainer(DockerImageName.parse("ollama/ollama:latest"))
-            .withEnv("OLLAMA_NUM_PARALLEL", "2")
-            .withEnv("OLLAMA_MAX_LOADED_MODELS", "1")
+            .withEnv("OLLAMA_MAX_LOADED_MODELS", "2")
+            .withEnv("OLLAMA_NUM_PARALLEL", "1")
             .withCreateContainerCmdModifier {
-                it.hostConfig!!.withBinds(Bind("ollama_data", Volume("/root/.ollama")))
+                it.hostConfig!!.withBinds(Bind("sa_ollama_data", Volume("/root/.ollama")))
             }
     }
 }

@@ -125,6 +125,7 @@ spring:
           - minio
           - ollama
           - qdrant
+          - speaches
       start:
         arguments:
           - --remove-orphans
@@ -136,7 +137,7 @@ spring:
         web-allow-others: true
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     open-in-view: false
     properties:
       hibernate:
@@ -279,6 +280,14 @@ springdoc:
     operationsSorter: method
     path: /swagger-ui
     tagsSorter: alpha
+---
+spring:
+  config:
+    activate:
+      on-profile: cpu
+  docker:
+    compose:
+      file: compose.spring.cpu.yaml
 ---
 custom:
   h2:

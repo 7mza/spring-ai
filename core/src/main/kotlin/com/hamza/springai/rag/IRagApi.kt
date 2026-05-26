@@ -22,9 +22,9 @@ interface IRagApi {
     @Operation(
         summary = "Prompt LLM with manual context pull",
         description = """
-Manual context pull (similarity search) from vector store before forwarding request to LLM.<br /><br />
-To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.<br /><br />
-Example files in `./docs/examples/`.
+Manual context pull (similarity search) from vector store before forwarding request to LLM<br /><br />
+To test, upload your documents through `/api/file` (or via MinIO console), and ask a relevant question<br /><br />
+(Example files in `./docs/examples/`)
 """,
     )
     @ApiResponses(
@@ -57,9 +57,9 @@ Example files in `./docs/examples/`.
     @Operation(
         summary = "Prompt LLM with automatic context pull",
         description = """
-Automatic context pull from vector store, using `QuestionAnswerAdvisor`, before forwarding request to LLM.<br /><br />
-To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.<br /><br />
-Example files in `./docs/examples/`.
+Automatic context pull from vector store, using `QuestionAnswerAdvisor`, before forwarding request to LLM<br /><br />
+To test, upload your documents through `/api/file` (or via MinIO console), and ask a relevant question<br /><br />
+(Example files in `./docs/examples/`)
 """,
     )
     @ApiResponses(
@@ -92,9 +92,9 @@ Example files in `./docs/examples/`.
     @Operation(
         summary = "Prompt LLM with query enhancing",
         description = """
-Query enhancements (translation, rewrite, ...etc.) using `RetrievalAugmentationAdvisor` before context pull from vector store, then forwarding request to LLM.<br /><br />
-To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.<br /><br />
-Example files in `./docs/examples/`.
+Query enhancements (translation, rewrite, ...etc.) using `RetrievalAugmentationAdvisor` before context pull from vector store, then forwarding request to LLM<br /><br />
+To test, upload your documents through `/api/file` (or via MinIO console), and ask a relevant question<br /><br />
+(Example files in `./docs/examples/`)
 """,
     )
     @ApiResponses(
@@ -148,9 +148,9 @@ Example files in `./docs/examples/`.
     @Operation(
         summary = "Prompt LLM with query expanding",
         description = """
-Query expanding (rewrite N times in different forms for larger vector matching) using `RetrievalAugmentationAdvisor` before context pull from vector store, then forwarding request to LLM.<br /><br />
-To test, upload your documents through `/api/file` or via MinIO console. Ingestion pipeline picks it up on next poll.<br /><br />
-Example files in `./docs/examples/`.
+Query expanding (rewrite N times in different forms for larger vector matching) using `RetrievalAugmentationAdvisor` before context pull from vector store, then forwarding request to LLM<br /><br />
+To test, upload your documents through `/api/file` (or via MinIO console), and ask a relevant question<br /><br />
+(Example files in `./docs/examples/`)
 """,
     )
     @ApiResponses(
