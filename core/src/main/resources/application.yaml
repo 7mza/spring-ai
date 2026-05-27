@@ -299,10 +299,10 @@ springdoc:
 spring:
   config:
     activate:
-      on-profile: cpu
+      on-profile: gpu
   docker:
     compose:
-      file: compose.spring.cpu.yaml
+      file: compose.spring.gpu.yaml
 ---
 custom:
   h2:

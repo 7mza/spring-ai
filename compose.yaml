@@ -111,16 +111,9 @@ services:
 
   ollama:
     image: ollama/ollama:latest
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: [gpu]
-              device_ids:
-                - nvidia.com/gpu=all
-              driver: cdi
     environment:
-      OLLAMA_MAX_LOADED_MODELS: 2
+      CUDA_VISIBLE_DEVICES: ""
+      OLLAMA_MAX_LOADED_MODELS: 1
       OLLAMA_NUM_PARALLEL: 1
     healthcheck:
       test: ["CMD", "ollama", "list"]
@@ -154,15 +147,9 @@ services:
       - qdrant_data:/qdrant/storage
 
   speaches:
-    image: ghcr.io/speaches-ai/speaches:latest-cuda-12.6.3
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: [gpu]
-              device_ids:
-                - nvidia.com/gpu=all
-              driver: cdi
+    image: ghcr.io/speaches-ai/speaches:latest-cpu
+    environment:
+      CUDA_VISIBLE_DEVICES: ""
     healthcheck:
       test:
         [

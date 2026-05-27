@@ -117,24 +117,24 @@ run with docker compose
 
 ```shell
 # CPU mode (ollama/speaches)
-docker compose -f compose.yaml -f compose.cpu.yaml up --build
+docker compose up --build
 ```
 
 ```shell
 # GPU mode (require docker CDI)
-docker compose up --build
+docker compose -f compose.yaml -f compose.gpu.yaml up --build
 ```
 
 or run with spring compose support
 
 ```shell
 # CPU mode (ollama/speaches)
-SPRING_PROFILES_ACTIVE=default,cpu ./gradlew bootRun
+./gradlew bootRun
 ```
 
 ```shell
 # GPU mode (require docker CDI)
-./gradlew bootRun
+SPRING_PROFILES_ACTIVE=default,gpu ./gradlew bootRun
 ```
 
 [http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui)

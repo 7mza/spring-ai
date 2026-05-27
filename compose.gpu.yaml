@@ -1,0 +1,26 @@
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              device_ids:
+                - nvidia.com/gpu=all
+              driver: cdi
+    environment:
+      CUDA_VISIBLE_DEVICES: ""
+      OLLAMA_MAX_LOADED_MODELS: 2
+
+  speaches:
+    image: ghcr.io/speaches-ai/speaches:latest-cuda-12.6.3
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              device_ids:
+                - nvidia.com/gpu=all
+              driver: cdi
+    environment:
+      CUDA_VISIBLE_DEVICES: ""

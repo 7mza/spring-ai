@@ -23,10 +23,16 @@ services:
     extends:
       file: compose.spring.yaml
       service: ollama
-    deploy: null
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              device_ids:
+                - nvidia.com/gpu=all
+              driver: cdi
     environment:
-      CUDA_VISIBLE_DEVICES: ""
-      OLLAMA_MAX_LOADED_MODELS: 1
+      OLLAMA_MAX_LOADED_MODELS: 2
 
   qdrant:
     extends:
@@ -37,10 +43,15 @@ services:
     extends:
       file: compose.spring.yaml
       service: speaches
-    image: ghcr.io/speaches-ai/speaches:latest-cpu
-    deploy: null
-    environment:
-      CUDA_VISIBLE_DEVICES: ""
+    image: ghcr.io/speaches-ai/speaches:latest-cuda-12.6.3
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              device_ids:
+                - nvidia.com/gpu=all
+              driver: cdi
 
 volumes:
   minio_data:
