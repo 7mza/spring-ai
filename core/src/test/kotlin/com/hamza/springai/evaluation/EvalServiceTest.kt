@@ -27,7 +27,7 @@ class EvalServiceTest {
     private lateinit var chatMemoryVectorStore: VectorStore
 
     // retry N times because small models are unreliable
-    @RetryingTest(maxAttempts = 5, suspendForMs = 1000)
+    @RetryingTest(maxAttempts = 3, suspendForMs = 1000)
     fun evaluate() {
         val response = "The capital of France is Paris."
 
@@ -42,7 +42,7 @@ class EvalServiceTest {
     }
 
     // retry N times because small models are unreliable
-    @RetryingTest(maxAttempts = 5, suspendForMs = 1000)
+    @RetryingTest(maxAttempts = 3, suspendForMs = 1000)
     fun `evaluate wrong`() {
         val response = "The sky is blue because apples."
 

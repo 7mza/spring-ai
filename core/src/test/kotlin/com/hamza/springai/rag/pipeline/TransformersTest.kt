@@ -51,7 +51,7 @@ class TransformersTest {
     }
 
     // retry N times because small models are unreliable
-    @RetryingTest(maxAttempts = 5, suspendForMs = 1000)
+    @RetryingTest(maxAttempts = 3, suspendForMs = 1000)
     fun `languageEnricher is correctly adding language metadata`() {
         assertThat(
             helper

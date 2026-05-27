@@ -16,7 +16,7 @@ import reactor.test.StepVerifier
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = ["spring.ai.ollama.chat.model=qwen3-vl:2b"], // vision enabled model
+    properties = ["spring.ai.ollama.chat.model=moondream:1.8b"], // vision enabled model
 )
 @Import(OllamaContainerConfig::class)
 class ImageServiceTest {
@@ -42,7 +42,7 @@ class ImageServiceTest {
         )
 
     // retry N times because small models are unreliable
-    @RetryingTest(maxAttempts = 5, suspendForMs = 1000)
+    @RetryingTest(maxAttempts = 3, suspendForMs = 1000)
     fun prompt() {
         val keywords = listOf("man", "old", "grey", "Gandalf", "beard", "hat", "staff", "nature")
         val threshold = keywords.size / 2 // 50%

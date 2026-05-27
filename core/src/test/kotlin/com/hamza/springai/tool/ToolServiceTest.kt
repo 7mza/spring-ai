@@ -40,7 +40,7 @@ class ToolServiceTest {
     private lateinit var chatMemoryVectorStore: VectorStore
 
     // retry N times because small models are unreliable
-    @RetryingTest(maxAttempts = 5, suspendForMs = 1000)
+    @RetryingTest(maxAttempts = 3, suspendForMs = 1000)
     fun getCurrentTimeAt() {
         // call service
         val response = service.getCurrentTimeAt("Riyadh")

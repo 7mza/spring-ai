@@ -66,7 +66,7 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers-qdrant")
 }
 
-val springAiVersion = "2.0.0-M7"
+val springAiVersion = "2.0.0-M8"
 val springAwsVersion = "4.0.2"
 val springCloudVersion = "2025.1.1"
 
@@ -94,6 +94,10 @@ tasks {
     // withType<CollectReachabilityMetadata>().configureEach { enabled = project.hasProperty("aot") }
 
     jibDockerBuild { dependsOn(build) }
+
+    withType<Test>().configureEach {
+        maxParallelForks = 2 // if tests are slow by nature (LLM), more workers = worse
+    }
 }
 
 // hibernate { enhancement { enableAssociationManagement = true } }

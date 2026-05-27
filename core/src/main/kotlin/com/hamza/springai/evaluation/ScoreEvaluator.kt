@@ -7,6 +7,7 @@ import org.springframework.ai.evaluation.EvaluationResponse
 import org.springframework.ai.evaluation.Evaluator
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
+import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Recover
 import org.springframework.retry.annotation.Retryable
 import org.springframework.retry.support.RetrySynchronizationManager
@@ -21,7 +22,7 @@ class ScoreEvaluator(
 ) : Evaluator {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Retryable(retryFor = [JacksonException::class], maxAttempts = 5)
+    @Retryable(retryFor = [JacksonException::class], maxAttempts = 3, backoff = Backoff(1000))
     override fun evaluate(request: EvaluationRequest): EvaluationResponse {
         val attempt = RetrySynchronizationManager.getContext()?.retryCount ?: 0
         if (attempt > 0) logger.warn("LLM response parsing failed, retry attempt {}", attempt)

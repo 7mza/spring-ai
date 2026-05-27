@@ -1,7 +1,6 @@
 package com.hamza.springai.memory
 
 import com.hamza.springai.prompt.PromptResponse
-import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor
 import org.springframework.ai.chat.client.advisor.vectorstore.VectorStoreChatMemoryAdvisor
@@ -28,11 +27,7 @@ class MemoryService(
     private val chatMemory: ChatMemory,
     @Qualifier("chatMemoryVectorStore") private val vectorStore: VectorStore,
 ) : IMemoryService {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
-    private val chatClient =
-        chatClientBuilder
-            .build()
+    private val chatClient = chatClientBuilder.build()
 
     override fun promptWithJdbcMemory(
         conversationId: String,
@@ -41,9 +36,11 @@ class MemoryService(
         chatClient
             .prompt()
             .user(request.prompt)
-            .advisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
-            .advisors { it.param(ChatMemory.CONVERSATION_ID, conversationId) }
-            .call()
+            .advisors {
+                it
+                    .advisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+                    .param(ChatMemory.CONVERSATION_ID, conversationId)
+            }.call()
             .content()
             ?.let { PromptResponse(prompt = request.prompt, response = it) }
             ?: error("LLM response was null")
@@ -55,9 +52,11 @@ class MemoryService(
         chatClient
             .prompt()
             .user(request.prompt)
-            .advisors(VectorStoreChatMemoryAdvisor.builder(vectorStore).build())
-            .advisors { it.param(ChatMemory.CONVERSATION_ID, conversationId) }
-            .call()
+            .advisors {
+                it
+                    .advisors(VectorStoreChatMemoryAdvisor.builder(vectorStore).build())
+                    .param(ChatMemory.CONVERSATION_ID, conversationId)
+            }.call()
             .content()
             ?.let { PromptResponse(prompt = request.prompt, response = it) }
             ?: error("LLM response was null")

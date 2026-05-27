@@ -54,10 +54,12 @@ class MemoryServiceTest {
         assertThat(rows).anyMatch { it?.content == prompt }
         // vague prompt with same session
         var response = service.promptWithJdbcMemory(conversationId, MemoryRequest("is he alive?"))
+        logger.debug("same session: {}", response.response)
         // LLM should remember
         assertThat(response.response).containsIgnoringCase("gandalf")
         // vague prompt with new session
         response = service.promptWithJdbcMemory("new", MemoryRequest("is he alive?"))
+        logger.debug("new session: {}", response.response)
         // LLM should not remember
         assertThat(response.response).doesNotContainIgnoringCase("gandalf")
     }
@@ -82,10 +84,12 @@ class MemoryServiceTest {
         assertThat(documents).anyMatch { it.text == prompt }
         // vague prompt with same session
         var response = service.promptWithVectorStoreMemory(conversationId, MemoryRequest("is he alive?"))
+        logger.debug("same session: {}", response.response)
         // LLM should remember
         assertThat(response.response).containsIgnoringCase("gandalf")
         // vague prompt with new session
         response = service.promptWithVectorStoreMemory("new", MemoryRequest("is he alive?"))
+        logger.debug("new session: {}", response.response)
         // LLM should not remember
         assertThat(response.response).doesNotContainIgnoringCase("gandalf")
     }

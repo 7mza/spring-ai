@@ -37,7 +37,7 @@ class McpServiceTest {
     private lateinit var chatMemoryVectorStore: VectorStore
 
     // retry N times because small models are unreliable
-    @RetryingTest(maxAttempts = 5, suspendForMs = 1000)
+    @RetryingTest(maxAttempts = 3, suspendForMs = 1000)
     fun promptForFiles() {
         StepVerifier
             .create(service.prompt(McpRequest(filePrompt)).collectList())
@@ -52,7 +52,7 @@ class McpServiceTest {
     }
 
     // retry N times because small models are unreliable
-    @RetryingTest(maxAttempts = 5, suspendForMs = 1000)
+    @RetryingTest(maxAttempts = 3, suspendForMs = 1000)
     fun promptForCurrency() {
         StepVerifier
             .create(service.prompt(McpRequest(currencyPrompt)).collectList())

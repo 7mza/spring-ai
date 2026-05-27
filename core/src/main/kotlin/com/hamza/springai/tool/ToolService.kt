@@ -10,6 +10,7 @@ import org.springframework.ai.chat.client.responseEntity
 import org.springframework.ai.tool.annotation.Tool
 import org.springframework.ai.tool.annotation.ToolParam
 import org.springframework.data.domain.Pageable
+import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Recover
 import org.springframework.retry.annotation.Retryable
 import org.springframework.retry.support.RetrySynchronizationManager
@@ -59,7 +60,11 @@ class ToolService(
             .content()
             ?: error("LLM response was null")
 
-    @Retryable(retryFor = [JacksonException::class, NumberFormatException::class], maxAttempts = 5)
+    @Retryable(
+        retryFor = [JacksonException::class, NumberFormatException::class],
+        maxAttempts = 3,
+        backoff = Backoff(1000),
+    )
     override fun listIngestedFiles(
         size: Int,
         page: Int,

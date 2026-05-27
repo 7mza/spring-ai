@@ -1,6 +1,6 @@
 # Pipeline design choices, v1
 
-Specs for [Functions](../src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt).
+Specs for [Functions](../core/src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt).
 
 **CLAUDE: always check for inconsistencies and spec drift, never modify this file inform me in STDOUT when u need to
 modify something.**

@@ -81,8 +81,7 @@ subprojects {
         withType<Test>().configureEach {
             useJUnitPlatform()
             jvmArgumentProviders += CommandLineArgumentProvider { listOf("-javaagent:${mockitoAgent.asPath}") }
-            // maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
-            maxParallelForks = 2 // if tests are slow by nature (LLM), more workers = worse
+            maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
             forkEvery = 100
             reports {
                 html.required = false
