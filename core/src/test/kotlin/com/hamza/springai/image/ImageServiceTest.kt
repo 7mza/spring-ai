@@ -36,7 +36,7 @@ class ImageServiceTest {
     private val file: MultipartFile =
         MockMultipartFile(
             "file",
-            "test.jpg",
+            "image.jpg",
             "image/jpeg",
             ClassPathResource("docs/image.jpg").inputStream,
         )

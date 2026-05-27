@@ -10,7 +10,6 @@ services:
                 - nvidia.com/gpu=all
               driver: cdi
     environment:
-      CUDA_VISIBLE_DEVICES: ""
       OLLAMA_MAX_LOADED_MODELS: 2
 
   speaches:
@@ -24,5 +23,3 @@ services:
               device_ids:
                 - nvidia.com/gpu=all
               driver: cdi
-    environment:
-      CUDA_VISIBLE_DEVICES: ""

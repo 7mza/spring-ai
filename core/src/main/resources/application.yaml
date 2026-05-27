@@ -9,6 +9,11 @@ custom:
 logbook:
   format:
     style: http
+  predicate:
+    exclude:
+      - path: /actuator/**
+      - path: /api-docs/**
+      - path: /swagger-ui/**
 logging:
   include-application-name: false
   level:
