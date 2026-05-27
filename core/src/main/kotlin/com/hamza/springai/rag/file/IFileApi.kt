@@ -25,10 +25,7 @@ import reactor.core.publisher.Mono
 @RequestMapping(value = ["/api/file"], produces = [MediaType.APPLICATION_JSON_VALUE])
 interface IFileApi {
     @GetMapping
-    @Operation(
-        summary = "List ingested files",
-        description = "",
-    )
+    @Operation(summary = "List ingested files")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -41,7 +38,6 @@ interface IFileApi {
                         examples = [
                             ExampleObject(
                                 name = "example-0",
-                                description = "",
                                 value = """
 {
   "content": [

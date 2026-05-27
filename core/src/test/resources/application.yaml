@@ -9,7 +9,7 @@ custom:
 logging:
   include-application-name: false
   level:
-    com.hamza: info
+    com.hamza: debug
     org.zalando.logbook: off
 server:
   port: 0
@@ -26,6 +26,9 @@ spring:
       client:
         # streamable-http.connections.*.url: from_test_container # done though test containers so other tests don't complain
         type: async
+    model:
+      chat: ollama
+      embedding: ollama
     ollama:
       chat:
         model: llama3.2:3b
@@ -33,6 +36,8 @@ spring:
         model: nomic-embed-text
       init:
         pull-model-strategy: when_missing
+    openai:
+      api-key: fake
     vectorstore:
       qdrant:
         collection-name: embeddings

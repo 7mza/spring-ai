@@ -37,9 +37,9 @@ interface IPromptApi {
                         examples = [
                             ExampleObject(
                                 name = "example-0",
-                                description = "",
                                 value = """
-{ "prompt": "What is the capital of France?", "response": "The capital of France is Paris." }""",
+{ "prompt": "What is the capital of France?", "response": "The capital of France is Paris." }
+""",
                             ),
                         ],
                     ),
@@ -71,7 +71,6 @@ Retry mechanism for parsing errors
                         examples = [
                             ExampleObject(
                                 name = "example-0",
-                                description = "",
                                 value = """{ "response": [ { "title": "title 1" }, { "title": "title 2" }] }""",
                             ),
                         ],
@@ -81,7 +80,7 @@ Retry mechanism for parsing errors
         ],
     )
     fun songs(
-        @Parameter(description = "Which year", example = "2006") @RequestParam year: Int = 2006,
+        @Parameter(example = "2006") @RequestParam year: Int,
     ): SongResponse
 
     @GetMapping(
@@ -116,19 +115,13 @@ Line 3
                             ),
                         ],
                     ),
-                    Content(
-                        mediaType = MediaType.APPLICATION_NDJSON_VALUE,
-                        schema = Schema(type = "string"),
-                    ),
-                    Content(
-                        mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
-                        schema = Schema(type = "string"),
-                    ),
+                    Content(mediaType = MediaType.APPLICATION_NDJSON_VALUE, schema = Schema(type = "string")),
+                    Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE, schema = Schema(type = "string")),
                 ],
             ),
         ],
     )
     fun movies(
-        @Parameter(description = "Which year", example = "2013") @RequestParam year: Int = 2013,
+        @Parameter(example = "2013") @RequestParam year: Int,
     ): Flux<String>
 }

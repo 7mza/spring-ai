@@ -8,6 +8,7 @@ Spring AI learning/experimentation workspace
 - Qdrant as vector store
 - MinIO as object store
 - embedded H2 as DB
+- Speaches as TTS/STT backend
 
 ## demo
 
@@ -32,7 +33,9 @@ Spring AI learning/experimentation workspace
 - MCP
   - sync/STDIO + supergateway [server](mcp/mcp-weather/README.md) `inspector: npm run mcp + @localhost:3001/mcp`
   - async/streamableHttp [server](mcp/mcp-currency/README.md) `inspector: npm run mcp + @localhost:3002/mcp`
-- [local transcription/tts](https://github.com/speaches-ai/speaches/)
+- local tts/stt
+  - [speaches](https://github.com/speaches-ai/speaches/) posing as OpenAI audio API
+  - [models configuration](docker/speaches/model_aliases.json)
 - ...
 
 ### [ingestion pipeline](core/src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt)

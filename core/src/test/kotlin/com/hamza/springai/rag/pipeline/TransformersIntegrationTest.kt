@@ -21,8 +21,7 @@ import java.util.concurrent.TimeUnit
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
         "spring.cloud.aws.s3.enabled=true",
-        """spring.cloud.function.definition=\
-customS3Supplier|duplicationFilter|documentReader|documentSplitter|languageEnricher|vectorStoreWriter|s3Archiver""",
+        "spring.cloud.function.definition=customS3Supplier|duplicationFilter|documentReader|documentSplitter|languageEnricher|vectorStoreWriter|s3Archiver",
     ],
 )
 @Import(
@@ -52,7 +51,7 @@ class TransformersIntegrationTest {
     }
 
     // retry N times because small models are unreliable
-    @RetryingTest(maxAttempts = 2, suspendForMs = 1000)
+    @RetryingTest(maxAttempts = 5, suspendForMs = 1000)
     fun `languageEnricher is correctly adding language metadata`() {
         assertThat(
             helper

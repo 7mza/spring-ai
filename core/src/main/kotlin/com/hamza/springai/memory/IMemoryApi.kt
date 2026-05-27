@@ -40,9 +40,9 @@ To test, keep prompting about the same topic or changing conversationId
                         examples = [
                             ExampleObject(
                                 name = "example-0",
-                                description = "",
                                 value = """
-{ "prompt": "Who is Gandalf?", "response": "Gandalf is a primary protagonist in the lord of the rings universe." }""",
+{ "prompt": "Who is Gandalf?", "response": "Gandalf is a primary protagonist in the lord of the rings universe." }
+""",
                             ),
                         ],
                     ),
@@ -54,7 +54,6 @@ To test, keep prompting about the same topic or changing conversationId
         @Parameter(
             `in` = ParameterIn.HEADER,
             description = "Conversation ID, to track current chat memory session",
-            required = false,
         )
         @RequestHeader(value = "X_CONVERSATION_ID", defaultValue = "default") conversationId: String,
         @RequestBody @Valid request: MemoryRequest,
@@ -80,9 +79,9 @@ To test, keep prompting about the same topic or changing conversationId
                         examples = [
                             ExampleObject(
                                 name = "example-0",
-                                description = "",
                                 value = """
-{ "prompt": "Who is Gandalf?", "response": "Gandalf is a primary protagonist in the lord of the rings universe." }""",
+{ "prompt": "Who is Gandalf?", "response": "Gandalf is a primary protagonist in the lord of the rings universe." }
+""",
                             ),
                         ],
                     ),
@@ -94,7 +93,6 @@ To test, keep prompting about the same topic or changing conversationId
         @Parameter(
             `in` = ParameterIn.HEADER,
             description = "Conversation ID, to track current chat memory session",
-            required = false,
         )
         @RequestHeader(value = "X_CONVERSATION_ID", defaultValue = "default") conversationId: String,
         @RequestBody @Valid request: MemoryRequest,

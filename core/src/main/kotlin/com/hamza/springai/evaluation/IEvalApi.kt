@@ -37,7 +37,6 @@ Retry mechanism for parsing errors<br /><br />
                         examples = [
                             ExampleObject(
                                 name = "example-0",
-                                description = "",
                                 value = """
 {
   "prompt": "What is the capital of France?",

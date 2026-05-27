@@ -34,7 +34,6 @@ interface IToolApi {
                         examples = [
                             ExampleObject(
                                 name = "example-0",
-                                description = "",
                                 value = "The current time in Riyadh is 0:00 PM.",
                             ),
                         ],
@@ -44,7 +43,7 @@ interface IToolApi {
         ],
     )
     fun getCurrentTimeAt(
-        @Parameter(description = "Which location", example = "Riyadh") @RequestParam location: String,
+        @Parameter(example = "Riyadh") @RequestParam location: String,
     ): String
 
     @GetMapping("/file")
@@ -67,7 +66,6 @@ Might give Jackson errors if LLM doesn't respect JSON format
                         examples = [
                             ExampleObject(
                                 name = "example-0",
-                                description = "",
                                 value = """
 {
   "content": [
@@ -103,7 +101,7 @@ Might give Jackson errors if LLM doesn't respect JSON format
         ],
     )
     fun listIngestedFiles(
-        @Parameter(description = "Size of files", example = "10") @RequestParam size: Int,
+        @Parameter(description = "How many files", example = "10") @RequestParam size: Int,
         @Parameter(description = "Page number", example = "0") @RequestParam page: Int,
     ): FilesPage
 }

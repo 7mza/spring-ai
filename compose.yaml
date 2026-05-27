@@ -173,7 +173,7 @@ services:
     image: curlimages/curl:latest
     command: >
       /bin/sh -c "curl -fs -X POST speaches:8000/v1/models/tts &&
-      curl -fs -X POST speaches:8000/v1/models/whisper"
+      curl -fs -X POST speaches:8000/v1/models/stt"
     depends_on:
       speaches:
         condition: service_healthy

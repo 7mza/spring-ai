@@ -51,14 +51,8 @@ Line 3
                             ),
                         ],
                     ),
-                    Content(
-                        mediaType = MediaType.APPLICATION_NDJSON_VALUE,
-                        schema = Schema(type = "string"),
-                    ),
-                    Content(
-                        mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
-                        schema = Schema(type = "string"),
-                    ),
+                    Content(mediaType = MediaType.APPLICATION_NDJSON_VALUE, schema = Schema(type = "string")),
+                    Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE, schema = Schema(type = "string")),
                 ],
             ),
         ],
@@ -99,14 +93,8 @@ Line 3
                             ),
                         ],
                     ),
-                    Content(
-                        mediaType = MediaType.APPLICATION_NDJSON_VALUE,
-                        schema = Schema(type = "string"),
-                    ),
-                    Content(
-                        mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
-                        schema = Schema(type = "string"),
-                    ),
+                    Content(mediaType = MediaType.APPLICATION_NDJSON_VALUE, schema = Schema(type = "string")),
+                    Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE, schema = Schema(type = "string")),
                 ],
             ),
         ],
@@ -161,14 +149,8 @@ Line 3
                             ),
                         ],
                     ),
-                    Content(
-                        mediaType = MediaType.APPLICATION_NDJSON_VALUE,
-                        schema = Schema(type = "string"),
-                    ),
-                    Content(
-                        mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
-                        schema = Schema(type = "string"),
-                    ),
+                    Content(mediaType = MediaType.APPLICATION_NDJSON_VALUE, schema = Schema(type = "string")),
+                    Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE, schema = Schema(type = "string")),
                 ],
             ),
         ],
@@ -182,7 +164,8 @@ Line 3
                     ExampleObject(
                         name = "example-0",
                         value = """
-{ "prompt": "What's today's exchange rate between euro and Mozambican/Saudi/Peruvian currencies?" }""",
+{ "prompt": "What's today's exchange rate between euro and Mozambican/Saudi/Peruvian currencies?" }
+""",
                     ),
                 ],
             ),

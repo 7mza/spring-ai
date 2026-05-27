@@ -20,19 +20,20 @@ services:
       service: minio
 
   ollama:
-    extends:
-      file: compose.spring.yaml
-      service: ollama
     deploy:
       resources:
         reservations:
           devices:
-            - capabilities: [gpu]
+            - capabilities:
+                - gpu
               device_ids:
                 - nvidia.com/gpu=all
               driver: cdi
     environment:
       OLLAMA_MAX_LOADED_MODELS: 2
+    extends:
+      file: compose.spring.yaml
+      service: ollama
 
   qdrant:
     extends:
@@ -40,18 +41,19 @@ services:
       service: qdrant
 
   speaches:
-    extends:
-      file: compose.spring.yaml
-      service: speaches
     image: ghcr.io/speaches-ai/speaches:latest-cuda-12.6.3
     deploy:
       resources:
         reservations:
           devices:
-            - capabilities: [gpu]
+            - capabilities:
+                - gpu
               device_ids:
                 - nvidia.com/gpu=all
               driver: cdi
+    extends:
+      file: compose.spring.yaml
+      service: speaches
 
 volumes:
   minio_data:

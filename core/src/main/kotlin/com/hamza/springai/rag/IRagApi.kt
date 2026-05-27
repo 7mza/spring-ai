@@ -39,9 +39,9 @@ To test, upload your documents through `/api/file` (or via MinIO console), and a
                         examples = [
                             ExampleObject(
                                 name = "example-0",
-                                description = "",
                                 value = """
-{ "prompt": "What is the capital of France?", "response": "The capital of France is Paris." }""",
+{ "prompt": "What is the capital of France?", "response": "The capital of France is Paris." }
+""",
                             ),
                         ],
                     ),
@@ -74,9 +74,9 @@ To test, upload your documents through `/api/file` (or via MinIO console), and a
                         examples = [
                             ExampleObject(
                                 name = "example-0",
-                                description = "",
                                 value = """
-{ "prompt": "What is the capital of France?", "response": "The capital of France is Paris." }""",
+{ "prompt": "What is the capital of France?", "response": "The capital of France is Paris." }
+""",
                             ),
                         ],
                     ),
@@ -109,7 +109,6 @@ To test, upload your documents through `/api/file` (or via MinIO console), and a
                         examples = [
                             ExampleObject(
                                 name = "example-0",
-                                description = "",
                                 value = """
 {
   "prompt": "Je souhaite obtenir des informations détaillées concernant la capitale officielle de la République française. Pourriez-vous me préciser quelle est la ville qui occupe le rôle de capitale politique, administrative et culturelle de la France ? Je m'intéresse également à son importance historique en tant que siège du gouvernement, ainsi qu'à sa position géographique au sein du territoire français. Quelle est donc cette ville qui abrite les principales institutions de l'État français, telles que le Palais de l'Élysée, l'Assemblée nationale et le Sénat ?",
@@ -165,7 +164,6 @@ To test, upload your documents through `/api/file` (or via MinIO console), and a
                         examples = [
                             ExampleObject(
                                 name = "example-0",
-                                description = "",
                                 value = """
 {
   "prompt": "What is the capital of France?",

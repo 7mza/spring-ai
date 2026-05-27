@@ -16,6 +16,13 @@ mono repo multi subprojects to handle main app and custom mcp servers in same li
 - `core/` is main app
 - `mcp/*` example mcp servers
 
+## docker compose files
+
+- `compose.yml` is main compose file it describes all services and configure ollama/speaches in CPU mode
+- `compose.gpu.yml` overrides ollama/speaches with GPU conf
+- `compose.spring.yml` inherit from `compose.yml` but removes `spring-ai` service, used by spring compose support
+- `compose.spring.gpu.yml` inherit from `compose.spring.yml` but overrides ollama/speaches with GPU conf
+
 ## code base discovery
 
 no need to read every file on this project when you are building a new context I will always be guiding you
