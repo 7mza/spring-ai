@@ -33,6 +33,26 @@ both content types adds negotiation complexity for no current benefit.
 
 ---
 
+## image generation: local Flux.1-schnell via custom ImageModel
+
+Spring AI's `ImageModel` abstraction has no built-in support for local inference servers.
+Flux.1-schnell (quantized, ~6-8GB VRAM) running via ComfyUI or Automatic1111 is the recommended local model.
+
+**What's needed**
+
+- Run Flux.1-schnell via ComfyUI or Automatic1111 (both expose REST APIs)
+- Implement a custom `ImageModel` bean that wraps the local server's API
+  — `ImageModel` is a single-method interface (`call(ImagePrompt): ImageResponse`), low effort
+- Wire it up as a Spring bean alongside the existing models
+- Add a new endpoint (e.g. `POST /api/image/generate`) using the custom `ImageModel`
+
+**Alternatives**
+
+- SD 1.5 if VRAM is tight (~2GB) — lower quality
+- Stability AI cloud API — Spring AI has a built-in implementation, no custom code needed
+
+---
+
 ## file upload: replace multipart with presigned URL
 
 Current `POST /api/file` receives the file through the app (multipart), then streams it to MinIO via

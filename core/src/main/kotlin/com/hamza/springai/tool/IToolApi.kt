@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.constraints.NotBlank
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -43,7 +44,7 @@ interface IToolApi {
         ],
     )
     fun getCurrentTimeAt(
-        @Parameter(example = "Riyadh") @RequestParam location: String,
+        @NotBlank @Parameter(example = "Riyadh") @RequestParam location: String,
     ): String
 
     @GetMapping("/file")

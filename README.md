@@ -12,7 +12,7 @@ Spring AI learning/experimentation workspace
 
 ## demo
 
-- basic + template prompting
+- basic/template + image prompting
 - LLM object response parsing with retry/recover
 - LLM eval
 - continuous [file ingestion pipeline](core/src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt) using spring

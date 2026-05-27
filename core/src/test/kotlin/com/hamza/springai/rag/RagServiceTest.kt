@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit
     PipelineHelperService::class,
 )
 @TestInstance(Lifecycle.PER_CLASS)
-class RagServiceIntegrationTest {
+class RagServiceTest {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired

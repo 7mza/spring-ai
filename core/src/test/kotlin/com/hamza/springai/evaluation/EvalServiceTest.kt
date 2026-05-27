@@ -12,7 +12,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(OllamaContainerConfig::class)
-class EvalServiceIntegrationTest {
+class EvalServiceTest {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired

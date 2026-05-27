@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit
 )
 @TestInstance(Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FileServiceIntegrationTest {
+class FileServiceTest {
     @Autowired
     private lateinit var service: IFileService
 

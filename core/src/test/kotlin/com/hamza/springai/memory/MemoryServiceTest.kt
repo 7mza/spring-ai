@@ -16,7 +16,7 @@ import org.springframework.jdbc.core.simple.JdbcClient
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(QdrantContainerConfig::class, OllamaContainerConfig::class)
-class MemoryServiceIntegrationTest {
+class MemoryServiceTest {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired

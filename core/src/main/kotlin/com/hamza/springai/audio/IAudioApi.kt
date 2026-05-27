@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.constraints.NotBlank
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.multipart.MultipartFile
 
-@Tag(name = "audio", description = "stt/tts")
+@Tag(name = "audio", description = "STT/TTS")
 @RequestMapping(value = ["/api/audio"])
 interface IAudioApi {
     @PostMapping(
@@ -26,7 +27,7 @@ interface IAudioApi {
     )
     @Operation(
         summary = "speech to text",
-        description = "Example file in `./docs/examples/gandalf.wav`",
+        description = "Example audio in `./docs/examples/gandalf.wav`",
     )
     @ApiResponses(
         value = [
@@ -50,7 +51,7 @@ interface IAudioApi {
         ],
     )
     fun stt(
-        @Parameter(description = "Audio file format (mp3, wav, ...etc)") @RequestPart("file") file: MultipartFile,
+        @Parameter(description = "Audio file format (mp3, wav, ...etc)") @RequestPart file: MultipartFile,
     ): String
 
     @GetMapping(
@@ -69,13 +70,16 @@ You can play audio directly in swagger-ui or copy generate curl and append ` > a
         value = [ApiResponse(responseCode = "200", description = "OK", content = [Content(mediaType = "audio/mpeg")])],
     )
     fun tts(
+        @NotBlank
         @Parameter(
+            description = "text to synthesize",
             example = """
 Hope is an optimistic state of mind that is based on an expectation of desirable outcomes. Among its opposites are hopelessness, and despair.
 """,
         )
         @RequestParam
         text: String,
+        @Parameter(description = "model voice")
         @RequestParam(defaultValue = "AF_SKY") voice: Voice,
     ): ByteArray
 }

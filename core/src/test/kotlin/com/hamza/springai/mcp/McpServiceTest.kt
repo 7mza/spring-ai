@@ -18,7 +18,7 @@ import reactor.test.StepVerifier
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(OllamaContainerConfig::class, FsMcpContainerConfig::class, CurrencyMcpContainerConfig::class)
-class McpServiceIntegrationTest {
+class McpServiceTest {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired

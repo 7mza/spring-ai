@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit
     PipelineHelperService::class,
 )
 @TestInstance(Lifecycle.PER_CLASS)
-class FunctionsIntegrationTest {
+class FunctionsTest {
     @Autowired
     private lateinit var helper: IPipelineHelperService
 

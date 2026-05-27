@@ -24,7 +24,7 @@ interface IRagApi {
         description = """
 Manual context pull (similarity search) from vector store before forwarding request to LLM<br /><br />
 To test, upload your documents through `/api/file` (or via MinIO console), and ask a relevant question<br /><br />
-(Example files in `./docs/examples/`)
+(Example documents in `./docs/examples/*.md`)
 """,
     )
     @ApiResponses(
@@ -59,7 +59,7 @@ To test, upload your documents through `/api/file` (or via MinIO console), and a
         description = """
 Automatic context pull from vector store, using `QuestionAnswerAdvisor`, before forwarding request to LLM<br /><br />
 To test, upload your documents through `/api/file` (or via MinIO console), and ask a relevant question<br /><br />
-(Example files in `./docs/examples/`)
+(Example documents in `./docs/examples/*.md`)
 """,
     )
     @ApiResponses(
@@ -94,7 +94,7 @@ To test, upload your documents through `/api/file` (or via MinIO console), and a
         description = """
 Query enhancements (translation, rewrite, ...etc.) using `RetrievalAugmentationAdvisor` before context pull from vector store, then forwarding request to LLM<br /><br />
 To test, upload your documents through `/api/file` (or via MinIO console), and ask a relevant question<br /><br />
-(Example files in `./docs/examples/`)
+(Example documents in `./docs/examples/*.md`)
 """,
     )
     @ApiResponses(
@@ -149,7 +149,7 @@ To test, upload your documents through `/api/file` (or via MinIO console), and a
         description = """
 Query expanding (rewrite N times in different forms for larger vector matching) using `RetrievalAugmentationAdvisor` before context pull from vector store, then forwarding request to LLM<br /><br />
 To test, upload your documents through `/api/file` (or via MinIO console), and ask a relevant question<br /><br />
-(Example files in `./docs/examples/`)
+(Example documents in `./docs/examples/*.md`)
 """,
     )
     @ApiResponses(

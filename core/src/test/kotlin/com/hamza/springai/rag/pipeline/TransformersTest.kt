@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit
     PipelineHelperService::class,
 )
 @TestInstance(Lifecycle.PER_CLASS)
-class TransformersIntegrationTest {
+class TransformersTest {
     @Autowired
     private lateinit var helper: IPipelineHelperService
 

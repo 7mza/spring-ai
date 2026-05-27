@@ -93,7 +93,7 @@ Max size is configured via YAML: `spring.servlet.multipart.max-file-size=100MB`
     @ApiResponse(responseCode = "202", description = "Accepted")
     @ResponseStatus(HttpStatus.ACCEPTED)
     fun upload(
-        @RequestPart("file") file: MultipartFile,
+        @RequestPart file: MultipartFile,
     ): Mono<Void>
 
     @DeleteMapping("/{id}")
