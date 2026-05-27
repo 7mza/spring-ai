@@ -1,0 +1,1012 @@
+openapi: 3.1.0
+info:
+  title: core API
+  description: TODO
+  version: 0.0.1-SNAPSHOT
+servers:
+  - url: http://localhost:7355
+    description: Generated server url
+tags:
+  - name: evaluation
+    description: LLM response evaluation
+  - name: rag
+    description: RAG/Context pull
+  - name: audio
+    description: STT/TTS
+  - name: tool
+    description: Tool usage
+  - name: image
+    description: LLM prompting with images
+  - name: file
+    description: Files/Documents ingestion
+  - name: prompt
+    description: LLM prompting/response parsing
+  - name: mcp
+    description: MCP usage
+  - name: memory
+    description: LLM prompting with chat memory
+paths:
+  /api/rag/manual:
+    post:
+      tags:
+        - rag
+      summary: Prompt LLM with manual context pull
+      description: |2
+
+        Manual context pull (similarity search) from vector store before forwarding request to LLM<br /><br />
+        To test, upload your documents through `/api/file` (or via MinIO console), and ask a relevant question<br /><br />
+        (Example documents in `./docs/examples/*.md`)
+      operationId: promptWithManualRag
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RagRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PromptResponse"
+              examples:
+                example-0:
+                  description: example-0
+                  value:
+                    prompt: What is the capital of France?
+                    response: The capital of France is Paris.
+  /api/rag/advisor/qa:
+    post:
+      tags:
+        - rag
+      summary: Prompt LLM with automatic context pull
+      description: |2
+
+        Automatic context pull from vector store, using `QuestionAnswerAdvisor`, before forwarding request to LLM<br /><br />
+        To test, upload your documents through `/api/file` (or via MinIO console), and ask a relevant question<br /><br />
+        (Example documents in `./docs/examples/*.md`)
+      operationId: promptWithQAAdvisor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RagRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PromptResponse"
+              examples:
+                example-0:
+                  description: example-0
+                  value:
+                    prompt: What is the capital of France?
+                    response: The capital of France is Paris.
+  /api/rag/advisor/modular/expand:
+    post:
+      tags:
+        - rag
+      summary: Prompt LLM with query expanding
+      description: |2
+
+        Query expanding (rewrite N times in different forms for larger vector matching) using `RetrievalAugmentationAdvisor` before context pull from vector store, then forwarding request to LLM<br /><br />
+        To test, upload your documents through `/api/file` (or via MinIO console), and ask a relevant question<br /><br />
+        (Example documents in `./docs/examples/*.md`)
+      operationId: promptWithExpanding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RagRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PromptResponse"
+              examples:
+                example-0:
+                  description: example-0
+                  value:
+                    prompt: What is the capital of France?
+                    enhancedPrompt:
+                      What is the capital city of France? | France's
+                      capital | Official capital of France | Major cities in France
+                      and their capitals
+                    response: The capital of France is Paris.
+  /api/rag/advisor/modular/enhance:
+    post:
+      tags:
+        - rag
+      summary: Prompt LLM with query enhancing
+      description: |2
+
+        Query enhancements (translation, rewrite, ...etc.) using `RetrievalAugmentationAdvisor` before context pull from vector store, then forwarding request to LLM<br /><br />
+        To test, upload your documents through `/api/file` (or via MinIO console), and ask a relevant question<br /><br />
+        (Example documents in `./docs/examples/*.md`)
+      operationId: promptWithModularAdvisor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RagRequest"
+            examples:
+              example-0:
+                description: example-0
+                value:
+                  prompt:
+                    "Je souhaite obtenir des informations détaillées concernant\
+                    \ la capitale officielle de la République française. Pourriez-vous\
+                    \ me préciser quelle est la ville qui occupe le rôle de capitale\
+                    \ politique, administrative et culturelle de la France ? Je m'inté\
+                    resse également à son importance historique en tant que siège\
+                    \ du gouvernement, ainsi qu'à sa position géographique au sein\
+                    \ du territoire français. Quelle est donc cette ville qui abrite\
+                    \ les principales institutions de l'État français, telles que\
+                    \ le Palais de l'Élysée, l'Assemblée nationale et le Sénat ?"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PromptResponse"
+              examples:
+                example-0:
+                  description: example-0
+                  value:
+                    prompt:
+                      "Je souhaite obtenir des informations détaillées concernant\
+                      \ la capitale officielle de la République française. Pourriez-vous\
+                      \ me préciser quelle est la ville qui occupe le rôle de capitale\
+                      \ politique, administrative et culturelle de la France ? Je\
+                      \ m'intéresse également à son importance historique en tant\
+                      \ que siège du gouvernement, ainsi qu'à sa position géographique\
+                      \ au sein du territoire français. Quelle est donc cette ville\
+                      \ qui abrite les principales institutions de l'État français,\
+                      \ telles que le Palais de l'Élysée, l'Assemblée nationale et\
+                      \ le Sénat ?"
+                    enhancedPrompt:
+                      Capital city of the French Republic and its governmental
+                      institutions.
+                    response: The capital of France is Paris.
+  /api/prompt:
+    post:
+      tags:
+        - prompt
+      summary: Send a prompt to LLM
+      description: Return a `simple text response` with no parsing
+      operationId: prompt
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PromptRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PromptResponse"
+              examples:
+                example-0:
+                  description: example-0
+                  value:
+                    prompt: What is the capital of France?
+                    response: The capital of France is Paris.
+  /api/memory/vector:
+    post:
+      tags:
+        - memory
+      summary: Prompt LLM with memory enabled
+      description: |2
+
+        Conversation memory is enabled through `VectorStore` backend<br /><br />
+        To test, keep prompting about the same topic or changing conversationId
+      operationId: promptWithVectorStoreMemory
+      parameters:
+        - name: X_CONVERSATION_ID
+          in: header
+          description: "Conversation ID, to track current chat memory session"
+          required: false
+          schema:
+            type: string
+            default: default
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemoryRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PromptResponse"
+              examples:
+                example-0:
+                  description: example-0
+                  value:
+                    prompt: Who is Gandalf?
+                    response:
+                      Gandalf is a primary protagonist in the lord of the
+                      rings universe.
+  /api/memory/jdbc:
+    post:
+      tags:
+        - memory
+      summary: Prompt LLM with memory enabled
+      description: |2
+
+        Conversation memory is enabled through `JDBC` backend<br /><br />
+        To test, keep prompting about the same topic or changing conversationId
+      operationId: promptWithJdbcMemory
+      parameters:
+        - name: X_CONVERSATION_ID
+          in: header
+          description: "Conversation ID, to track current chat memory session"
+          required: false
+          schema:
+            type: string
+            default: default
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemoryRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PromptResponse"
+              examples:
+                example-0:
+                  description: example-0
+                  value:
+                    prompt: Who is Gandalf?
+                    response:
+                      Gandalf is a primary protagonist in the lord of the
+                      rings universe.
+  /api/mcp/weather:
+    post:
+      tags:
+        - mcp
+      summary: Ask LLM for the current weather
+      description: |2
+
+        `./mcp/mcp-weather/` server is running in sync/STDIO modes but wrapped with supergateway for streamableHttp and exposed as a container<br /><br />
+        `curl -N` for streaming response
+      operationId: weather
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/McpRequest"
+            examples:
+              example-0:
+                description: example-0
+                value:
+                  prompt: What's the current weather in Salé?
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                example-0:
+                  description: streamed plain-text output
+                  value: |2
+
+                    Line 1
+                    Line 2
+                    Line 3
+            application/x-ndjson:
+              schema:
+                type: string
+            text/event-stream:
+              schema:
+                type: string
+  /api/mcp/file:
+    post:
+      tags:
+        - mcp
+      summary: Ask LLM to do folder/file ops
+      description: |2
+
+        Anthropic's `MCP Filesystem Server` is running in STDIO mode but wrapped with supergateway for streamableHttp and exposed as a container<br /><br />
+        Only read only ops on `/projects/**` (which is mapped to the root of this project) are allowed<br /><br />
+        `curl -N` for streaming response
+      operationId: files
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/McpRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                example-0:
+                  description: streamed plain-text output
+                  value: |2
+
+                    Line 1
+                    Line 2
+                    Line 3
+            application/x-ndjson:
+              schema:
+                type: string
+            text/event-stream:
+              schema:
+                type: string
+  /api/mcp/currency:
+    post:
+      tags:
+        - mcp
+      summary: Ask LLM for the current exchange rate
+      description: |2
+
+        `./mcp/mcp-currency/` server is running directly in async/streamableHttp modes and exposed as a container<br /><br />
+        `curl -N` for streaming response
+      operationId: currency
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/McpRequest"
+            examples:
+              example-0:
+                description: example-0
+                value:
+                  prompt:
+                    What's today's exchange rate between euro and Mozambican/Saudi/Peruvian
+                    currencies?
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                example-0:
+                  description: streamed plain-text output
+                  value: |2
+
+                    Line 1
+                    Line 2
+                    Line 3
+            application/x-ndjson:
+              schema:
+                type: string
+            text/event-stream:
+              schema:
+                type: string
+  /api/image:
+    post:
+      tags:
+        - image
+      summary: Send a prompt with image to LLM
+      description:
+        Example image in `./docs/examples/gandalf.jpg`<br /><br />`curl
+        -N` for streaming response
+      operationId: prompt_1
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  description: prompt to send to LLM
+                  example: Can you describe this picture in detail?
+                  minLength: 1
+                file:
+                  type: string
+                  format: binary
+                  description: "Image file format (jpg, png, ...etc)"
+              required:
+                - file
+                - prompt
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                example-0:
+                  description: streamed plain-text output
+                  value: |2
+
+                    Line 1
+                    Line 2
+                    Line 3
+            application/x-ndjson:
+              schema:
+                type: string
+            text/event-stream:
+              schema:
+                type: string
+  /api/file:
+    get:
+      tags:
+        - file
+      summary: List ingested files
+      operationId: findAll
+      parameters:
+        - name: page
+          in: query
+          description: Zero-based page index (0..N)
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          description: The size of the page to be returned
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+        - name: sort
+          in: query
+          description:
+            "Sorting criteria in the format: property,(asc|desc). Default\
+            \ sort order is ascending. Multiple sort criteria are supported."
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FilesPage"
+              examples:
+                example-0:
+                  description: example-0
+                  value:
+                    content:
+                      - id: 10QHtVYe0ul
+                        name: file1.pdf
+                        hash: d6756726683d9aacb09b8b71a2e76319
+                        createdAt: 2026-05-20T20:44:12.262216Z
+                      - id: 10Q6HwWxRRV
+                        name: file2.txt
+                        hash: 68d72ba93e5b308c5e32d293fa65b13d
+                        createdAt: 2026-05-20T18:01:47.790848Z
+                    page:
+                      isFirst: true
+                      isLast: false
+                      number: 0
+                      size: 2
+                      totalPages: 3
+                      totalElements: 5
+                    sort:
+                      - property: name
+                        direction: ASC
+    post:
+      tags:
+        - file
+      summary: Upload a file for ingestion
+      description: |2
+
+        Puts the file in the MinIO bucket root. Ingestion pipeline picks it up on next poll<br /><br />
+        Allowed file extensions are configured via `INGEST_FILES_FILTER` in `.env`<br /><br />
+        Max size is configured via YAML: `spring.servlet.multipart.max-file-size=100MB`
+      operationId: upload
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+                - file
+      responses:
+        "202":
+          description: Accepted
+    delete:
+      tags:
+        - file
+      summary: Delete all ingested files
+      description: "Wipes DB, vector store, and S3 `processed/`"
+      operationId: deleteAll
+      responses:
+        "204":
+          description: Deleted
+  /api/eval:
+    post:
+      tags:
+        - evaluation
+      summary: Evaluate & score prompt/response relevancy using LLM
+      description: |2
+
+        Return a `JSON object response` from LLM with automatic parsing<br /><br />
+        Retry mechanism for parsing errors<br /><br />
+        (Local LLMs are not accurate)
+      operationId: eval
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EvalRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvalResponse"
+              examples:
+                example-0:
+                  description: example-0
+                  value:
+                    prompt: What is the capital of France?
+                    response: The capital of France is Paris.
+                    evaluation:
+                      pass: true
+                      score: 0.9
+                      feedback: correct
+  /api/audio/stt:
+    post:
+      tags:
+        - audio
+      summary: speech to text
+      description: Example audio in `./docs/examples/gandalf.wav`
+      operationId: stt
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: "Audio file format (mp3, wav, ...etc)"
+              required:
+                - file
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                example-0:
+                  description: audio file transcription
+                  value: bla bla bla
+  /api/tool/time:
+    get:
+      tags:
+        - tool
+      summary: Ask LLM for the current time at a time zone
+      description: Simple tool with string input and string output
+      operationId: getCurrentTimeAt
+      parameters:
+        - name: location
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+          example: Riyadh
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                example-0:
+                  description: example-0
+                  value: The current time in Riyadh is 0:00 PM.
+  /api/tool/file:
+    get:
+      tags:
+        - tool
+      summary: Ask LLM for the list of ingested files
+      description: |2
+
+        Complex tool with multi input, JSON output, DB call and retry/recover<br /><br />
+        Might give Jackson errors if LLM doesn't respect JSON format
+      operationId: listIngestedFiles
+      parameters:
+        - name: size
+          in: query
+          description: How many files
+          required: true
+          schema:
+            type: integer
+            format: int32
+          example: 10
+        - name: page
+          in: query
+          description: Page number
+          required: true
+          schema:
+            type: integer
+            format: int32
+          example: 0
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FilesPage"
+              examples:
+                example-0:
+                  description: example-0
+                  value:
+                    content:
+                      - id: 10QHtVYe0ul
+                        name: file1.pdf
+                        hash: d6756726683d9aacb09b8b71a2e76319
+                        createdAt: 2026-05-20T20:44:12.262216Z
+                      - id: 10Q6HwWxRRV
+                        name: file2.txt
+                        hash: 68d72ba93e5b308c5e32d293fa65b13d
+                        createdAt: 2026-05-20T18:01:47.790848Z
+                    page:
+                      isFirst: true
+                      isLast: false
+                      number: 0
+                      size: 2
+                      totalPages: 3
+                      totalElements: 5
+                    sort: []
+  /api/prompt/song:
+    get:
+      tags:
+        - prompt
+      summary: Ask LLM to generate a list of songs
+      description: |2
+
+        Return a `JSON object wrapper` from LLM with automatic parsing<br /><br />
+        Retry mechanism for parsing errors
+      operationId: songs
+      parameters:
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+          example: 2006
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SongResponse"
+              examples:
+                example-0:
+                  description: example-0
+                  value:
+                    response:
+                      - title: title 1
+                      - title: title 2
+  /api/prompt/movie:
+    get:
+      tags:
+        - prompt
+      summary: Ask LLM to generate a list of movies
+      description: |2
+
+        Return a `streamed plain-text response` from LLM with no parsing<br /><br />
+        Tokens are emitted as they are generated. Consume with `curl -N` or an SSE client
+      operationId: movies
+      parameters:
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+          example: 2013
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                example-0:
+                  description: streamed plain-text output
+                  value: |2
+
+                    Line 1
+                    Line 2
+                    Line 3
+            application/x-ndjson:
+              schema:
+                type: string
+            text/event-stream:
+              schema:
+                type: string
+  /api/audio/tts:
+    get:
+      tags:
+        - audio
+      summary: text to speech
+      description: |2
+
+        mp3 response<br /><br />
+        You can play audio directly in swagger-ui or copy generate curl and append ` > audio.mp3` to it for download<br /><br />
+        (Should be a POST but using GET for html audio player to work)
+      operationId: tts
+      parameters:
+        - name: text
+          in: query
+          description: text to synthesize
+          required: true
+          schema:
+            type: string
+            minLength: 1
+          example: Hope is an optimistic state of mind that is based on an expectation of desirable outcomes. Among its opposites are hopelessness, and despair.
+        - name: voice
+          in: query
+          description: model voice
+          required: false
+          schema:
+            type: string
+            default: AF_SKY
+            enum:
+              - AF_SKY
+              - AM_MICHAEL
+              - BF_LILY
+              - BM_LEWIS
+      responses:
+        "200":
+          description: OK
+          content:
+            audio/mpeg: {}
+  /api/file/{id}:
+    delete:
+      tags:
+        - file
+      summary: Delete an ingested file by id
+      description: "Removes from DB, vector store, and S3 `processed/`"
+      operationId: deleteById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+components:
+  schemas:
+    RagRequest:
+      type: object
+      properties:
+        prompt:
+          type: string
+          description: prompt to send to LLM
+          example: What is the capital of France?
+          minLength: 1
+      required:
+        - prompt
+    PromptResponse:
+      type: object
+      properties:
+        prompt:
+          type: string
+        enhancedPrompt:
+          type:
+            - string
+            - "null"
+        response:
+          type: string
+      required:
+        - prompt
+        - response
+    PromptRequest:
+      type: object
+      properties:
+        prompt:
+          type: string
+          description: prompt to send to LLM
+          example: What is the capital of France?
+          minLength: 1
+      required:
+        - prompt
+    MemoryRequest:
+      type: object
+      properties:
+        prompt:
+          type: string
+          description: prompt to send to LLM
+          example: Who is Gandalf?
+          minLength: 1
+      required:
+        - prompt
+    McpRequest:
+      type: object
+      properties:
+        prompt:
+          type: string
+          description: prompt to send to LLM
+          example:
+            "Can you list the content of /projects ? Don't recurse, just return\
+            \ the names of folders and files at first level one by one."
+          minLength: 1
+      required:
+        - prompt
+    EvalRequest:
+      type: object
+      properties:
+        prompt:
+          type: string
+          description: prompt to evaluate
+          example: What is the capital of France?
+          minLength: 1
+        response:
+          type: string
+          description: response to evaluate
+          example: The capital of France is Paris
+          minLength: 1
+      required:
+        - prompt
+        - response
+    EvalResponse:
+      type: object
+      properties:
+        prompt:
+          type: string
+        response:
+          type: string
+        evaluation:
+          $ref: "#/components/schemas/Evaluation"
+      required:
+        - evaluation
+        - prompt
+        - response
+    Evaluation:
+      type: object
+      properties:
+        pass:
+          type: boolean
+        score:
+          type: number
+          format: float
+        feedback:
+          type: string
+      required:
+        - feedback
+        - pass
+        - score
+    FileDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        hash:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - createdAt
+        - hash
+        - id
+        - name
+    FilesPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileDto"
+        page:
+          $ref: "#/components/schemas/PageMeta"
+        sort:
+          type: array
+          items:
+            $ref: "#/components/schemas/SortField"
+      required:
+        - content
+        - page
+        - sort
+    PageMeta:
+      type: object
+      properties:
+        isFirst:
+          type: boolean
+        isLast:
+          type: boolean
+        number:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+      required:
+        - isFirst
+        - isLast
+        - number
+        - size
+        - totalElements
+        - totalPages
+    SortField:
+      type: object
+      properties:
+        property:
+          type: string
+        direction:
+          type: string
+          enum:
+            - ASC
+            - DESC
+      required:
+        - direction
+        - property
+    Song:
+      type: object
+      properties:
+        title:
+          type: string
+      required:
+        - title
+    SongResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            $ref: "#/components/schemas/Song"
+      required:
+        - response

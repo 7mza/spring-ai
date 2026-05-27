@@ -11,10 +11,17 @@ import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.memory.ChatMemory
 import org.springframework.ai.chat.memory.ChatMemoryRepository
 import org.springframework.ai.chat.memory.MessageWindowChatMemory
+import org.springframework.ai.chat.model.ChatModel
+import org.springframework.ai.chat.model.ChatResponse
+import org.springframework.ai.document.Document
 import org.springframework.ai.embedding.EmbeddingModel
+import org.springframework.ai.embedding.EmbeddingRequest
+import org.springframework.ai.embedding.EmbeddingResponse
 import org.springframework.ai.model.ollama.autoconfigure.OllamaConnectionDetails
 import org.springframework.ai.ollama.api.OllamaApi
+import org.springframework.ai.vectorstore.SearchRequest
 import org.springframework.ai.vectorstore.VectorStore
+import org.springframework.ai.vectorstore.filter.Filter
 import org.springframework.ai.vectorstore.qdrant.QdrantVectorStore
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Value
@@ -145,6 +152,7 @@ class Configs(
 
     // separate collection for chat memory
     @Bean(name = ["chatMemoryVectorStore"], defaultCandidate = false)
+    @Profile("!openapi-plugin")
     fun chatMemoryVectorStore(
         client: QdrantClient,
         embeddingModel: EmbeddingModel,
@@ -191,4 +199,31 @@ class CleanConfigs(
             logger.trace("wiped qdrant collection '{}'", name)
         }.onFailure { logger.trace("error wiping qdrant collection '{}': {}", name, it.message) }
     }
+}
+
+@Configuration // FIXME: ugly
+@Profile("openapi-plugin")
+class OpenapiPluginConfigs {
+    @Bean
+    fun noOpChatModel(): ChatModel = ChatModel { ChatResponse(emptyList()) }
+
+    @Bean
+    fun noOpEmbeddingModel(): EmbeddingModel =
+        object : EmbeddingModel {
+            override fun call(request: EmbeddingRequest): EmbeddingResponse = throw NotImplementedError()
+
+            override fun embed(document: Document): FloatArray = throw NotImplementedError()
+        }
+
+    @Bean(name = ["chatMemoryVectorStore"], defaultCandidate = false)
+    fun noOpVectorStore(): VectorStore =
+        object : VectorStore {
+            override fun add(documents: List<Document>): Unit = throw NotImplementedError()
+
+            override fun delete(idList: List<String>): Unit = throw NotImplementedError()
+
+            override fun delete(filterExpression: Filter.Expression): Unit = throw NotImplementedError()
+
+            override fun similaritySearch(request: SearchRequest): List<Document> = throw NotImplementedError()
+        }
 }

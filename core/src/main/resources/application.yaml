@@ -271,15 +271,42 @@ spring:
     compose:
       enabled: false
 ---
+custom:
+  memory:
+    store: no
+  supplier:
+    filename-regex: no
+    pipeline-timeout: 999999999
+    polling-interval: 9999999999
+    remote-dir: no
 logging:
   level:
     root: off
+management:
+  server:
+    port: -1
 server:
-  port: 8013
+  port: 7355
 spring:
+  ai:
+    model:
+      chat: noOpChatModel
+      embedding: noOpEmbeddingModel
+    openai:
+      api-key: false
+  cloud:
+    aws:
+      s3:
+        enabled: false
   config:
     activate:
-      on-profile: openapi
+      on-profile: openapi-plugin
+  devtools:
+    add-properties: false
+    livereload:
+      enabled: false
+    restart:
+      enabled: false
   docker:
     compose:
       enabled: false
@@ -297,6 +324,7 @@ springdoc:
   pathsToMatch: /**
   swagger-ui:
     disable-swagger-default-url: true
+    enabled: false
     operationsSorter: method
     path: /swagger-ui
     tagsSorter: alpha

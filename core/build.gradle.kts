@@ -105,8 +105,8 @@ allOpen {
 }
 
 openApi {
-    apiDocsUrl.set("http://localhost:8013/api-docs.yaml")
-    customBootRun { args.set(listOf("--spring.profiles.active=openapi")) }
+    apiDocsUrl.set("http://localhost:7355/api-docs.yaml")
+    customBootRun { args.set(listOf("--spring.profiles.active=openapi-plugin")) }
     outputDir.set(rootProject.layout.projectDirectory.dir("docs"))
     outputFileName.set("api-docs.yaml")
     waitTimeInSeconds.set(60)

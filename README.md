@@ -38,6 +38,8 @@ Spring AI learning/experimentation workspace
   - [models configuration](docker/speaches/model_aliases.json)
 - ...
 
+### [api](docs/api-docs.yaml)
+
 ### [ingestion pipeline](core/src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt)
 
 ```text
