@@ -49,7 +49,7 @@ class PromptService(
             ?.let { PromptResponse(prompt = request.prompt, response = it) }
             ?: error("LLM response was null")
 
-    @Retryable(retryFor = [JacksonException::class], maxAttempts = 3, backoff = Backoff(1000))
+    @Retryable(retryFor = [JacksonException::class], maxAttempts = 3, backoff = Backoff())
     override fun songs(year: Int): SongResponse {
         val attempt = RetrySynchronizationManager.getContext()?.retryCount ?: 0
         if (attempt > 0) logger.warn("LLM response parsing failed, retry attempt {}", attempt)

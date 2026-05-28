@@ -142,6 +142,7 @@ spring:
           - mcp-weather
           - minio
           - ollama
+          - prometheus
           - qdrant
           - speaches
       start:
@@ -155,7 +156,7 @@ spring:
         web-allow-others: true
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     open-in-view: false
     properties:
       hibernate:

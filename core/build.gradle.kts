@@ -51,6 +51,7 @@ dependencies {
     implementation("org.zalando:logbook-spring-boot-starter:$logbookSpringVersion")
 
     runtimeOnly("com.h2database:h2")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
     testImplementation("org.springframework.ai:spring-ai-spring-boot-testcontainers")
     testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")

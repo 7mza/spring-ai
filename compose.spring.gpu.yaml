@@ -35,6 +35,11 @@ services:
       file: compose.spring.yaml
       service: ollama
 
+  prometheus:
+    extends:
+      file: compose.spring.yaml
+      service: prometheus
+
   qdrant:
     extends:
       file: compose.spring.yaml

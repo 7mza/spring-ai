@@ -36,6 +36,7 @@ Spring AI learning/experimentation workspace
 - local tts/stt
   - [speaches](https://github.com/speaches-ai/speaches/) posing as OpenAI audio API
   - [models configuration](docker/speaches/model_aliases.json)
+- monitoring/observability
 - ...
 
 ### [api](docs/api-docs.yaml)
@@ -152,9 +153,13 @@ docker compose stop && ./gradlew --stop
 
 ## misc
 
-[MinIO console](http://localhost:9001/browser/default/)
+- [MinIO console](http://localhost:9001/browser/default/)
+- [Qdrant console](http://localhost:6333/dashboard#/collections)
+- [H2 console](http://localhost:8080/h2) `# jdbc url = jdbc:h2:file:~/springai_db (from .env)`
+- [Speaches console](http://localhost:8000)
+- [Prometheus](http://localhost:9090/)
 
-[Qdrant console](http://localhost:6333/dashboard#/collections)
+---
 
 delete qdrant collection:
 
@@ -162,16 +167,14 @@ delete qdrant collection:
 curl -X DELETE "http://localhost:6333/collections/embeddings"
 ```
 
-[H2 console](http://localhost:8080/h2) `# jdbc url = jdbc:h2:file:~/springai_db (from .env)`
-
-[Speaches console](http://localhost:8000)
-
 Download a wiki article as MD:
 
 ```shell
 # apt install pandoc
 curl -s "https://en.wikipedia.org/w/index.php?action=raw&title=Paris" | pandoc -f mediawiki -t markdown -o paris.md
 ```
+
+---
 
 ## todo
 

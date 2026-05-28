@@ -34,6 +34,15 @@ services:
     profiles:
       - ollama
 
+  prometheus:
+    extends:
+      file: compose.yaml
+      service: prometheus
+    profiles:
+      - prometheus
+    volumes:
+      - ${PWD}/docker/prometheus/prometheus.spring.yaml:/etc/prometheus/prometheus.yaml:ro
+
   qdrant:
     extends:
       file: compose.yaml

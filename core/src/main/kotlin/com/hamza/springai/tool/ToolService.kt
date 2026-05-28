@@ -63,7 +63,7 @@ class ToolService(
     @Retryable(
         retryFor = [JacksonException::class, NumberFormatException::class],
         maxAttempts = 3,
-        backoff = Backoff(1000),
+        backoff = Backoff(),
     )
     override fun listIngestedFiles(
         size: Int,

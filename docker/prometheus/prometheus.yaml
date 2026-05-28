@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 30s
+scrape_configs:
+  - job_name: spring-ai
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - spring-ai:80

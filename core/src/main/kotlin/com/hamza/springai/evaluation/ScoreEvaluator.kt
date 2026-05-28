@@ -22,7 +22,7 @@ class ScoreEvaluator(
 ) : Evaluator {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Retryable(retryFor = [JacksonException::class], maxAttempts = 3, backoff = Backoff(1000))
+    @Retryable(retryFor = [JacksonException::class], maxAttempts = 3, backoff = Backoff())
     override fun evaluate(request: EvaluationRequest): EvaluationResponse {
         val attempt = RetrySynchronizationManager.getContext()?.retryCount ?: 0
         if (attempt > 0) logger.warn("LLM response parsing failed, retry attempt {}", attempt)

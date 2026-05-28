@@ -89,16 +89,16 @@ across conversation turns, but it has no timer so the client still has to nudge 
 ```kotlin
 @Tool(description = "Start fetching the current time for a location. Returns a jobId.")
 fun startGetTime(
-    @ToolParam(description = "IANA timezone ID, e.g. 'Asia/Tokyo'") timeZone: String
+  @ToolParam(description = "IANA timezone ID, e.g. 'Asia/Tokyo'") timeZone: String
 ): String {
-    val jobId = UUID.randomUUID().toString()
-    executor.submit { jobStore[jobId] = fetchTimeSlowly(timeZone) }
-    return jobId
+  val jobId = UUID.randomUUID().toString()
+  executor.submit { jobStore[jobId] = fetchTimeSlowly(timeZone) }
+  return jobId
 }
 
 @Tool(description = "Check if a time lookup is done. Returns the time if ready, or 'PENDING' if still running.")
 fun getTimeResult(
-    @ToolParam(description = "The jobId returned by startGetTime") jobId: String
+  @ToolParam(description = "The jobId returned by startGetTime") jobId: String
 ): String = jobStore[jobId] ?: "PENDING"
 ```
 
@@ -132,3 +132,53 @@ Making the tool non-blocking does not unblock the LLM cycle — the LLM step for
 Webflux only helps inside a tool if it fans out to multiple I/O sources in parallel (e.g. `Flux.zip` over 3
 databases). For everything else, Spring MVC + virtual threads (Java 21+) gives the same concurrency benefits without
 the API complexity. Mixing blocking and reactive requires `block()` somewhere, which defeats the purpose.
+
+---
+
+## Spring Retry: Linear Backoff
+
+`@Backoff` only supports fixed delay or exponential (`multiplier`). There is no built-in linear/additive increment.
+
+### Custom `BackOffPolicy`
+
+```kotlin
+class LinearBackOffPolicy(
+  private val initialDelay: Long = 1000L,
+  private val increment: Long = 500L,
+) : BackOffPolicy {
+
+  private inner class Context : BackOffContext {
+    var delay = initialDelay
+  }
+
+  override fun start(context: RetryContext): BackOffContext = Context()
+
+  override fun backOff(backOffContext: BackOffContext) {
+    val ctx = backOffContext as Context
+    Thread.sleep(ctx.delay)
+    ctx.delay += increment
+  }
+}
+```
+
+### Wiring with `RetryTemplate` (replaces `@Retryable`)
+
+```kotlin
+private val retryTemplate = RetryTemplate().apply {
+  setRetryPolicy(SimpleRetryPolicy(3, mapOf(JacksonException::class.java to true)))
+  setBackOffPolicy(LinearBackOffPolicy(initialDelay = 1000L, increment = 500L))
+}
+
+override fun evaluate(request: EvaluationRequest): EvaluationResponse =
+  retryTemplate.execute { _ ->
+    // same call chain as before
+  }
+```
+
+`@Recover` fallback moves into a try/catch around `retryTemplate.execute` or its recover callback.
+
+### Why not `@Backoff(multiplier = ...)`?
+
+`multiplier` is exponential — `delay * multiplier^n`. For 2 retries and specific numbers it can coincidentally match
+linear values (e.g. `delay=1000, multiplier=1.5` → 1000ms, 1500ms), but it's not truly additive and breaks for other
+attempt counts.
