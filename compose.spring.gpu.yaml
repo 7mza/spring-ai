@@ -1,4 +1,9 @@
 services:
+  grafana:
+    extends:
+      file: compose.spring.yaml
+      service: grafana
+
   mcp-currency:
     extends:
       file: compose.spring.yaml

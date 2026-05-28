@@ -37,6 +37,7 @@ Spring AI learning/experimentation workspace
   - [speaches](https://github.com/speaches-ai/speaches/) posing as OpenAI audio API
   - [models configuration](docker/speaches/model_aliases.json)
 - monitoring/observability
+  - prom/grafana/jaeger (in mem, storage out of scope)
 - ...
 
 ### [api](docs/api-docs.yaml)
@@ -67,7 +68,7 @@ customS3Supplier ------> ${MINIO_DEFAULT_BUCKET}/
 any error in pipeline will move file to `/error` for manual correction
 
 to test 1 or many enricher functions (unstable) add them in `spring.cloud.function.definition`
-in [application.yml](core/src/main/resources/application.yaml) between documentSplitter and vectorStoreWriter (they will
+in [application.yaml](core/src/main/resources/application.yaml) between documentSplitter and vectorStoreWriter (they will
 slow down pipeline)
 
 ## requirements
@@ -153,11 +154,12 @@ docker compose stop && ./gradlew --stop
 
 ## misc
 
-- [MinIO console](http://localhost:9001/browser/default/)
-- [Qdrant console](http://localhost:6333/dashboard#/collections)
-- [H2 console](http://localhost:8080/h2) `# jdbc url = jdbc:h2:file:~/springai_db (from .env)`
-- [Speaches console](http://localhost:8000)
-- [Prometheus](http://localhost:9090/)
+- [Grafana UI](http://localhost:9091/)
+- [Prometheus UI](http://localhost:9090/)
+- [MinIO UI](http://localhost:9001/browser/default/)
+- [Qdrant UI](http://localhost:6333/dashboard#/collections)
+- [H2 UI](http://localhost:8080/h2) `# jdbc url = jdbc:h2:file:~/springai_db (from .env)`
+- [Speaches UI](http://localhost:8000)
 
 ---
 
@@ -167,7 +169,7 @@ delete qdrant collection:
 curl -X DELETE "http://localhost:6333/collections/embeddings"
 ```
 
-Download a wiki article as MD:
+Download a wiki article as MD (for RAG testing):
 
 ```shell
 # apt install pandoc

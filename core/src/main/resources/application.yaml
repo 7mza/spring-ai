@@ -137,6 +137,7 @@ spring:
       file: compose.spring.yaml
       profiles:
         active:
+          - grafana
           - mcp-currency
           - mcp-filesystem
           - mcp-weather

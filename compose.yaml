@@ -1,4 +1,32 @@
 services:
+  grafana:
+    build:
+      dockerfile: ${PWD}/docker/grafana/Dockerfile
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    environment:
+      - GF_LOG_LEVEL=warn
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh",
+          "-c",
+          'wget -qO- localhost:3000/api/health | jq .database | grep -q "ok" || exit 1',
+        ]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+    ports:
+      - "9091:3000"
+    restart: unless-stopped
+    volumes:
+      - ${PWD}/docker/grafana/dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro
+      - ${PWD}/docker/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+      - ${PWD}/docker/grafana/grafana.ini:/etc/grafana/grafana.ini:ro
+
   mcp-currency:
     image: mcp-currency:latest
     deploy:

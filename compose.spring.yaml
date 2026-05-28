@@ -1,4 +1,11 @@
 services:
+  grafana:
+    extends:
+      file: compose.yaml
+      service: grafana
+    profiles:
+      - grafana
+
   mcp-currency:
     extends:
       file: compose.yaml

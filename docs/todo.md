@@ -1,5 +1,65 @@
 # todo
 
+## grafana dashboard: Spring AI observability
+
+Build a proper Spring AI Grafana dashboard from scratch.
+
+**Two sections, two readers**
+
+- Dev/debugging — "why is this slow / broken right now?"
+- Cost/efficiency — "how much is this consuming over time?"
+
+**Row 1 — at a glance (4 stats)**
+
+- Active requests right now (in-flight gauge, color threshold: 0=green, 2+=yellow, 5+=red)
+- Requests/min
+- Error rate % (alert if > 0)
+- Avg end-to-end latency (ChatClient level)
+
+**Row 2 — token economics**
+
+- Input tokens/min rate
+- Output tokens/min rate
+- Input/output ratio over time (climbs = RAG context bloat or history accumulation)
+- Cumulative totals as stats (cost accounting)
+
+**Row 3 — latency anatomy**
+
+- Single time series with three overlaid lines: ChatClient p95 / raw LLM p95 / tool execution p95
+- The gap between them is the diagnostic story — don't split into three separate panels
+- Use a heatmap if histogram buckets are available
+
+**Row 4 — tool behavior**
+
+- Tool call rate per tool name
+- Avg tool execution time per tool
+- Tool error rate
+- Tool iterations per request: `rate(advisor_count) / rate(chat_client_count)` — runaway loops show here
+
+**Row 5 — errors**
+
+- Error rate broken down by layer: LLM vs advisor vs tool (separate lines)
+- Log panel if Loki is available
+
+**Leave out of this dashboard**
+
+- JVM metrics (link to a separate JVM dashboard)
+- HikariCP / JDBC
+- HTTP server / Tomcat metrics
+
+**Key rule:** graph rates and gauges, not counters. Counters only as stat panels in row 2 for cost accounting.
+
+**The layered latency architecture to keep in mind:**
+
+```
+spring.ai.chat.client        ← what the user feels
+  └─ spring.ai.advisor       ← tool call loop
+       └─ gen_ai.client.operation  ← raw model time
+            └─ spring.ai.tool      ← function execution
+```
+
+---
+
 ## audio endpoint: replace MultipartFile with octet-stream for browser MediaRecorder
 
 Current `POST /api/audio` uses `multipart/form-data` + `MultipartFile`. This works for form-based uploads (curl `-F`,
