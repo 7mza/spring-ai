@@ -3,7 +3,7 @@
   "kind": "Dashboard",
   "metadata": {
     "name": "springai",
-    "namespace": "7mza",
+    "namespace": "default",
     "uid": "6eda71ae-bbd5-43a0-acc3-8e0a2deb5580",
     "resourceVersion": "1780003643184006",
     "generation": 2,
@@ -50,7 +50,7 @@
         "spec": {
           "id": 1,
           "title": "Active requests",
-          "description": "sum(spring_ai_chat_client_active_seconds_count)",
+          "description": "Requests currently being processed.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -67,7 +67,7 @@
                         "name": "prometheus_uid"
                       },
                       "spec": {
-                        "editorMode": "builder",
+                        "editorMode": "code",
                         "expr": "sum(spring_ai_chat_client_active_seconds_count)",
                         "legendFormat": "__auto",
                         "range": true
@@ -105,6 +105,7 @@
               "fieldConfig": {
                 "defaults": {
                   "unit": "short",
+                  "noValue": "0",
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -136,8 +137,8 @@
         "kind": "Panel",
         "spec": {
           "id": 2,
-          "title": "Requests per minute",
-          "description": "sum(rate(spring_ai_chat_client_seconds_count[5m]) * 60)",
+          "title": "Total requests",
+          "description": "TOTAL completed requests in selected time window.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -154,8 +155,8 @@
                         "name": "prometheus_uid"
                       },
                       "spec": {
-                        "editorMode": "builder",
-                        "expr": "sum(rate(spring_ai_chat_client_seconds_count[5m]) * 60)",
+                        "editorMode": "code",
+                        "expr": "round(sum(increase(spring_ai_chat_client_seconds_count[$__range])))",
                         "legendFormat": "__auto",
                         "range": true
                       }
@@ -191,7 +192,8 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "reqpm",
+                  "unit": "short",
+                  "noValue": "0",
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -220,7 +222,7 @@
         "spec": {
           "id": 3,
           "title": "Total errors by type",
-          "description": "sum by (error) (spring_ai_chat_client_seconds_count{error!=\"none\"})",
+          "description": "COUNT of failed requests grouped by exception type.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -237,7 +239,7 @@
                         "name": "prometheus_uid"
                       },
                       "spec": {
-                        "editorMode": "builder",
+                        "editorMode": "code",
                         "exemplar": false,
                         "expr": "sum by (error) (spring_ai_chat_client_seconds_count{error!=\"none\"})",
                         "instant": true,
@@ -277,6 +279,7 @@
               "fieldConfig": {
                 "defaults": {
                   "unit": "short",
+                  "noValue": "0",
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -302,7 +305,7 @@
         "spec": {
           "id": 4,
           "title": "Avg end-to-end latency",
-          "description": "sum(rate(spring_ai_chat_client_seconds_sum[5m])) / sum(rate(spring_ai_chat_client_seconds_count[5m]))",
+          "description": "AVG time from sending prompt to getting response, smoothed over 1min. Init call is always slow (LLM loading)",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -319,8 +322,8 @@
                         "name": "prometheus_uid"
                       },
                       "spec": {
-                        "editorMode": "builder",
-                        "expr": "sum(rate(spring_ai_chat_client_seconds_sum[5m])) / sum(rate(spring_ai_chat_client_seconds_count[5m]))",
+                        "editorMode": "code",
+                        "expr": "sum(rate(spring_ai_chat_client_seconds_sum[1m])) / sum(rate(spring_ai_chat_client_seconds_count[1m]))",
                         "legendFormat": "__auto",
                         "range": true
                       }
@@ -434,7 +437,7 @@
     "tags": [],
     "timeSettings": {
       "timezone": "browser",
-      "from": "now-5m",
+      "from": "now-1h",
       "to": "now",
       "autoRefresh": "5s",
       "autoRefreshIntervals": [

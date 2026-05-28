@@ -11,10 +11,10 @@ Build a proper Spring AI Grafana dashboard from scratch.
 
 **Row 1 — at a glance (4 stats)**
 
-- Active requests right now (in-flight gauge, color threshold: 0=green, 2+=yellow, 5+=red)
-- Requests/min
-- Error rate % (alert if > 0)
-- Avg end-to-end latency (ChatClient level)
+- ~~Active requests right now (in-flight gauge, color threshold: 0=green, 2+=yellow, 5+=red)~~
+- ~~Requests/min~~
+- ~~Error rate % (alert if > 0)~~
+- ~~Avg end-to-end latency (ChatClient level)~~
 
 **Row 2 — token economics**
 

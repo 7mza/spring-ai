@@ -31,13 +31,13 @@ Spring AI learning/experimentation workspace
   - VectorStore backend
 - Tools
 - MCP
-  - sync/STDIO + supergateway [server](mcp/mcp-weather/README.md) `inspector: npm run mcp + @localhost:3001/mcp`
-  - async/streamableHttp [server](mcp/mcp-currency/README.md) `inspector: npm run mcp + @localhost:3002/mcp`
+  - sync/STDIO + supergateway [server](mcp/mcp-weather) `inspector: npm run mcp + @localhost:3001/mcp`
+  - async/streamableHttp [server](mcp/mcp-currency) `inspector: npm run mcp + @localhost:3002/mcp`
 - local tts/stt
   - [speaches](https://github.com/speaches-ai/speaches/) posing as OpenAI audio API
   - [models configuration](docker/speaches/model_aliases.json)
 - monitoring/observability
-  - prom/grafana/jaeger (in mem, storage out of scope)
+  - prom/[grafana](http://localhost:9091/dashboards)/jaeger (in mem, storage out of scope)
 - ...
 
 ### [api](docs/api-docs.yaml)
@@ -68,8 +68,8 @@ customS3Supplier ------> ${MINIO_DEFAULT_BUCKET}/
 any error in pipeline will move file to `/error` for manual correction
 
 to test 1 or many enricher functions (unstable) add them in `spring.cloud.function.definition`
-in [application.yaml](core/src/main/resources/application.yaml) between documentSplitter and vectorStoreWriter (they will
-slow down pipeline)
+in [application.yaml](core/src/main/resources/application.yaml) between documentSplitter and vectorStoreWriter (they
+will slow down pipeline)
 
 ## requirements
 
@@ -86,8 +86,7 @@ gpu [Nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/c
 
 [.env](.env)
 
-**<span style="color:red;">Choose an [LLM](https://ollama.com/search) that will fit your hardware, especially if running
-in CPU mode</span>**
+**Choose an [LLM](https://ollama.com/search) that will fit your hardware, especially if running in CPU mode**
 
 `gemma4:e4b` is configured by default
 
