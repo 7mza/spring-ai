@@ -13,4 +13,4 @@ COPY --from=builder /workspace/extracted/spring-boot-loader/ ./
 COPY --from=builder /workspace/extracted/snapshot-dependencies/ ./
 COPY --from=builder /workspace/extracted/application/ ./
 EXPOSE 3000
-ENTRYPOINT ["npx", "--yes", "supergateway", "--stdio", "java org.springframework.boot.loader.launch.JarLauncher", "--outputTransport", "streamableHttp", "--port", "3000", "--healthEndpoint", "/health"]
+ENTRYPOINT ["npx", "--yes", "supergateway", "--stdio", "java org.springframework.boot.loader.launch.JarLauncher", "--outputTransport", "streamableHttp", "--port", "3000", "--healthEndpoint", "/health", "--logLevel", "none"]
