@@ -2,7 +2,7 @@ plugins {
     kotlin("plugin.jpa") version "2.3.21"
     id("com.google.cloud.tools.jib")
     // id("org.graalvm.buildtools.native")
-    // id("org.hibernate.orm") version "7.2.12.Final"
+    id("org.hibernate.orm") version "7.2.12.Final"
     id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
 }
 
@@ -101,7 +101,7 @@ tasks {
     }
 }
 
-// hibernate { enhancement { enableAssociationManagement = true } }
+hibernate { enhancement { enableAssociationManagement = true } }
 
 allOpen {
     annotation("jakarta.persistence.Entity")

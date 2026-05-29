@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.transaction.PlatformTransactionManager
 
@@ -19,6 +20,7 @@ import org.springframework.transaction.PlatformTransactionManager
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = ["spring.jpa.properties.hibernate.cache.use_second_level_cache=true"],
 )
+@Import(OllamaContainerConfig::class) // FIXME: mock chatClientBuild build AFTER removing all explicit .build() in inits
 class JCacheTest {
     @Autowired
     private lateinit var repo: IFileRepo

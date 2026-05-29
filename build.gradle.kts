@@ -25,6 +25,7 @@ allprojects {
     plugins.apply("com.github.ben-manes.versions")
     plugins.apply("org.jlleitschuh.gradle.ktlint")
     plugins.apply("org.owasp.dependencycheck")
+    plugins.apply("jacoco")
 
     repositories { mavenCentral() }
 
