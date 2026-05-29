@@ -24,7 +24,7 @@ spring:
             initialize-schema: always
     mcp:
       client:
-        # streamable-http.connections.*.url: from_test_container # done though test containers so other tests don't complain
+        # streamable-http.connections.*.url: from_test_container # done through test containers so other tests don't complain
         type: async
     model:
       chat: ollama

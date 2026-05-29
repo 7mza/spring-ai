@@ -153,7 +153,7 @@ services:
     labels:
       org.springframework.boot.service-connection: ollama
     ports:
-      - "11434"
+      - "11434:11434"
     restart: unless-stopped
     volumes:
       - ollama_data:/root/.ollama
@@ -283,7 +283,7 @@ services:
           'wget -qO- localhost/actuator/health/liveness | grep -q "UP" || exit 1',
         ]
       interval: 30s
-      retries: 3
+      retries: 5
       start_period: 30s
       timeout: 10s
     ports:

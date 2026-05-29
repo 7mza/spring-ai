@@ -73,7 +73,7 @@ it should:
 ### Duplication_Filter
 
 Receives `file_name` and `file_hash` from `S3_Supplier` then
-uses [FileService](../src/main/kotlin/com/hamza/springai/rag/file/FileService.kt) (don't focus on db services, it's out
+uses [FileService](../core/src/main/kotlin/com/hamza/springai/rag/file/FileService.kt) (don't focus on db services, it's out
 of scop here) to check if a DB entry with same content hash exists:
 
 - exits: move file from `/` to `/processed/`, then drop the message from the pipeline (do not forward to
