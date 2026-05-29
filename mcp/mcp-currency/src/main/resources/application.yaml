@@ -52,6 +52,8 @@ spring:
   output:
     ansi:
       enabled: always
+  reactor:
+    context-propagation: auto
 ---
 server:
   compression:

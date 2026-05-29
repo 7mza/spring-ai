@@ -31,16 +31,10 @@ interface IToolService {
 
 @Service
 class ToolService(
-    chatClientBuilder: ChatClient.Builder,
-    tools: ITools,
+    private val chatClient: ChatClient,
+    private val tools: ITools,
 ) : IToolService {
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    private val chatClient =
-        chatClientBuilder
-            .defaultTools(tools)
-            // OR: .defaultToolNames("getTimeAt", "listFiles")
-            .build()
 
     private val timeTemplate = "What is the current time in {location}?"
     private val fileTemplate =
@@ -52,6 +46,10 @@ class ToolService(
 
     override fun getCurrentTimeAt(location: String): String =
         chatClient
+            .mutate()
+            .defaultTools(tools)
+            // OR: .defaultToolNames("getTimeAt", "listFiles")
+            .build()
             .prompt()
             .user { it.text(timeTemplate).param("location", location) }
             // OR: .tools(tools)
@@ -72,6 +70,9 @@ class ToolService(
         val attempt = RetrySynchronizationManager.getContext()?.retryCount ?: 0
         if (attempt > 0) logger.warn("LLM response parsing failed, retry attempt {}", attempt)
         return chatClient
+            .mutate()
+            .defaultTools(tools)
+            .build()
             .prompt()
             .user {
                 it

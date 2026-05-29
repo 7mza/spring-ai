@@ -9,10 +9,12 @@ import org.hibernate.stat.Statistics
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.ai.chat.client.ChatClient
+import org.springframework.ai.chat.model.ChatModel
+import org.springframework.ai.embedding.AbstractEmbeddingModel
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.transaction.PlatformTransactionManager
 
@@ -20,7 +22,6 @@ import org.springframework.transaction.PlatformTransactionManager
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = ["spring.jpa.properties.hibernate.cache.use_second_level_cache=true"],
 )
-@Import(OllamaContainerConfig::class) // FIXME: mock chatClientBuild build AFTER removing all explicit .build() in inits
 class JCacheTest {
     @Autowired
     private lateinit var repo: IFileRepo
@@ -40,6 +41,21 @@ class JCacheTest {
 
     @MockitoBean("chatMemoryVectorStore") // prevent autoconf of memory vector store, not needed in this test
     private lateinit var chatMemoryVectorStore: VectorStore
+
+    // FIXME: no op @TestConfiguration when more tests need this crap
+    // prevent autoconf of both chat and embedding models, not needed in this test
+    @MockitoBean
+    private lateinit var builder: ChatClient.Builder
+
+    @MockitoBean
+    private lateinit var client: ChatClient
+
+    @MockitoBean
+    private lateinit var cModel: ChatModel
+
+    @MockitoBean
+    private lateinit var eModel: AbstractEmbeddingModel
+    //
 
     @BeforeEach
     fun beforeEach() {

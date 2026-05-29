@@ -23,12 +23,10 @@ interface IMemoryService {
 
 @Service
 class MemoryService(
-    chatClientBuilder: ChatClient.Builder,
+    private val chatClient: ChatClient,
     private val chatMemory: ChatMemory,
     @Qualifier("chatMemoryVectorStore") private val vectorStore: VectorStore,
 ) : IMemoryService {
-    private val chatClient = chatClientBuilder.build()
-
     override fun promptWithJdbcMemory(
         conversationId: String,
         request: MemoryRequest,

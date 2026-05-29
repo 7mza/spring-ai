@@ -28,12 +28,10 @@ interface IRagService {
 
 @Service
 class RagService(
-    private val chatClientBuilder: ChatClient.Builder,
+    private val chatClient: ChatClient,
     private val vectorStore: VectorStore,
 ) : IRagService {
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    private val chatClient = chatClientBuilder.build()
 
     private val promptTemplate =
         """
@@ -102,11 +100,11 @@ class RagService(
                         // use LLM to translate query
                         TranslationQueryTransformer
                             .builder()
-                            .chatClientBuilder(chatClientBuilder)
+                            .chatClientBuilder(chatClient.mutate())
                             .targetLanguage("English")
                             .build(),
                         // use LLM to rewrite query to be more concise before similarity search
-                        RewriteQueryTransformer.builder().chatClientBuilder(chatClientBuilder).build(),
+                        RewriteQueryTransformer.builder().chatClientBuilder(chatClient.mutate()).build(),
                         // capture final enhanced query
                         { query ->
                             enhancedQuery.set(query.text())
@@ -130,7 +128,7 @@ class RagService(
         val expander =
             MultiQueryExpander
                 .builder()
-                .chatClientBuilder(chatClientBuilder)
+                .chatClientBuilder(chatClient.mutate())
                 .numberOfQueries(4)
                 .includeOriginal(false)
                 .build()

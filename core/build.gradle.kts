@@ -9,6 +9,7 @@ plugins {
 group = "com.hamza.springai"
 version = "0.0.1-SNAPSHOT"
 
+val datasourceMicrometerVersion = "2.2.1"
 val hypersistenceTsidVersion = "2.1.4"
 val logbookSpringVersion = "4.0.4"
 val openapiVersion = "3.0.3"
@@ -23,6 +24,7 @@ dependencies {
 
     implementation("io.awspring.cloud:spring-cloud-aws-starter-s3")
     implementation("io.hypersistence:hypersistence-tsid:$hypersistenceTsidVersion")
+    implementation("net.ttddyy.observation:datasource-micrometer-spring-boot:$datasourceMicrometerVersion")
     implementation("org.ehcache:ehcache::jakarta")
     implementation("org.hibernate.orm:hibernate-jcache")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$openapiVersion")
@@ -42,6 +44,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-aspectj")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
     implementation("org.springframework.boot:spring-boot-starter-restclient")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
@@ -56,6 +59,7 @@ dependencies {
     testImplementation("org.springframework.ai:spring-ai-spring-boot-testcontainers")
     testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-opentelemetry-test")
     testImplementation("org.springframework.boot:spring-boot-starter-restclient-test")
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")

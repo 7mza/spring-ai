@@ -3,7 +3,6 @@ package com.hamza.springai.prompt
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.responseEntity
-import org.springframework.ai.chat.prompt.ChatOptions
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.retry.annotation.Backoff
@@ -24,21 +23,15 @@ interface IPromptService {
 
 @Service
 class PromptService(
-    chatClientBuilder: ChatClient.Builder,
+    private val chatClient: ChatClient,
     @Value("classpath:/prompt_templates/prompt/topic.st") private val topic: Resource,
 ) : IPromptService {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    /* modify chat options (model, temp, ...etc.) globally through yml or locally here
-     * local > global
-     */
-    private val chatOptionsBuilder: ChatOptions.Builder<*> = ChatOptions.builder()
-
+    // modify chat options (model, temp, ...etc.) globally through yml or locally here, local > global
+    // private val chatOptionsBuilder: ChatOptions.Builder<*> = ChatOptions.builder()
     // just for example, should be a global bean if no manual conf per X is needed
-    private val chatClient =
-        chatClientBuilder
-            // .defaultOptions(chatOptionsBuilder)
-            .build()
+    // private val chatClient = chatClientBuilder.defaultOptions(chatOptionsBuilder).build()
 
     override fun prompt(request: PromptRequest): PromptResponse =
         chatClient

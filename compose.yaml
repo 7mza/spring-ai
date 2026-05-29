@@ -28,6 +28,31 @@ services:
       - ${PWD}/docker/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
       - ${PWD}/docker/grafana/grafana.ini:/etc/grafana/grafana.ini:ro
 
+  jaeger:
+    build:
+      dockerfile: ${PWD}/docker/jaeger/Dockerfile
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - OTEL_TRACES_SAMPLER=always_off
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh",
+          "-c",
+          'wget -qO- localhost:13133/status | jq .healthy | grep -q "true" || exit 1',
+        ]
+      interval: 30s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+    restart: unless-stopped
+    volumes:
+      - ${PWD}/docker/jaeger/jaeger-ui.json:/etc/jaeger/jaeger-ui.json:ro
+
   mcp-currency:
     image: mcp-currency:latest
     deploy:
@@ -236,6 +261,8 @@ services:
   spring-ai:
     image: spring-ai:latest
     depends_on:
+      jaeger:
+        condition: service_healthy
       mcp-currency:
         condition: service_healthy
       mcp-filesystem:
@@ -245,6 +272,8 @@ services:
       minio:
         condition: service_healthy
       ollama:
+        condition: service_healthy
+      prometheus:
         condition: service_healthy
       qdrant:
         condition: service_healthy

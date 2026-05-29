@@ -41,6 +41,22 @@ management:
       enabled: true
     readinessstate:
       enabled: true
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          compression: gzip
+          endpoint: http://localhost:4317
+          transport: grpc
+  otlp:
+    metrics:
+      export:
+        enabled: false
+  tracing:
+    propagation:
+      type: B3
+    sampling:
+      probability: 1
 server:
   compression:
     enabled: true
@@ -55,10 +71,21 @@ server:
 spring:
   ai:
     chat:
+      client:
+        observations:
+          log-completion: true
+          log-prompt: true
       memory:
         repository:
           jdbc:
             initialize-schema: always
+      observations:
+        include-error-logging: true
+        log-completion: true
+        log-prompt: true
+    image:
+      observations:
+        log-prompt: true
     mcp:
       client:
         streamable-http:
@@ -93,7 +120,12 @@ spring:
         transcription:
           model: stt
       base-url: http://localhost:8000/v1
+    tools:
+      observations:
+        include-content: true
     vectorstore:
+      observations:
+        log-query-response: true
       qdrant:
         collection-name: embeddings
         host: localhost
@@ -138,6 +170,7 @@ spring:
       profiles:
         active:
           - grafana
+          - jaeger
           - mcp-currency
           - mcp-filesystem
           - mcp-weather
@@ -202,6 +235,8 @@ spring:
   output:
     ansi:
       enabled: always
+  reactor:
+    context-propagation: auto
   servlet:
     multipart:
       max-file-size: 100MB
@@ -228,7 +263,18 @@ springdoc:
     operationsSorter: method
     path: /swagger-ui
     tagsSorter: alpha
+tracing:
+  excludeUris:
+    - /actuator
+    - /api-docs
+    - /swagger-ui
 ---
+management:
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://jaeger:4317
 server:
   compression:
     enabled: false

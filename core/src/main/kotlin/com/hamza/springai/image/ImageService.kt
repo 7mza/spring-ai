@@ -15,10 +15,8 @@ interface IImageService {
 
 @Service
 class ImageService(
-    chatClientBuilder: ChatClient.Builder,
+    private val chatClient: ChatClient,
 ) : IImageService {
-    private val chatClient = chatClientBuilder.build()
-
     override fun prompt(
         prompt: String,
         file: MultipartFile,

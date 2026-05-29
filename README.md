@@ -154,6 +154,7 @@ docker compose stop && ./gradlew --stop
 ## misc
 
 - [Grafana UI](http://localhost:9091/)
+- [Jaeger UI](http://localhost:16686/)
 - [Prometheus UI](http://localhost:9090/)
 - [MinIO UI](http://localhost:9001/browser/default/)
 - [Qdrant UI](http://localhost:6333/dashboard#/collections)

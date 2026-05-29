@@ -6,6 +6,13 @@ services:
     profiles:
       - grafana
 
+  jaeger:
+    extends:
+      file: compose.yaml
+      service: jaeger
+    profiles:
+      - jaeger
+
   mcp-currency:
     extends:
       file: compose.yaml

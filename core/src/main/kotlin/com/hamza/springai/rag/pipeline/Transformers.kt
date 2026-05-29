@@ -15,13 +15,11 @@ interface ITransformers {
 
 @Service
 class Transformers(
-    chatClientBuilder: ChatClient.Builder,
+    private val chatClient: ChatClient,
     @Value("classpath:/prompt_templates/rag/language.st") private val language: Resource,
     @Value("classpath:/prompt_templates/rag/quality.st") private val quality: Resource,
 ) : ITransformers {
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    private val chatClient = chatClientBuilder.build()
 
     override fun languageEnricher(): DocumentTransformer =
         DocumentTransformer { docs ->
@@ -33,7 +31,9 @@ class Transformers(
                         .call()
                         .content()
                         ?.trim() ?: "unknown"
-                doc.mutate().metadata("language", language).build()
+                doc.mutate().metadata("language", language).build().also {
+                    logger.info("doc: '{}', lang: '{}'", it.metadata["file_name"], language)
+                }
             }
         }
 

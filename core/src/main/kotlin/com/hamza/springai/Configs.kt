@@ -3,16 +3,17 @@ package com.hamza.springai
 import io.awspring.cloud.autoconfigure.core.AwsClientBuilderConfigurer
 import io.awspring.cloud.autoconfigure.core.AwsConnectionDetails
 import io.awspring.cloud.autoconfigure.s3.properties.S3Properties
+import io.micrometer.observation.ObservationPredicate
 import io.qdrant.client.QdrantClient
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
 import org.h2.tools.Server
 import org.slf4j.LoggerFactory
+import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.memory.ChatMemory
 import org.springframework.ai.chat.memory.ChatMemoryRepository
 import org.springframework.ai.chat.memory.MessageWindowChatMemory
 import org.springframework.ai.chat.model.ChatModel
-import org.springframework.ai.chat.model.ChatResponse
 import org.springframework.ai.document.Document
 import org.springframework.ai.embedding.EmbeddingModel
 import org.springframework.ai.embedding.EmbeddingRequest
@@ -32,6 +33,7 @@ import org.springframework.boot.ansi.AnsiStyle
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.info.BuildProperties
 import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer
 import org.springframework.boot.restclient.RestClientCustomizer
@@ -41,6 +43,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.context.event.ContextClosedEvent
 import org.springframework.context.event.EventListener
 import org.springframework.http.client.JdkClientHttpRequestFactory
+import org.springframework.http.server.observation.ServerRequestObservationContext
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.retry.annotation.EnableRetry
 import org.springframework.scheduling.annotation.EnableScheduling
@@ -163,12 +166,33 @@ class Configs(
             .collectionName(name)
             .initializeSchema(true)
             .build()
+
+    @Bean
+    fun chatClient(chatClientBuilder: ChatClient.Builder): ChatClient = chatClientBuilder.build()
+
+    // don't send crap to tracer
+    @Bean
+    fun observationPredicate(tracingProperties: TracingProperties?): ObservationPredicate =
+        ObservationPredicate { name, context ->
+            if (name.startsWith("task")) return@ObservationPredicate false // polling
+            (context as? ServerRequestObservationContext)
+                ?.carrier
+                ?.requestURI
+                ?.let { uri -> tracingProperties?.excludeUris?.none { uri.startsWith(it.trim()) } }
+                ?: true
+        }
+}
+
+@Configuration
+@ConfigurationProperties(prefix = "tracing")
+class TracingProperties {
+    var excludeUris: List<String>? = null
 }
 
 // mirror jpa create-drop: wipe vector/memory stores on shutdown
 @Configuration
 @ConditionalOnProperty(name = ["spring.jpa.hibernate.ddl-auto"], havingValue = "create-drop")
-class CleanConfigs(
+class CleaningConfigs(
     private val restClientBuilder: RestClient.Builder,
     @Value($$"${spring.ai.vectorstore.qdrant.host}") private val host: String,
     @Value($$"${spring.ai.vectorstore.qdrant.collection-name}") private val embeddingStoreName: String,
@@ -184,7 +208,7 @@ class CleanConfigs(
         runCatching {
             jdbcTemplate.execute("delete from SPRING_AI_CHAT_MEMORY")
             logger.trace("wiped table '{}'", "SPRING_AI_CHAT_MEMORY")
-        }.onFailure { logger.trace("error wiping table '{}': {}", "SPRING_AI_CHAT_MEMORY", it.message) }
+        }.onFailure { logger.trace("error wiping table 'SPRING_AI_CHAT_MEMORY': {}", it.message) }
     }
 
     private fun wipeStore(name: String) {
@@ -205,7 +229,7 @@ class CleanConfigs(
 @Profile("openapi-plugin")
 class OpenapiPluginConfigs {
     @Bean
-    fun noOpChatModel(): ChatModel = ChatModel { ChatResponse(emptyList()) }
+    fun noOpChatModel(): ChatModel = ChatModel { throw NotImplementedError() }
 
     @Bean
     fun noOpEmbeddingModel(): EmbeddingModel =

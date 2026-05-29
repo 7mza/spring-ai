@@ -4,6 +4,11 @@ services:
       file: compose.spring.yaml
       service: grafana
 
+  jaeger:
+    extends:
+      file: compose.spring.yaml
+      service: jaeger
+
   mcp-currency:
     extends:
       file: compose.spring.yaml
