@@ -23,11 +23,24 @@ mono repo multi subprojects to handle main app and custom mcp servers in same li
 - `compose.spring.yaml` inherit from `compose.yaml` but removes `spring-ai` service, used by spring compose support
 - `compose.spring.gpu.yaml` inherit from `compose.spring.yaml` but overrides ollama/speaches with GPU conf
 
+## commands
+
+```shell
+./gradlew :core:bootRun # starts app (auto-builds MCP servers first)
+./gradlew :core:test # all core tests (real Testcontainers — no infra mocks)
+./gradlew :core:test --tests "com.hamza.springai.rag.pipeline.FunctionsTest" # single test class
+./gradlew :mcp:mcp-currency:test
+./gradlew ktlintCheck # lint check
+./gradlew ktlintFormat # lint fix
+npm run format # prettier for JSON/YAML/MD/XML
+npm run mcp # MCP inspector (localhost:3001/mcp weather, localhost:3002/mcp currency)
+```
+
 ## code base discovery
 
 no need to read every file on this project when you are building a new context I will always be guiding you
 
-when you need details on stack / dependencies it can be inferred though [root build](build.gradle.kts) and the
+when you need details on stack / dependencies it can be inferred through [root build](build.gradle.kts) and the
 corresponding sub `build.gradle.kts`
 
 app configurations can be inferred through `Configs.kt` and main/test `application.yaml`
@@ -51,7 +64,7 @@ when I ask for **fresh eyes** spawn a subagent
 pass it only a short and condensed description of **current problem or question, solution or envisioned solution and the
 why and why not** we would have discussed earlier
 
-before passing down new context show it to me in STDIO so I can validate
+before passing down new context show it to me in STDOUT so I can validate
 
 ## ref files
 
