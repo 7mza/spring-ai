@@ -30,12 +30,12 @@ management:
     health:
       group:
         readiness:
-          include: "*"
+          include: '*'
       show-details: always
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: '*'
   health:
     livenessstate:
       enabled: true
@@ -220,7 +220,7 @@ spring:
         session:
           events:
             log:
-              LOG_QUERIES_SLOWER_THAN_MS: "100"
+              LOG_QUERIES_SLOWER_THAN_MS: '100'
         show_sql: false
   main:
     banner-mode: off
@@ -240,6 +240,8 @@ spring:
   sql:
     init:
       mode: never
+  thymeleaf:
+    template-resolver-order: 0
   threads:
     virtual:
       enabled: true

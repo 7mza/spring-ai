@@ -1,4 +1,4 @@
-package com.hamza.springai
+package com.hamza.springai.config
 
 import io.awspring.cloud.autoconfigure.core.AwsClientBuilderConfigurer
 import io.awspring.cloud.autoconfigure.core.AwsConnectionDetails
@@ -13,16 +13,10 @@ import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.memory.ChatMemory
 import org.springframework.ai.chat.memory.ChatMemoryRepository
 import org.springframework.ai.chat.memory.MessageWindowChatMemory
-import org.springframework.ai.chat.model.ChatModel
-import org.springframework.ai.document.Document
 import org.springframework.ai.embedding.EmbeddingModel
-import org.springframework.ai.embedding.EmbeddingRequest
-import org.springframework.ai.embedding.EmbeddingResponse
 import org.springframework.ai.model.ollama.autoconfigure.OllamaConnectionDetails
 import org.springframework.ai.ollama.api.OllamaApi
-import org.springframework.ai.vectorstore.SearchRequest
 import org.springframework.ai.vectorstore.VectorStore
-import org.springframework.ai.vectorstore.filter.Filter
 import org.springframework.ai.vectorstore.qdrant.QdrantVectorStore
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Value
@@ -40,11 +34,9 @@ import org.springframework.boot.restclient.RestClientCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
-import org.springframework.context.event.ContextClosedEvent
 import org.springframework.context.event.EventListener
 import org.springframework.http.client.JdkClientHttpRequestFactory
 import org.springframework.http.server.observation.ServerRequestObservationContext
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.retry.annotation.EnableRetry
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.web.client.RestClient
@@ -58,7 +50,7 @@ import java.time.Duration
 @Configuration
 @EnableRetry
 @EnableScheduling
-class Configs(
+class DefaultConfig(
     @Value($$"${server.port}") private val port: Int,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -183,67 +175,4 @@ class Configs(
 @ConfigurationProperties(prefix = "tracing")
 class TracingProperties {
     var excludeUris: List<String>? = null
-}
-
-// mirror jpa create-drop: wipe vector/memory stores on shutdown
-@Configuration
-@ConditionalOnProperty(name = ["spring.jpa.hibernate.ddl-auto"], havingValue = "create-drop")
-class CleaningConfigs(
-    private val restClientBuilder: RestClient.Builder,
-    @Value($$"${spring.ai.vectorstore.qdrant.host}") private val host: String,
-    @Value($$"${spring.ai.vectorstore.qdrant.collection-name}") private val embeddingStoreName: String,
-    @Value($$"${custom.memory.store}") private val chatMemoryStore: String,
-    private val jdbcTemplate: JdbcTemplate,
-) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
-    @EventListener(ContextClosedEvent::class)
-    fun clean() {
-        wipeStore(embeddingStoreName)
-        wipeStore(chatMemoryStore)
-        runCatching {
-            jdbcTemplate.execute("delete from SPRING_AI_CHAT_MEMORY")
-            logger.trace("wiped table '{}'", "SPRING_AI_CHAT_MEMORY")
-        }.onFailure { logger.trace("error wiping table 'SPRING_AI_CHAT_MEMORY': {}", it.message) }
-    }
-
-    private fun wipeStore(name: String) {
-        runCatching {
-            restClientBuilder
-                .baseUrl("http://$host:6333")
-                .build()
-                .delete()
-                .uri("/collections/{name}", name)
-                .retrieve()
-                .toBodilessEntity()
-            logger.trace("wiped qdrant collection '{}'", name)
-        }.onFailure { logger.trace("error wiping qdrant collection '{}': {}", name, it.message) }
-    }
-}
-
-@Configuration // FIXME: ugly
-@Profile("openapi-plugin")
-class OpenapiPluginConfigs {
-    @Bean
-    fun noOpChatModel(): ChatModel = ChatModel { throw NotImplementedError() }
-
-    @Bean
-    fun noOpEmbeddingModel(): EmbeddingModel =
-        object : EmbeddingModel {
-            override fun call(request: EmbeddingRequest): EmbeddingResponse = throw NotImplementedError()
-
-            override fun embed(document: Document): FloatArray = throw NotImplementedError()
-        }
-
-    @Bean(name = ["chatMemoryVectorStore"], defaultCandidate = false)
-    fun noOpVectorStore(): VectorStore =
-        object : VectorStore {
-            override fun add(documents: List<Document>): Unit = throw NotImplementedError()
-
-            override fun delete(idList: List<String>): Unit = throw NotImplementedError()
-
-            override fun delete(filterExpression: Filter.Expression): Unit = throw NotImplementedError()
-
-            override fun similaritySearch(request: SearchRequest): List<Document> = throw NotImplementedError()
-        }
 }

@@ -8,8 +8,12 @@
       <heap>1000</heap>
     </resources>
   </cache-template>
-  <cache alias="files" uses-template="short" />
-  <cache alias="default-query-results-region" uses-template="short" />
+  <cache
+    alias="files"
+    uses-template="short" />
+  <cache
+    alias="default-query-results-region"
+    uses-template="short" />
   <!-- -->
   <cache-template name="long">
     <expiry>
@@ -19,5 +23,7 @@
       <heap>10000</heap>
     </resources>
   </cache-template>
-  <cache alias="default-update-timestamps-region" uses-template="long" />
+  <cache
+    alias="default-update-timestamps-region"
+    uses-template="long" />
 </config>

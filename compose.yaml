@@ -11,9 +11,9 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "sh",
-          "-c",
+          'CMD',
+          'sh',
+          '-c',
           'wget -qO- localhost:3000/api/health | jq .database | grep -q "ok" || exit 1',
         ]
       interval: 30s
@@ -21,7 +21,7 @@ services:
       start_period: 30s
       timeout: 10s
     ports:
-      - "9091:3000"
+      - '9091:3000'
     restart: unless-stopped
     volumes:
       - ${PWD}/docker/grafana/dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro
@@ -31,16 +31,16 @@ services:
   jaeger:
     build:
       dockerfile: ${PWD}/docker/jaeger/Dockerfile
-    command: ["--config", "/etc/jaeger/config.yaml"]
+    command: ['--config', '/etc/jaeger/config.yaml']
     environment:
       - COLLECTOR_OTLP_ENABLED=true
       - OTEL_TRACES_SAMPLER=always_off
     healthcheck:
       test:
         [
-          "CMD",
-          "sh",
-          "-c",
+          'CMD',
+          'sh',
+          '-c',
           'wget -qO- 0.0.0.0:13133/status | jq .healthy | grep -q "true" || exit 1',
         ]
       interval: 30s
@@ -48,8 +48,8 @@ services:
       start_period: 30s
       timeout: 10s
     ports:
-      - "16686:16686"
-      - "4317:4317"
+      - '16686:16686'
+      - '4317:4317'
     restart: unless-stopped
     volumes:
       - ${PWD}/docker/jaeger/config.yaml:/etc/jaeger/config.yaml:ro
@@ -71,9 +71,9 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "sh",
-          "-c",
+          'CMD',
+          'sh',
+          '-c',
           'wget -qO- localhost/actuator/health/liveness | grep -q "UP" || exit 1',
         ]
       interval: 30s
@@ -81,7 +81,7 @@ services:
       start_period: 30s
       timeout: 10s
     ports:
-      - "3002:80"
+      - '3002:80'
     pull_policy: never
     restart: unless-stopped
 
@@ -95,9 +95,9 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "sh",
-          "-c",
+          'CMD',
+          'sh',
+          '-c',
           'wget -qO- localhost:3000/health | grep -q "ok" || exit 1',
         ]
       interval: 30s
@@ -105,7 +105,7 @@ services:
       start_period: 30s
       timeout: 10s
     ports:
-      - "3000:3000"
+      - '3000:3000'
     restart: unless-stopped
     volumes:
       - .:/projects:ro
@@ -117,9 +117,9 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "sh",
-          "-c",
+          'CMD',
+          'sh',
+          '-c',
           'wget -qO- localhost:3000/health | grep -q "ok" || exit 1',
         ]
       interval: 30s
@@ -127,7 +127,7 @@ services:
       start_period: 30s
       timeout: 10s
     ports:
-      - "3001:3000"
+      - '3001:3000'
     restart: unless-stopped
 
   minio:
@@ -137,7 +137,7 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ['CMD', 'mc', 'ready', 'local']
       interval: 30s
       retries: 3
       start_period: 30s
@@ -145,8 +145,8 @@ services:
     labels:
       org.springframework.boot.service-connection: s3
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     restart: unless-stopped
     volumes:
       - minio_data:/data
@@ -172,7 +172,7 @@ services:
       OLLAMA_MAX_LOADED_MODELS: 1
       OLLAMA_NUM_PARALLEL: 1
     healthcheck:
-      test: ["CMD", "ollama", "list"]
+      test: ['CMD', 'ollama', 'list']
       interval: 30s
       retries: 3
       start_period: 30s
@@ -180,7 +180,7 @@ services:
     labels:
       org.springframework.boot.service-connection: ollama
     ports:
-      - "11434:11434"
+      - '11434:11434'
     restart: unless-stopped
     volumes:
       - ollama_data:/root/.ollama
@@ -194,9 +194,9 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "sh",
-          "-c",
+          'CMD',
+          'sh',
+          '-c',
           'wget -qO- http://localhost:9090/-/healthy | grep -q "Prometheus Server is Healthy." || exit 1',
         ]
       interval: 30s
@@ -204,7 +204,7 @@ services:
       retries: 3
       start_period: 30s
     ports:
-      - "9090:9090"
+      - '9090:9090'
     restart: unless-stopped
     volumes:
       - ${PWD}/docker/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
@@ -214,7 +214,7 @@ services:
     environment:
       QDRANT__LOG_LEVEL: WARN
     healthcheck:
-      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/6333"]
+      test: ['CMD', 'bash', '-c', 'echo > /dev/tcp/localhost/6333']
       interval: 30s
       retries: 3
       start_period: 30s
@@ -222,8 +222,8 @@ services:
     labels:
       org.springframework.boot.service-connection: qdrant
     ports:
-      - "6333:6333"
-      - "6334:6334"
+      - '6333:6333'
+      - '6334:6334'
     restart: unless-stopped
     volumes:
       - qdrant_data:/qdrant/storage
@@ -236,9 +236,9 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "sh",
-          "-c",
+          'CMD',
+          'sh',
+          '-c',
           'curl -fs localhost:8000/health | grep -q "OK" || exit 1',
         ]
       interval: 30s
@@ -246,7 +246,7 @@ services:
       start_period: 30s
       timeout: 10s
     ports:
-      - "8000:8000"
+      - '8000:8000'
     restart: unless-stopped
     volumes:
       - ${PWD}/docker/speaches/model_aliases.json:/home/ubuntu/speaches/model_aliases.json
@@ -308,9 +308,9 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "sh",
-          "-c",
+          'CMD',
+          'sh',
+          '-c',
           'wget -qO- localhost/actuator/health/liveness | grep -q "UP" || exit 1',
         ]
       interval: 30s
@@ -318,7 +318,7 @@ services:
       start_period: 30s
       timeout: 10s
     ports:
-      - "8080:80"
+      - '8080:80'
     pull_policy: never
     restart: unless-stopped
     volumes:

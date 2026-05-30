@@ -10,12 +10,12 @@ management:
     health:
       group:
         readiness:
-          include: "*"
+          include: '*'
       show-details: always
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: '*'
   health:
     livenessstate:
       enabled: true

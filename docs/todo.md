@@ -71,9 +71,9 @@ The browser `MediaRecorder` API produces raw audio `Blob` chunks (e.g. `audio/we
 send these is a plain `fetch` with the blob as the body — no form, no multipart wrapper:
 
 ```js
-fetch("/api/audio", {
-  method: "POST",
-  headers: { "Content-Type": "audio/webm" },
+fetch('/api/audio', {
+  method: 'POST',
+  headers: { 'Content-Type': 'audio/webm' },
   body: audioBlob,
 });
 ```

@@ -1,5 +1,8 @@
+import com.github.gradle.node.npm.task.NpmTask
+
 plugins {
     kotlin("plugin.jpa") version "2.3.21"
+    id("com.github.node-gradle.node")
     id("com.google.cloud.tools.jib")
     // id("org.graalvm.buildtools.native")
     id("org.hibernate.orm") version "7.2.12.Final"
@@ -10,10 +13,12 @@ group = "com.hamza.springai"
 version = "0.0.1-SNAPSHOT"
 
 val datasourceMicrometerVersion = "2.2.1"
+val htmxThymeleafVersion = "5.1.0"
 val hypersistenceTsidVersion = "2.1.4"
 val logbookSpringVersion = "4.0.4"
 val openapiVersion = "3.0.3"
 val springRetryVersion = "2.0.12"
+val thymeleafLayoutVersion = "4.0.1"
 
 dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -21,8 +26,10 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
     implementation("io.awspring.cloud:spring-cloud-aws-starter-s3")
+    implementation("io.github.wimdeblauwe:htmx-spring-boot-thymeleaf:$htmxThymeleafVersion")
     implementation("io.hypersistence:hypersistence-tsid:$hypersistenceTsidVersion")
     implementation("net.ttddyy.observation:datasource-micrometer-spring-boot:$datasourceMicrometerVersion")
+    implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:$thymeleafLayoutVersion")
     implementation("org.ehcache:ehcache::jakarta")
     implementation("org.hibernate.orm:hibernate-jcache")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$openapiVersion")
@@ -42,6 +49,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-aspectj")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-restclient")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.cloud:spring-cloud-function-context")
@@ -54,6 +62,7 @@ dependencies {
     testImplementation("org.springframework.ai:spring-ai-spring-boot-testcontainers")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
     testImplementation("org.springframework.boot:spring-boot-starter-restclient-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-thymeleaf-test")
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
@@ -94,6 +103,20 @@ tasks {
     withType<Test>().configureEach {
         maxParallelForks = 2 // if tests are slow by nature (LLM), more workers = worse
     }
+
+    val npmRunBuild =
+        register("npm_run_build", NpmTask::class) {
+            description = "npm run build hook"
+            val isDev = project.hasProperty("mode") && project.property("mode") == "development"
+            inputs.files(
+                fileTree("$projectDir/src/main/resources/static/ts"),
+                fileTree("$projectDir/src/main/resources/static/css"),
+            )
+            outputs.files(fileTree("$projectDir/src/main/resources/static/dist"))
+            args = listOf("run", if (isDev) "build:dev" else "build")
+        }
+
+    processResources { dependsOn(npmRunBuild) }
 }
 
 hibernate { enhancement { enableAssociationManagement = true } }

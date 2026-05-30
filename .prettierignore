@@ -1,3 +1,5 @@
+**/*.min.*
 **/build/
 **/dist/
-**/*.min.*
+docs/api-docs.yaml
+docs/examples/**
