@@ -1,18 +1,4 @@
 services:
-  grafana:
-    extends:
-      file: compose.yaml
-      service: grafana
-    profiles:
-      - grafana
-
-  jaeger:
-    extends:
-      file: compose.yaml
-      service: jaeger
-    profiles:
-      - jaeger
-
   mcp-currency:
     extends:
       file: compose.yaml
@@ -47,15 +33,6 @@ services:
       service: ollama
     profiles:
       - ollama
-
-  prometheus:
-    extends:
-      file: compose.yaml
-      service: prometheus
-    profiles:
-      - prometheus
-    volumes:
-      - ${PWD}/docker/prometheus/prometheus.spring.yaml:/etc/prometheus/prometheus.yaml:ro
 
   qdrant:
     extends:

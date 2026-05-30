@@ -2,13 +2,12 @@
 
 ## desc
 
-Spring AI learning/experimentation workspace
+Spring AI experimentation workspace
 
 - Ollama as LLM backend
+- Speaches as TTS/STT backend
 - Qdrant as vector store
 - MinIO as object store
-- embedded H2 as DB
-- Speaches as TTS/STT backend
 
 ## demo
 
@@ -40,8 +39,6 @@ Spring AI learning/experimentation workspace
   - prom/[grafana](http://localhost:9091/dashboards)/jaeger (in mem, storage out of scope)
 - ...
 
-### [api](docs/api-docs.yaml)
-
 ### [ingestion pipeline](core/src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt)
 
 ```text
@@ -65,12 +62,6 @@ customS3Supplier ------> ${MINIO_DEFAULT_BUCKET}/
                                                       |--------- content hash write ---------|
 ```
 
-any error in pipeline will move file to `/error` for manual correction
-
-to test 1 or many enricher functions (unstable) add them in `spring.cloud.function.definition`
-in [application.yaml](core/src/main/resources/application.yaml) between documentSplitter and vectorStoreWriter (they
-will slow down pipeline)
-
 ## requirements
 
 [SDKMAN](https://sdkman.io/)
@@ -86,18 +77,7 @@ gpu [Nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/c
 
 [.env](.env)
 
-**Choose an [LLM](https://ollama.com/search) that will fit your hardware, especially if running in CPU mode**
-
-`gemma4:e4b` is configured by default
-
-RAG quality depends on:
-
-- **Input documents quality**
-- temperature
-- top_k
-- top_p
-
-Tweak these sampling parameters in [.env](.env)
+**Choose an [LLM](https://ollama.com/search) that fit your hardware, especially if running in CPU mode**
 
 ## build
 
@@ -119,8 +99,6 @@ sdk env install
 
 ## run
 
-run with docker compose
-
 ```shell
 # CPU mode (ollama/speaches)
 docker compose up --build
@@ -131,102 +109,12 @@ docker compose up --build
 docker compose -f compose.yaml -f compose.gpu.yaml up --build
 ```
 
-or run with spring compose support
-
-```shell
-# CPU mode (ollama/speaches)
-./gradlew bootRun
-```
-
-```shell
-# GPU mode (require docker CDI)
-SPRING_PROFILES_ACTIVE=default,gpu ./gradlew bootRun
-```
-
 [http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui)
-
-## stop
-
-```shell
-docker compose stop && ./gradlew --stop
-```
 
 ## misc
 
-- [Grafana UI](http://localhost:9091/)
-- [Jaeger UI](http://localhost:16686/)
-- [Prometheus UI](http://localhost:9090/)
-- [MinIO UI](http://localhost:9001/browser/default/)
-- [Qdrant UI](http://localhost:6333/dashboard#/collections)
-- [H2 UI](http://localhost:8080/h2) `# jdbc url = jdbc:h2:file:~/springai_db (from .env)`
-- [Speaches UI](http://localhost:8000)
-
----
-
-delete qdrant collection:
-
-```shell
-curl -X DELETE "http://localhost:6333/collections/embeddings"
-```
-
-Download a wiki article as MD (for RAG testing):
-
-```shell
-# apt install pandoc
-curl -s "https://en.wikipedia.org/w/index.php?action=raw&title=Paris" | pandoc -f mediawiki -t markdown -o paris.md
-```
-
----
-
-## todo
-
-- await tests are unreliable because ollama/gpu timeouts
-- `app --poll--> minio` to `app <--notify-- minio` (SQS/SNS)
-- atomic H2 and Qdrant write: outbox (H2 as source of truth)
-
-## clean
-
-remove local h2 db
-
-```shell
-rm ~/springai_db.mv.db
-```
-
-clean docker
-
-```shell
-docker volume prune -f && \
-  docker network prune -f && \
-  docker image prune -f && \
-  docker builder prune -a -f && \
-  docker buildx prune -a -f
-```
-
-```shell
-docker volume rm \
-  sa_minio_data \
-  sa_ollama_data \
-  sa_qdrant_data \
-  sa_speaches_data \
-  sa_springai_data
-```
-
-### owasp deps check
-
-https://nvd.nist.gov/developers/request-an-api-key
-
-```shell
-mkdir -p ~/owasp-data && chmod 777 ~/owasp-data
-```
-
-```shell
-docker run --rm \
-  -v ~/owasp-data:/usr/share/dependency-check/data \
-  owasp/dependency-check:latest \
-  --updateonly \
-  --nvdApiKey "$NVD_APIKEY"
-```
-
-```shell
-./gradlew dependencyCheckAnalyze && ./gradlew --stop
-```
+- [Grafana](http://localhost:9091/) / [Prometheus](http://localhost:9090/) / [Jaeger](http://localhost:16686/)
+- [Speaches](http://localhost:8000)
+- [MinIO](http://localhost:9001/browser/default/)
+- [Qdrant](http://localhost:6333/dashboard#/collections)
+- [H2](http://localhost:8080/h2) `# jdbc url = jdbc:h2:file:~/springai_db (from .env)`

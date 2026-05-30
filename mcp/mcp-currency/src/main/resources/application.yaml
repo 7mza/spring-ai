@@ -26,7 +26,6 @@ management:
       export:
         otlp:
           compression: gzip
-          endpoint: http://localhost:4317
           transport: grpc
   otlp:
     metrics:

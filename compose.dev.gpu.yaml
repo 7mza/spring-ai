@@ -1,32 +1,22 @@
 services:
-  grafana:
-    extends:
-      file: compose.spring.yaml
-      service: grafana
-
-  jaeger:
-    extends:
-      file: compose.spring.yaml
-      service: jaeger
-
   mcp-currency:
     extends:
-      file: compose.spring.yaml
+      file: compose.dev.yaml
       service: mcp-currency
 
   mcp-filesystem:
     extends:
-      file: compose.spring.yaml
+      file: compose.dev.yaml
       service: mcp-filesystem
 
   mcp-weather:
     extends:
-      file: compose.spring.yaml
+      file: compose.dev.yaml
       service: mcp-weather
 
   minio:
     extends:
-      file: compose.spring.yaml
+      file: compose.dev.yaml
       service: minio
 
   ollama:
@@ -42,17 +32,12 @@ services:
     environment:
       OLLAMA_MAX_LOADED_MODELS: 2
     extends:
-      file: compose.spring.yaml
+      file: compose.dev.yaml
       service: ollama
-
-  prometheus:
-    extends:
-      file: compose.spring.yaml
-      service: prometheus
 
   qdrant:
     extends:
-      file: compose.spring.yaml
+      file: compose.dev.yaml
       service: qdrant
 
   speaches:
@@ -67,7 +52,7 @@ services:
                 - nvidia.com/gpu=all
               driver: cdi
     extends:
-      file: compose.spring.yaml
+      file: compose.dev.yaml
       service: speaches
 
 volumes:

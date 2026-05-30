@@ -42,7 +42,7 @@ class JCacheTest {
     @MockitoBean("chatMemoryVectorStore") // prevent autoconf of memory vector store, not needed in this test
     private lateinit var chatMemoryVectorStore: VectorStore
 
-    // FIXME: no op @TestConfiguration when more tests need this crap
+    // FIXME: no op @TestConfiguration when more tests need this
     // prevent autoconf of both chat and embedding models, not needed in this test
     @MockitoBean
     private lateinit var builder: ChatClient.Builder

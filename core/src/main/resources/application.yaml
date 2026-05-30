@@ -46,7 +46,6 @@ management:
       export:
         otlp:
           compression: gzip
-          endpoint: http://localhost:4317
           transport: grpc
   otlp:
     metrics:
@@ -166,17 +165,14 @@ spring:
   docker:
     compose:
       enabled: true
-      file: compose.spring.yaml
+      file: compose.dev.yaml
       profiles:
         active:
-          - grafana
-          - jaeger
           - mcp-currency
           - mcp-filesystem
           - mcp-weather
           - minio
           - ollama
-          - prometheus
           - qdrant
           - speaches
       start:
@@ -382,7 +378,7 @@ spring:
       on-profile: gpu
   docker:
     compose:
-      file: compose.spring.gpu.yaml
+      file: compose.dev.gpu.yaml
 ---
 custom:
   h2:

@@ -86,8 +86,7 @@ class Configs(
     fun logbookCustomizer(interceptor: LogbookClientHttpRequestInterceptor): RestClientCustomizer =
         RestClientCustomizer { it.requestInterceptor(interceptor) }
 
-    // increase ollama client timeout
-    @Bean
+    @Bean // increase ollama client timeout
     fun ollamaApi(
         connectionDetails: OllamaConnectionDetails,
         interceptor: LogbookClientHttpRequestInterceptor,
@@ -144,8 +143,7 @@ class Configs(
         )
     }
 
-    // chat memory window configs
-    @Bean
+    @Bean // chat memory window configs
     fun chatMemory(chatMemoryRepository: ChatMemoryRepository): ChatMemory =
         MessageWindowChatMemory
             .builder()
@@ -153,8 +151,7 @@ class Configs(
             .maxMessages(50)
             .build()
 
-    // separate collection for chat memory
-    @Bean(name = ["chatMemoryVectorStore"], defaultCandidate = false)
+    @Bean(name = ["chatMemoryVectorStore"], defaultCandidate = false) // separate collection for chat memory
     @Profile("!openapi-plugin")
     fun chatMemoryVectorStore(
         client: QdrantClient,
@@ -170,8 +167,7 @@ class Configs(
     @Bean
     fun chatClient(chatClientBuilder: ChatClient.Builder): ChatClient = chatClientBuilder.build()
 
-    // don't send crap to tracer
-    @Bean
+    @Bean // don't pollute tracer
     fun observationPredicate(tracingProperties: TracingProperties?): ObservationPredicate =
         ObservationPredicate { name, context ->
             if (name.startsWith("task")) return@ObservationPredicate false // polling

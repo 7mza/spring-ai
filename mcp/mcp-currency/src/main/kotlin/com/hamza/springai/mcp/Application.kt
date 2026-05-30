@@ -17,8 +17,7 @@ import reactor.core.publisher.Mono
 
 @SpringBootApplication
 class Application {
-    // don't send crap to tracer
-    @Bean
+    @Bean // don't pollute tracer
     fun observationPredicate(tracingProperties: TracingProperties?): ObservationPredicate =
         ObservationPredicate { _, context ->
             (context as? ServerRequestObservationContext)
