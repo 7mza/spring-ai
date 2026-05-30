@@ -31,6 +31,7 @@ services:
   jaeger:
     build:
       dockerfile: ${PWD}/docker/jaeger/Dockerfile
+    command: ["--config", "/etc/jaeger/config.yaml"]
     environment:
       - COLLECTOR_OTLP_ENABLED=true
       - OTEL_TRACES_SAMPLER=always_off
@@ -40,7 +41,7 @@ services:
           "CMD",
           "sh",
           "-c",
-          'wget -qO- localhost:13133/status | jq .healthy | grep -q "true" || exit 1',
+          'wget -qO- 0.0.0.0:13133/status | jq .healthy | grep -q "true" || exit 1',
         ]
       interval: 30s
       retries: 3
@@ -51,6 +52,7 @@ services:
       - "4317:4317"
     restart: unless-stopped
     volumes:
+      - ${PWD}/docker/jaeger/config.yaml:/etc/jaeger/config.yaml:ro
       - ${PWD}/docker/jaeger/jaeger-ui.json:/etc/jaeger/jaeger-ui.json:ro
 
   mcp-currency:

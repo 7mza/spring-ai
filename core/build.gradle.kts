@@ -16,8 +16,6 @@ val openapiVersion = "3.0.3"
 val springRetryVersion = "2.0.12"
 
 dependencies {
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     developmentOnly("org.springframework.ai:spring-ai-spring-boot-docker-compose")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
@@ -41,10 +39,8 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-starter-vector-store-qdrant")
     implementation("org.springframework.ai:spring-ai-tika-document-reader")
     implementation("org.springframework.boot:spring-boot-h2console")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-aspectj")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
     implementation("org.springframework.boot:spring-boot-starter-restclient")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
@@ -54,18 +50,13 @@ dependencies {
     implementation("org.zalando:logbook-spring-boot-starter:$logbookSpringVersion")
 
     runtimeOnly("com.h2database:h2")
-    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
     testImplementation("org.springframework.ai:spring-ai-spring-boot-testcontainers")
-    testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-opentelemetry-test")
     testImplementation("org.springframework.boot:spring-boot-starter-restclient-test")
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testImplementation("org.testcontainers:testcontainers-minio")
     testImplementation("org.testcontainers:testcontainers-ollama")
     testImplementation("org.testcontainers:testcontainers-qdrant")

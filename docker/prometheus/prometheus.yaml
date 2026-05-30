@@ -6,3 +6,8 @@ scrape_configs:
     static_configs:
       - targets:
           - spring-ai:80
+  - job_name: mcp-currency
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - mcp-currency:80

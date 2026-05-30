@@ -59,15 +59,25 @@ subprojects {
     val wiremockSpringBootVersion = "4.2.1"
 
     dependencies {
+        annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
         implementation("org.jetbrains.kotlin:kotlin-reflect")
+        implementation("org.springframework.boot:spring-boot-starter-actuator")
+        implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
         implementation("tools.jackson.module:jackson-module-kotlin")
 
         mockitoAgent("org.mockito:mockito-core:$mockitoCoreVersion") { isTransitive = false }
+
+        runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
         testImplementation("org.awaitility:awaitility-kotlin:$awaitilityVersion")
         testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
         testImplementation("org.junit-pioneer:junit-pioneer:$junitPioneerVersion")
         testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
+        testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
+        testImplementation("org.springframework.boot:spring-boot-starter-opentelemetry-test")
+        testImplementation("org.springframework.boot:spring-boot-testcontainers")
+        testImplementation("org.testcontainers:testcontainers-junit-jupiter")
         testImplementation("org.wiremock.integrations:wiremock-spring-boot:$wiremockSpringBootVersion")
 
         testRuntimeOnly("org.junit.platform:junit-platform-launcher")

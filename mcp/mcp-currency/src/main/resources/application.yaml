@@ -21,6 +21,22 @@ management:
       enabled: true
     readinessstate:
       enabled: true
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          compression: gzip
+          endpoint: http://localhost:4317
+          transport: grpc
+  otlp:
+    metrics:
+      export:
+        enabled: false
+  tracing:
+    propagation:
+      type: B3
+    sampling:
+      probability: 1
 server:
   compression:
     enabled: true
@@ -54,7 +70,17 @@ spring:
       enabled: always
   reactor:
     context-propagation: auto
+tracing:
+  excludeUris:
+    - /actuator
+    - /favicon
 ---
+management:
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://jaeger:4317
 server:
   compression:
     enabled: false

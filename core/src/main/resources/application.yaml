@@ -267,6 +267,7 @@ tracing:
   excludeUris:
     - /actuator
     - /api-docs
+    - /favicon
     - /swagger-ui
 ---
 management:
