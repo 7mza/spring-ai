@@ -19,12 +19,7 @@ export default {
   mode: MODE,
   devtool: MODE === 'development' ? 'source-map' : false,
   entry: {
-    vendor: [
-      // 'core-js/stable',
-      // 'regenerator-runtime/runtime',
-      '@alpinejs/csp',
-      'htmx.org',
-    ],
+    vendor: ['@alpinejs/csp', 'htmx.org'],
     shared: {
       import: './core/src/main/resources/static/ts/shared.ts',
       dependOn: 'vendor',
@@ -49,8 +44,6 @@ export default {
                   '@babel/preset-env',
                   {
                     modules: false,
-                    useBuiltIns: 'entry',
-                    corejs: 3.49,
                   },
                 ],
                 ['@babel/preset-typescript'],
