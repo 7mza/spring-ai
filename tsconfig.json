@@ -2,11 +2,11 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "isolatedModules": true,
-    "lib": ["ES6", "DOM"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
-    "target": "ES2017"
+    "target": "ES2022"
   },
-  "exclude": ["**/build", "**/node_modules"]
+  "exclude": ["**/build"]
 }
