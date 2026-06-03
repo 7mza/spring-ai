@@ -143,8 +143,8 @@ class DefaultConfig(
             .maxMessages(50)
             .build()
 
-    @Bean(name = ["chatMemoryVectorStore"], defaultCandidate = false) // separate collection for chat memory
     @Profile("!openapi-plugin")
+    @Bean(name = ["chatMemoryVectorStore"], defaultCandidate = false) // separate collection for chat memory
     fun chatMemoryVectorStore(
         client: QdrantClient,
         embeddingModel: EmbeddingModel,

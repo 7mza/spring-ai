@@ -1,2 +1,22 @@
 <!doctype html>
-<html></html>
+<html
+  th:data-theme="${theme}"
+  xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+      name="viewport" />
+    <meta th:replace="~{fragments/head :: htmx-config}" />
+    <title></title>
+    <link
+      th:href="${assetManifest['shared.css']}"
+      rel="stylesheet"
+      type="text/css" />
+    <script
+      th:attr="nonce=${nonce}"
+      th:src="${assetManifest['shared.js']}"
+      type="module"></script>
+  </head>
+  <body></body>
+</html>

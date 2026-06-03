@@ -1,8 +1,5 @@
-import com.github.gradle.node.npm.task.NpmTask
-
 plugins {
-    kotlin("plugin.jpa") version "2.3.21"
-    id("com.github.node-gradle.node")
+    kotlin("plugin.jpa") version "2.4.0"
     id("com.google.cloud.tools.jib")
     // id("org.graalvm.buildtools.native")
     id("org.hibernate.orm") version "7.2.12.Final"
@@ -103,20 +100,6 @@ tasks {
     withType<Test>().configureEach {
         maxParallelForks = 2 // if tests are slow by nature (LLM), more workers = worse
     }
-
-    val npmRunBuild =
-        register("npm_run_build", NpmTask::class) {
-            description = "npm run build hook"
-            val isDev = project.hasProperty("mode") && project.property("mode") == "development"
-            inputs.files(
-                fileTree("$projectDir/src/main/resources/static/ts"),
-                fileTree("$projectDir/src/main/resources/static/css"),
-            )
-            outputs.files(fileTree("$projectDir/src/main/resources/static/dist"))
-            args = listOf("run", if (isDev) "build:dev" else "build")
-        }
-
-    processResources { dependsOn(npmRunBuild) }
 }
 
 hibernate { enhancement { enableAssociationManagement = true } }

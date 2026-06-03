@@ -50,6 +50,10 @@ don't modify this file on `/init` if you deem something is worth adding inform m
 when working on [file ingestion pipeline](core/src/main/kotlin/com/hamza/springai/rag/pipeline/Functions.kt) always
 check its [specs](docs/pipeline_specs_v1.md)
 
+## design specs
+
+UI design specs and mockups are in [design](docs/design)
+
 ## code style
 
 always prefer Kotlin sugar (expression bodies, `let`, `also`, `apply`, destructuring, `when`, extension functions,

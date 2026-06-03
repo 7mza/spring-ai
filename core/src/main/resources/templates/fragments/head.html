@@ -1,0 +1,9 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <meta
+      th:content='|{"allowEval":false, "allowScriptTags":false, "inlineScriptNonce":"${nonce}", "inlineStyleNonce":"${nonce}"}|'
+      th:fragment="htmx-config"
+      name="htmx-config" />
+  </body>
+</html>

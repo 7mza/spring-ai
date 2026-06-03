@@ -5,8 +5,8 @@ import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import org.owasp.dependencycheck.reporting.ReportGenerator.Format
 
 plugins {
-    kotlin("jvm") version "2.3.21"
-    kotlin("plugin.spring") version "2.3.21" apply false
+    kotlin("jvm") version "2.4.0"
+    kotlin("plugin.spring") version "2.4.0" apply false
     id("org.springframework.boot") version "4.0.6" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
     id("com.autonomousapps.dependency-analysis") version "3.14.1"
@@ -31,11 +31,7 @@ allprojects {
 
     java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
 
-    kotlin {
-        compilerOptions {
-            freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
-        }
-    }
+    kotlin { compilerOptions { freeCompilerArgs.addAll("-Xjsr305=strict") } }
 
     // https://nvd.nist.gov/developers/request-an-api-key
     dependencyCheck {
@@ -145,6 +141,23 @@ tasks {
         }
 
     processResources { dependsOn(npmRunFormat) }
+
+    val npmRunBuild =
+        register("npm_run_build", NpmTask::class) {
+            description = "npm run build hook"
+            val isDev = project.hasProperty("mode") && project.property("mode") == "dev"
+            inputs.files(
+                fileTree("./core/src/main/resources/static/ts"),
+                fileTree("./core/src/main/resources/static/css"),
+            )
+            outputs.files(fileTree("./core/src/main/resources/static/dist"))
+            args = listOf("run", if (isDev) "build:dev" else "build")
+        }
+
+    project(":core").tasks.named("processResources") { dependsOn(npmRunBuild) }
 }
 
-node { download = true }
+node {
+    download = true
+    version = "24.16.0"
+}
