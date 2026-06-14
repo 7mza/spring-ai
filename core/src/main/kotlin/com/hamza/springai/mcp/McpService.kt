@@ -17,7 +17,7 @@ class McpService(
     override fun prompt(request: McpRequest): Flux<String> =
         chatClient
             .mutate()
-            .defaultTools { it.callbacks(provider) }
+            .defaultTools(provider)
             .build()
             .prompt()
             .user(request.prompt)

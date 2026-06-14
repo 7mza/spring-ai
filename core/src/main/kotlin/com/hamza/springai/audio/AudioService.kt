@@ -28,7 +28,15 @@ class AudioService(
         voice: Voice,
     ): ByteArray =
         speechModel
-            .call(TextToSpeechPrompt(text, OpenAiAudioSpeechOptions.builder().voice(voice.id).build()))
-            .result
+            .call(
+                TextToSpeechPrompt(
+                    text,
+                    OpenAiAudioSpeechOptions
+                        .builder()
+                        .from(speechModel.options)
+                        .voice(voice.id)
+                        .build(),
+                ),
+            ).result
             .output
 }

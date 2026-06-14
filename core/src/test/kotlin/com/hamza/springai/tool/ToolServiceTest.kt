@@ -4,7 +4,6 @@ import com.hamza.springai.OllamaContainerConfig
 import com.hamza.springai.rag.file.File
 import com.hamza.springai.rag.file.IFileRepo
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junitpioneer.jupiter.RetryingTest
 import org.mockito.ArgumentMatchers.anyInt
@@ -55,7 +54,6 @@ class ToolServiceTest {
         // dont care about response
     }
 
-    @Disabled
     @Test
     fun listIngestedFiles() {
         // init DB to lower LLM hallucination

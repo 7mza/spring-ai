@@ -1,6 +1,5 @@
 #!/bin/bash
 ./gradlew clean
-./gradlew --stop
 rm -rf ./.gradle/
 rm -rf ./core/.gradle/
 rm -rf ./core/src/main/resources/static/dist/

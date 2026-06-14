@@ -2,7 +2,7 @@ plugins {
     kotlin("plugin.jpa") version "2.4.0"
     id("com.google.cloud.tools.jib")
     // id("org.graalvm.buildtools.native")
-    id("org.hibernate.orm") version "7.2.12.Final"
+    id("org.hibernate.orm") version "7.4.1.Final"
     id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
 }
 
@@ -14,7 +14,7 @@ val htmxThymeleafVersion = "5.1.0"
 val hypersistenceTsidVersion = "2.1.4"
 val logbookSpringVersion = "4.0.4"
 val openapiVersion = "3.0.3"
-val springRetryVersion = "2.0.12"
+val springRetryVersion = "2.0.13"
 val thymeleafLayoutVersion = "4.0.1"
 
 dependencies {
@@ -30,7 +30,6 @@ dependencies {
     implementation("org.ehcache:ehcache::jakarta")
     implementation("org.hibernate.orm:hibernate-jcache")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$openapiVersion")
-    implementation("org.springframework.ai:spring-ai-advisors-vector-store")
     implementation("org.springframework.ai:spring-ai-autoconfigure-mcp-client-common") // McpSseClientProperties
     implementation("org.springframework.ai:spring-ai-rag")
     implementation("org.springframework.ai:spring-ai-starter-mcp-client-webflux") {
@@ -42,6 +41,7 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-starter-model-openai")
     implementation("org.springframework.ai:spring-ai-starter-vector-store-qdrant")
     implementation("org.springframework.ai:spring-ai-tika-document-reader")
+    implementation("org.springframework.ai:spring-ai-vector-store-advisor")
     implementation("org.springframework.boot:spring-boot-h2console")
     implementation("org.springframework.boot:spring-boot-starter-aspectj")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -68,9 +68,9 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers-qdrant")
 }
 
-val springAiVersion = "2.0.0-M8"
+val springAiVersion = "2.0.0"
 val springAwsVersion = "4.0.2"
-val springCloudVersion = "2025.1.1"
+val springCloudVersion = "2025.1.2"
 
 dependencyManagement {
     imports {
@@ -98,11 +98,12 @@ tasks {
     jibDockerBuild { dependsOn(build) }
 
     withType<Test>().configureEach {
-        maxParallelForks = 2 // if tests are slow by nature (LLM), more workers = worse
+        maxParallelForks = 1 // if tests are slow by nature (LLM), more workers = worse
+        forkEvery = 0
     }
 }
 
-hibernate { enhancement { enableAssociationManagement = true } }
+hibernate { enhancement { } }
 
 allOpen {
     annotation("jakarta.persistence.Entity")

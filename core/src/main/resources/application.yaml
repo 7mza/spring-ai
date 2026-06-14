@@ -159,9 +159,6 @@ spring:
     password: ${DB_PASSWORD}
     url: jdbc:h2:file:~/${DB_NAME}
     username: ${DB_USER}
-  devtools:
-    livereload:
-      enabled: true
   docker:
     compose:
       enabled: true
@@ -315,8 +312,6 @@ spring:
     url: jdbc:h2:file:/data/${DB_NAME}
   devtools:
     add-properties: false
-    livereload:
-      enabled: false
     restart:
       enabled: false
   docker:
@@ -355,8 +350,6 @@ spring:
       on-profile: openapi-plugin
   devtools:
     add-properties: false
-    livereload:
-      enabled: false
     restart:
       enabled: false
   docker:

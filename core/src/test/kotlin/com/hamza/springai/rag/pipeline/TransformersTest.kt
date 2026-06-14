@@ -47,7 +47,7 @@ class TransformersTest {
         // upload test files to bucket
         helper.initBucket("default")
         // wait for ingestion
-        await().atMost(1, TimeUnit.MINUTES).until { repo.count() == files.size.toLong() }
+        await().atMost(2, TimeUnit.MINUTES).until { repo.count() == files.size.toLong() }
     }
 
     // retry N times because small models are unreliable

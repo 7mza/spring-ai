@@ -13,7 +13,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-restclient-test")
 }
 
-val springAiVersion = "2.0.0-M8"
+val springAiVersion = "2.0.0"
 
 dependencyManagement { imports { mavenBom("org.springframework.ai:spring-ai-bom:$springAiVersion") } }
 
